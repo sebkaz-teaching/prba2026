@@ -1,0 +1,262 @@
+---
+title: "Od modelu ER do modelu relacyjnego"
+---
+
+## ✅ Sprawdź się z wykładu 2
+
+<div id="rsod-quiz"></div>
+<script src="../assets/js/quiz-engine.js"></script>
+<script>
+CourseQuiz.mount(document.getElementById('rsod-quiz'), {
+  course: "prba2026",
+  lecture: "wyklad3",
+  title: "Wykład 2: Projektowanie koncepcyjne – model ER",
+  submitUrl: "https://sebastianzajac.pl/rsod-quiz/submit.php",
+  questions: [
+    {
+      id: "q1", points: 1, diff: "bardzo łatwe",
+      text: "Jak na diagramie ERD rysujemy encje?",
+      options: [
+        {v:"A", t:"Jako romby"},
+        {v:"B", t:"Jako prostokąty"},
+        {v:"C", t:"Jako elipsy"},
+        {v:"D", t:"Jako strzałki"}
+      ]
+    },
+    {
+      id: "q2", points: 1, diff: "łatwe",
+      text: "Związek 1:N oznacza, że:",
+      options: [
+        {v:"A", t:"Każdy obiekt A odpowiada najwyżej jednemu obiektowi B"},
+        {v:"B", t:"Jeden obiekt A może być powiązany z wieloma obiektami B, ale nie odwrotnie"},
+        {v:"C", t:"Wiele obiektów A może być powiązanych z wieloma obiektami B"},
+        {v:"D", t:"To to samo co N:M"}
+      ]
+    },
+    {
+      id: "q3", points: 2, diff: "średnie",
+      text: "Atrybut „Adres” rozbity na Ulicę, Kod pocztowy i Miasto to przykład atrybutu:",
+      options: [
+        {v:"A", t:"Prostego"},
+        {v:"B", t:"Złożonego"},
+        {v:"C", t:"Wielowartościowego"},
+        {v:"D", t:"Kluczowego"}
+      ]
+    },
+    {
+      id: "q4", points: 2, diff: "trudne",
+      text: "„Numery telefonów”, których student może mieć kilka, to atrybut:",
+      options: [
+        {v:"A", t:"Prosty"},
+        {v:"B", t:"Złożony"},
+        {v:"C", t:"Wielowartościowy"},
+        {v:"D", t:"Domenowy"}
+      ]
+    },
+    {
+      id: "q5", points: 3, diff: "wnioskowanie",
+      text: "W przykładzie „kino” (Film, Widz, Seans) widz ogląda wiele filmów, a film jest oglądany przez wielu widzów. Do jakiego typu związku to należy, i ile rombów potrzeba, by opisać to na samym diagramie ERD?",
+      options: [
+        {v:"A", t:"1:1 — wystarczy jeden romb „Ogląda”"},
+        {v:"B", t:"1:N — wystarczy jeden romb, bo film „ma” widzów"},
+        {v:"C", t:"N:M — jeden romb „Ogląda” nadal wystarczy na poziomie ERD; tabela pośrednicząca to dopiero etap modelu relacyjnego"},
+        {v:"D", t:"N:M — trzeba narysować dwa oddzielne romby, po jednym na każdy kierunek"}
+      ]
+    }
+  ]
+});
+</script>
+
+
+## 🎯 Cel wykładu
+
+Celem dzisiejszego wykładu jest pokazanie, jak przejść od koncepcyjnego modelu ERD (Entity–Relationship Diagram), który opisuje co chcemy przechowywać,
+do modelu relacyjnego, który mówi jak te dane będą fizycznie zorganizowane w tabelach.
+
+👉 Innymi słowy — dziś „przekładamy” logikę świata rzeczywistego na język tabel, kolumn i kluczy.
+
+
+
+## 1. Wprowadzenie
+
+Zacznijmy od prostego pytania do grupy:
+
+„Czy narysowany diagram ERD to już baza danych?”
+
+Większość studentów odpowie, że nie — i mają rację.
+ERD to tylko opis pojęć i powiązań między nimi, coś w rodzaju mapy koncepcyjnej.
+Dopiero model relacyjny pozwala tę mapę zaimplementować w systemie DBMS – czyli stworzyć konkretne tabele, relacje i klucze.
+
+### Przykład porównawczy:
+
+ERD to jak plan architektoniczny domu.
+
+Model relacyjny to już projekt budowlany z wymiarami i materiałami.
+
+
+## Przypomnienie podstawowych pojęć
+
+Zanim przejdziemy do reguł, powtórzmy szybko:
+
+- Encja – obiekt, o którym przechowujemy dane (np. Student, Kurs, Produkt).
+- Atrybut – właściwość tego obiektu (np. imię, nazwisko, cena).
+- Związek (relationship) – powiązanie między encjami (np. Student zapisuje się na Kurs).
+- Krotka (tuple) – pojedynczy wiersz tabeli (np. dane jednego studenta).
+- Domena – dopuszczalne wartości dla atrybutu (np. liczby od 1 do 5 dla oceny).
+
+👉 Wszystkie te pojęcia znajdą swoje odpowiedniki w modelu relacyjnym.
+
+## Proces mapowania (transformacji)
+
+Teraz przechodzimy do sedna: jak zamienić ERD w zestaw tabel.
+
+Można to potraktować jak przepis: krok po kroku.
+
+
+### 🔹 1. Encje $\to$ Tabele
+
+Każda encja z modelu ER staje się tabelą w modelu relacyjnym.
+
+Każdy atrybut encji staje się kolumną.
+
+Wyobraźmy sobie, że prostokąty z diagramu ER zamieniamy w tabele SQL. 
+
+Wszystkie elipsy (atrybuty) stają się kolumnami.
+
+Przykład:
+```sql
+
+Encja: STUDENT (NrIndeksu, Imię, Nazwisko, RokStudiow)
+
+Relacja: STUDENT(NrIndeksu, Imię, Nazwisko, RokStudiow)
+
+```
+
+### 🔹 2. Atrybuty złożone
+
+Atrybut złożony to taki, który sam składa się z kilku części.
+
+W modelu relacyjnym nie ma takiej konstrukcji, więc trzeba go rozbić.
+
+Przykład:
+```sql
+Adres = (Ulica, KodPocztowy, Miasto)
+```
+
+„Zauważmy, że dzięki temu możemy np. wyszukiwać po samym mieście, co nie byłoby możliwe, gdyby cały adres był jednym polem tekstowym.”
+
+
+
+### 🔹 3. Atrybuty wielowartościowe
+
+Atrybut wielowartościowy to taki, który może mieć więcej niż jedną wartość dla jednej encji.
+
+Przykład:
+Student może mieć wiele adresów e-mail.
+
+W modelu relacyjnym nie możemy trzymać wielu wartości w jednej kolumnie, więc:
+➡️ Tworzymy osobną tabelę.
+
+```sql
+EMAIL(NrIndeksu, Email)
+```
+
+- Klucz główny: (NrIndeksu, Email)
+- NrIndeksu to klucz obcy do tabeli STUDENT.
+
+
+„To moment, w którym ERD zaczyna się rozrastać — z jednej encji robią się dwie tabele.
+
+Ale dzięki temu baza pozostaje spójna i czytelna.”
+
+### 🔹 4. Związki 1:1
+
+Związek „jeden do jednego” oznacza, że każdemu rekordowi z jednej tabeli odpowiada najwyżej jeden rekord z drugiej.
+
+Przykład:
+
+- Każda osoba ma dokładnie jeden paszport.
+```sql
+OSOBA(PESEL, Imię, Nazwisko)
+PASZPORT(NrPaszportu, DataWażności, PESEL)
+```
+
+Dodajemy PESEL jako klucz obcy w tabeli PASZPORT.
+
+„Jeśli obie strony są naprawdę w relacji 1:1, można też rozważyć połączenie tych tabel — ale zwykle zostawia się je osobno, gdy przechowują różne grupy informacji
+
+### 🔹 5. Związki 1:N
+
+To najczęstszy przypadek w praktyce.
+
+Przykład: Jeden wykładowca prowadzi wiele kursów.
+
+```sql
+WYKŁADOWCA(IDWykładowcy, Imię, Nazwisko)
+KURS(IDKursu, Nazwa, IDWykładowcy)
+```
+
+IDWykładowcy w tabeli KURS jest kluczem obcym.
+
+„Pamiętajcie: klucz obcy zawsze dodajemy po stronie N, czyli po tej, gdzie może być więcej rekordów.”
+
+### 🔹 6. Związki N:M
+
+To przypadek „wiele do wielu” — np. student może uczestniczyć w wielu kursach, a każdy kurs ma wielu studentów.
+
+W tym wypadku nie da się dodać klucza obcego do jednej z tabel, więc tworzymy tabelę pośredniczącą.
+
+```sql
+STUDENT(NrIndeksu, Imię, Nazwisko)
+KURS(IDKursu, Nazwa)
+ZAPIS(NrIndeksu, IDKursu, DataZapisu)
+```
+„Ta trzecia tabela to tak naprawdę odwzorowanie związku.
+Dzięki niej możemy np. zapisać dodatkowe informacje o relacji — np. datę zapisania się na kurs.”
+
+
+### 5. Jak projektować dobre tabele?
+
+Kiedy masz już relacje, czas je zdefiniować w SQL.
+
+Tu warto podkreślić kilka zasad:
+
+- Czytelne nazwy (jednolite, najlepiej w liczbie pojedynczej).
+- Typy danych dopasowane do zawartości.
+- Ograniczenia (constraints):
+- PRIMARY KEY – jednoznaczna identyfikacja,
+- FOREIGN KEY – zapewnia spójność,
+- NOT NULL, UNIQUE, CHECK – wymuszają poprawność danych.
+
+Przykład SQL:
+```sql
+CREATE TABLE STUDENT (
+  NrIndeksu CHAR(6) PRIMARY KEY,
+  Imie VARCHAR(30) NOT NULL,
+  Nazwisko VARCHAR(40) NOT NULL
+);
+```
+
+„To dopiero teraz jest konkretna implementacja — coś, co można utworzyć w PostgreSQL, MySQL czy Oracle.
+
+Ale zanim napiszemy SQL, zawsze powinniśmy mieć dobrze przemyślany model relacyjny.”
+
+### 6. Ćwiczenie praktyczne
+
+> Zadanie:
+> Zaprojektuj schemat relacyjny dla firmy, w której pracownicy realizują projekty.
+> Każdy projekt ma wielu pracowników, a każdy pracownik może uczestniczyć w wielu projektach.
+> Dodatkowo pamiętamy od kiedy pracownik uczestniczy w projekcie.
+
+## Podsumowanie:
+
+„Dziś nauczyliśmy się tłumaczyć język analityków (ERD) na język baz danych (model relacyjny).”
+
+- Encje → tabele
+- Atrybuty → kolumny
+- Związki → klucze obce lub tabele pośrednie
+- Atrybuty złożone → rozbijamy
+- Atrybuty wielowartościowe → osobne tabele
+
+👉 W kolejnym wykładzie przejdziemy do normalizacji, czyli porządkowania tabel, by unikać błędów i redundancji.
+

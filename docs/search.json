@@ -1,5 +1,93 @@
 [
   {
+    "objectID": "lectures/wyklad1.html",
+    "href": "lectures/wyklad1.html",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "Celem wykładu jest zapoznanie się z podstawami relacyjnych baz danych — ich historią, pojęciami, architekturą, strukturą danych oraz zasadami integralności. Po tym wykładzie student powinien rozumieć, czym jest baza danych, jak działa DBMS, co oznacza model relacyjny oraz jakie są klucze i reguły spójności danych.\n\n\n\nBazy danych nie są wynalazkiem XXI wieku — ich początki sięgają lat 60. XX wieku, gdy organizacje zaczęły gromadzić coraz większe ilości danych.\n\n\nPierwsze systemy przechowywały dane w plikach na dyskach. Choć były proste, miały poważne ograniczenia:\n\nBrak centralnej kontroli nad danymi\nTrudność w utrzymaniu spójności\nBrak uniwersalnych narzędzi do wyszukiwania\n\n💡 Zadanie: Na jakich innych obiektach, oprócz plików, można pracować w systemach operacyjnych?\n\n\n\nW latach 60. i 70. pojawiły się pierwsze systemy zarządzania bazami danych (DBMS). Zapewniały:\n\ncentralną kontrolę danych,\nintegralność i bezpieczeństwo,\nwydajne przetwarzanie i wyszukiwanie.\n\n\n\n\nWczesne systemy wykorzystywały struktury drzewiaste lub grafowe. Były skuteczne, ale trudne w modyfikacji i rozwoju.\n\n\n\nW 1970 roku Edgar F. Codd zaproponował model relacyjny danych, w którym:\n\ndane są przechowywane w tabelach (relacjach),\nkażda tabela ma kolumny (atrybuty) i wiersze (krotki).\n\nZalety:\n\nprostota i przejrzystość,\nelastyczność (łatwo dodawać nowe tabele),\nbezpieczeństwo i spójność danych.\n\n\n\n\nWraz z rozwojem modelu relacyjnego powstał SQL (Structured Query Language) – język do tworzenia, modyfikowania i pobierania danych.\nDziś SQL jest fundamentem większości systemów: od aplikacji biurowych po duże systemy korporacyjne. Nawet współczesne rozwiązania NoSQL często nawiązują do idei relacyjnych.\n\n\n\n\n\n\n\nDane – surowe fakty, liczby, teksty, które same w sobie niewiele znaczą. 👉 np. 25, Warszawa, 12345\nInformacja – dane zinterpretowane i zorganizowane w kontekście. 👉 np. „25 klientów z Warszawy złożyło zamówienie w ostatnim tygodniu”.\n\nDane to materiał, informacja to znaczenie.\n\n\n\nZorganizowany zbiór danych umożliwiający ich łatwe przeszukiwanie, aktualizację i analizę.\nCechy:\n\nStrukturalność\nCentralizacja\nTrwałość i bezpieczeństwo\n\nPrzykłady:\n\nLista kontaktów w telefonie\nSystem rezerwacji hotelowej\nSklep internetowy\n\nTermin ,,baza danych’’ uzywany jest na wiele róznych sposobów, ale na wykładzie baza danych oznacza zbiór danych przechowywanych w pewien zorganizowany sposób. Najprościej wyobrazić sobie bazę danych jako szafkę na dokumenty. Jest to miejsce umozliwiające przechowywanie informacji, niezaleznie od ich typu i sposobu organizacji.\n\n\n\nBardzo często uzywamy terminu “baza danych” do określenia oprogramowania bazy danych, którego uzywamy. Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie sustemem zarządzania bazą danych (SZBD) lub (DBMS - Database Management System). Sama baza danych jest pojemnikiem tworzonym i modyfikowanym przez SZBD. Konkretna postać BD zienia się w zalezności od zastosowań.\nOprogramowanie do tworzenia, modyfikowania i przetwarzania baz danych.\nFunkcje DBMS:\n\nTworzenie i modyfikacja schematów\nOperacje CRUD (Create, Read, Update, Delete)\nZarządzanie bezpieczeństwem i uprawnieniami\nOptymalizacja zapytań\n\nPrzykłady: MySQL, PostgreSQL, Oracle, SQL Server, SQLite.\n\n\n\n\nSystemy baz danych są zorganizowane według poziomów abstrakcji, co pozwala oddzielić sposób przechowywania danych od ich widoku dla użytkownika.\n\n\n\nPoziom fizyczny (wewnętrzny)\n\n\nopisuje sposób przechowywania danych (pliki, indeksy, struktury).\n\n\nPoziom logiczny (pośredni)\n\n\nopisuje strukturę danych (tabele, relacje, typy danych).\n\n\nPoziom zewnętrzny (widok użytkownika)\n\n\npokazuje dane z perspektywy użytkownika lub aplikacji.\n\nZmiany w jednym poziomie nie wymagają zmian w pozostałych — to tzw. niezależność danych.\n\n\n\nFormalny model trójpoziomowy:\n\npoziom wewnętrzny – fizyczne przechowywanie danych,\npoziom pojęciowy – logiczna struktura bazy,\npoziom zewnętrzny – widoki użytkowników.\n\nZalety:\n\nizolacja danych,\nbezpieczeństwo,\nelastyczność i skalowalność.\n\n\n\n\n\n\n\nTABELA to:\n\nZbiór danych o tej samej strukturze.\nUporządkowana lista zawierająca dane określonego typu\n\nKażda tabela opisuje jeden typ obiektów (np. Studenci, Kursy).\nNajwazniejsze, ze tabela przechowuje dane jednego typu. W jednej tabeli nie pojawi się jednocześnie lista kontaktów i lista zamówień. &gt; Uwaga: Technicznie taka tabela jest mozliwa do realizacji ale pobieranie konkretnych elementów &gt; byłoby znacznie utrudnione.\n\nUwaga: Kazda tabela posiada nazwę pozwalającą jednoznacznie ją zidentyfikować. Nazwa zawsze jest unikalna - zadna inna tabela nie moze mieć takiej samej nazwy.\n\n\n\n\nPojedynczy rekord w tabeli (np. dane jednego studenta).\n\n\n\nWłaściwość obiektu – ma nazwę i typ danych (np. Imię, Nazwisko, NrIndeksu).\n\n\n\nZbiór dopuszczalnych wartości atrybutu (np. liczby całkowite, ciągi znaków do 50 znaków).\n\n\n\n\nSchemat relacji – struktura tabeli (nazwy kolumn, typy).\nInstancja relacji – aktualna zawartość tabeli.\n\n\n\n\n\n\n\n\njednoznacznie identyfikuje każdy rekord,\nnie może mieć wartości NULL.\n\nPrzykład: NrIndeksu w tabeli Studenci.\n\n\n\n\nkażdy atrybut (lub ich kombinacja), który mógłby być kluczem głównym. Przykład: NrIndeksu i PESEL – wybieramy jeden jako główny.\n\n\n\n\n\natrybut wskazujący na klucz główny w innej tabeli. Przykład: NrIndeksu w tabeli Oceny odnosi się do Studenci.\n\n\n\n\n\nIntegralność encji – każda krotka musi być jednoznacznie identyfikowana.\nIntegralność referencyjna – wartości kluczy obcych muszą istnieć w tabelach nadrzędnych.\nIntegralność dziedzinowa – wartości atrybutów muszą mieścić się w swoich domenach.\n\n\n\n\n\n\n\n\nKto zaproponował model relacyjny danych?\n\n\nDonald Knuth\nEdgar F. Codd\nBill Gates\nCharles Bachman\n\n\nCo opisuje poziom logiczny w architekturze ANSI/SPARC?\n\n\nSposób fizycznego zapisu danych\nWidok danych przez użytkownika\nStrukturę danych i relac\n\n✏️ Pytania otwarte / opisowe\n\nWyjaśnij różnicę między danymi a informacją.\nWymień i krótko opisz trzy poziomy abstrakcji w modelu ANSI/SPARC.\nCo to jest klucz główny i jakie są jego cechy?\nPodaj przykład relacji i wskaż w niej krotki oraz atrybuty.\nDlaczego model relacyjny okazał się przełomem w historii baz danych?\nJakie są trzy podstawowe zasady integralności danych?",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
+    "objectID": "lectures/wyklad1.html#wprowadzenie-i-cele-wykładu",
+    "href": "lectures/wyklad1.html#wprowadzenie-i-cele-wykładu",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "Celem wykładu jest zapoznanie się z podstawami relacyjnych baz danych — ich historią, pojęciami, architekturą, strukturą danych oraz zasadami integralności. Po tym wykładzie student powinien rozumieć, czym jest baza danych, jak działa DBMS, co oznacza model relacyjny oraz jakie są klucze i reguły spójności danych.",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
+    "objectID": "lectures/wyklad1.html#historia-i-ewolucja-baz-danych",
+    "href": "lectures/wyklad1.html#historia-i-ewolucja-baz-danych",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "Bazy danych nie są wynalazkiem XXI wieku — ich początki sięgają lat 60. XX wieku, gdy organizacje zaczęły gromadzić coraz większe ilości danych.\n\n\nPierwsze systemy przechowywały dane w plikach na dyskach. Choć były proste, miały poważne ograniczenia:\n\nBrak centralnej kontroli nad danymi\nTrudność w utrzymaniu spójności\nBrak uniwersalnych narzędzi do wyszukiwania\n\n💡 Zadanie: Na jakich innych obiektach, oprócz plików, można pracować w systemach operacyjnych?\n\n\n\nW latach 60. i 70. pojawiły się pierwsze systemy zarządzania bazami danych (DBMS). Zapewniały:\n\ncentralną kontrolę danych,\nintegralność i bezpieczeństwo,\nwydajne przetwarzanie i wyszukiwanie.\n\n\n\n\nWczesne systemy wykorzystywały struktury drzewiaste lub grafowe. Były skuteczne, ale trudne w modyfikacji i rozwoju.\n\n\n\nW 1970 roku Edgar F. Codd zaproponował model relacyjny danych, w którym:\n\ndane są przechowywane w tabelach (relacjach),\nkażda tabela ma kolumny (atrybuty) i wiersze (krotki).\n\nZalety:\n\nprostota i przejrzystość,\nelastyczność (łatwo dodawać nowe tabele),\nbezpieczeństwo i spójność danych.\n\n\n\n\nWraz z rozwojem modelu relacyjnego powstał SQL (Structured Query Language) – język do tworzenia, modyfikowania i pobierania danych.\nDziś SQL jest fundamentem większości systemów: od aplikacji biurowych po duże systemy korporacyjne. Nawet współczesne rozwiązania NoSQL często nawiązują do idei relacyjnych.",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
+    "objectID": "lectures/wyklad1.html#dane-informacja-baza-danych-i-dbms",
+    "href": "lectures/wyklad1.html#dane-informacja-baza-danych-i-dbms",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "Dane – surowe fakty, liczby, teksty, które same w sobie niewiele znaczą. 👉 np. 25, Warszawa, 12345\nInformacja – dane zinterpretowane i zorganizowane w kontekście. 👉 np. „25 klientów z Warszawy złożyło zamówienie w ostatnim tygodniu”.\n\nDane to materiał, informacja to znaczenie.\n\n\n\nZorganizowany zbiór danych umożliwiający ich łatwe przeszukiwanie, aktualizację i analizę.\nCechy:\n\nStrukturalność\nCentralizacja\nTrwałość i bezpieczeństwo\n\nPrzykłady:\n\nLista kontaktów w telefonie\nSystem rezerwacji hotelowej\nSklep internetowy\n\nTermin ,,baza danych’’ uzywany jest na wiele róznych sposobów, ale na wykładzie baza danych oznacza zbiór danych przechowywanych w pewien zorganizowany sposób. Najprościej wyobrazić sobie bazę danych jako szafkę na dokumenty. Jest to miejsce umozliwiające przechowywanie informacji, niezaleznie od ich typu i sposobu organizacji.\n\n\n\nBardzo często uzywamy terminu “baza danych” do określenia oprogramowania bazy danych, którego uzywamy. Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie sustemem zarządzania bazą danych (SZBD) lub (DBMS - Database Management System). Sama baza danych jest pojemnikiem tworzonym i modyfikowanym przez SZBD. Konkretna postać BD zienia się w zalezności od zastosowań.\nOprogramowanie do tworzenia, modyfikowania i przetwarzania baz danych.\nFunkcje DBMS:\n\nTworzenie i modyfikacja schematów\nOperacje CRUD (Create, Read, Update, Delete)\nZarządzanie bezpieczeństwem i uprawnieniami\nOptymalizacja zapytań\n\nPrzykłady: MySQL, PostgreSQL, Oracle, SQL Server, SQLite.",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
+    "objectID": "lectures/wyklad1.html#architektura-systemów-baz-danych",
+    "href": "lectures/wyklad1.html#architektura-systemów-baz-danych",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "Systemy baz danych są zorganizowane według poziomów abstrakcji, co pozwala oddzielić sposób przechowywania danych od ich widoku dla użytkownika.\n\n\n\nPoziom fizyczny (wewnętrzny)\n\n\nopisuje sposób przechowywania danych (pliki, indeksy, struktury).\n\n\nPoziom logiczny (pośredni)\n\n\nopisuje strukturę danych (tabele, relacje, typy danych).\n\n\nPoziom zewnętrzny (widok użytkownika)\n\n\npokazuje dane z perspektywy użytkownika lub aplikacji.\n\nZmiany w jednym poziomie nie wymagają zmian w pozostałych — to tzw. niezależność danych.\n\n\n\nFormalny model trójpoziomowy:\n\npoziom wewnętrzny – fizyczne przechowywanie danych,\npoziom pojęciowy – logiczna struktura bazy,\npoziom zewnętrzny – widoki użytkowników.\n\nZalety:\n\nizolacja danych,\nbezpieczeństwo,\nelastyczność i skalowalność.",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
+    "objectID": "lectures/wyklad1.html#model-relacyjny",
+    "href": "lectures/wyklad1.html#model-relacyjny",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "TABELA to:\n\nZbiór danych o tej samej strukturze.\nUporządkowana lista zawierająca dane określonego typu\n\nKażda tabela opisuje jeden typ obiektów (np. Studenci, Kursy).\nNajwazniejsze, ze tabela przechowuje dane jednego typu. W jednej tabeli nie pojawi się jednocześnie lista kontaktów i lista zamówień. &gt; Uwaga: Technicznie taka tabela jest mozliwa do realizacji ale pobieranie konkretnych elementów &gt; byłoby znacznie utrudnione.\n\nUwaga: Kazda tabela posiada nazwę pozwalającą jednoznacznie ją zidentyfikować. Nazwa zawsze jest unikalna - zadna inna tabela nie moze mieć takiej samej nazwy.\n\n\n\n\nPojedynczy rekord w tabeli (np. dane jednego studenta).\n\n\n\nWłaściwość obiektu – ma nazwę i typ danych (np. Imię, Nazwisko, NrIndeksu).\n\n\n\nZbiór dopuszczalnych wartości atrybutu (np. liczby całkowite, ciągi znaków do 50 znaków).\n\n\n\n\nSchemat relacji – struktura tabeli (nazwy kolumn, typy).\nInstancja relacji – aktualna zawartość tabeli.",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
+    "objectID": "lectures/wyklad1.html#klucze-i-integralność-danych",
+    "href": "lectures/wyklad1.html#klucze-i-integralność-danych",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "jednoznacznie identyfikuje każdy rekord,\nnie może mieć wartości NULL.\n\nPrzykład: NrIndeksu w tabeli Studenci.\n\n\n\n\nkażdy atrybut (lub ich kombinacja), który mógłby być kluczem głównym. Przykład: NrIndeksu i PESEL – wybieramy jeden jako główny.\n\n\n\n\n\natrybut wskazujący na klucz główny w innej tabeli. Przykład: NrIndeksu w tabeli Oceny odnosi się do Studenci.\n\n\n\n\n\nIntegralność encji – każda krotka musi być jednoznacznie identyfikowana.\nIntegralność referencyjna – wartości kluczy obcych muszą istnieć w tabelach nadrzędnych.\nIntegralność dziedzinowa – wartości atrybutów muszą mieścić się w swoich domenach.",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
+    "objectID": "lectures/wyklad1.html#zestaw-pytań-testowych",
+    "href": "lectures/wyklad1.html#zestaw-pytań-testowych",
+    "title": "Wprowadzenie do relacyjnych baz danych",
+    "section": "",
+    "text": "Kto zaproponował model relacyjny danych?\n\n\nDonald Knuth\nEdgar F. Codd\nBill Gates\nCharles Bachman\n\n\nCo opisuje poziom logiczny w architekturze ANSI/SPARC?\n\n\nSposób fizycznego zapisu danych\nWidok danych przez użytkownika\nStrukturę danych i relac\n\n✏️ Pytania otwarte / opisowe\n\nWyjaśnij różnicę między danymi a informacją.\nWymień i krótko opisz trzy poziomy abstrakcji w modelu ANSI/SPARC.\nCo to jest klucz główny i jakie są jego cechy?\nPodaj przykład relacji i wskaż w niej krotki oraz atrybuty.\nDlaczego model relacyjny okazał się przełomem w historii baz danych?\nJakie są trzy podstawowe zasady integralności danych?",
+    "crumbs": [
+      "Wykłady",
+      "Wprowadzenie do relacyjnych baz danych"
+    ]
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Informacje ogólne",

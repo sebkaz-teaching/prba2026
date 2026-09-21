@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Informacje ogólne – Projektowanie Relacyjnych Baz Danych</title>
+<title>Wprowadzenie do relacyjnych baz danych – Projektowanie Relacyjnych Baz Danych</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -29,22 +29,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-94ae530b1fc9924793afbc3bb7de9d3b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-94ae530b1fc9924793afbc3bb7de9d3b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -74,7 +74,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -86,7 +86,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Informacje ogólne</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wykłady</a></li><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wprowadzenie do relacyjnych baz danych</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -101,7 +101,7 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Projektowanie Relacyjnych Baz Danych</a> 
+      <a href="../">Projektowanie Relacyjnych Baz Danych</a> 
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -113,7 +113,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Informacje ogólne</span></a>
   </div>
 </li>
@@ -128,7 +128,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/wyklad1.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/wyklad1.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Wprowadzenie do relacyjnych baz danych</span></a>
   </div>
 </li>
@@ -144,17 +144,25 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title"><strong>Sections</strong></h2>
    
   <ul class="collapse">
-  <li><a href="#projektowanie-relacyjnych-baz-danych" id="toc-projektowanie-relacyjnych-baz-danych" class="nav-link active" data-scroll-target="#projektowanie-relacyjnych-baz-danych">Projektowanie Relacyjnych Baz Danych</a></li>
-  <li><a href="#kalendarz" id="toc-kalendarz" class="nav-link" data-scroll-target="#kalendarz">Kalendarz</a></li>
+  <li><a href="#wykład-1-wprowadzenie-do-relacyjnych-baz-danych" id="toc-wykład-1-wprowadzenie-do-relacyjnych-baz-danych" class="nav-link active" data-scroll-target="#wykład-1-wprowadzenie-do-relacyjnych-baz-danych">🧩 Wykład 1: Wprowadzenie do relacyjnych baz danych</a>
+  <ul class="collapse">
+  <li><a href="#wprowadzenie-i-cele-wykładu" id="toc-wprowadzenie-i-cele-wykładu" class="nav-link" data-scroll-target="#wprowadzenie-i-cele-wykładu">Wprowadzenie i cele wykładu</a></li>
+  <li><a href="#historia-i-ewolucja-baz-danych" id="toc-historia-i-ewolucja-baz-danych" class="nav-link" data-scroll-target="#historia-i-ewolucja-baz-danych">Historia i ewolucja baz danych</a></li>
+  <li><a href="#dane-informacja-baza-danych-i-dbms" id="toc-dane-informacja-baza-danych-i-dbms" class="nav-link" data-scroll-target="#dane-informacja-baza-danych-i-dbms">Dane, informacja, baza danych i DBMS</a></li>
+  <li><a href="#architektura-systemów-baz-danych" id="toc-architektura-systemów-baz-danych" class="nav-link" data-scroll-target="#architektura-systemów-baz-danych">Architektura systemów baz danych</a></li>
+  <li><a href="#model-relacyjny" id="toc-model-relacyjny" class="nav-link" data-scroll-target="#model-relacyjny">Model relacyjny</a></li>
+  <li><a href="#klucze-i-integralność-danych" id="toc-klucze-i-integralność-danych" class="nav-link" data-scroll-target="#klucze-i-integralność-danych">Klucze i integralność danych</a></li>
+  <li><a href="#zestaw-pytań-testowych" id="toc-zestaw-pytań-testowych" class="nav-link" data-scroll-target="#zestaw-pytań-testowych">🧠 Zestaw pytań testowych</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wykłady</a></li><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wprowadzenie do relacyjnych baz danych</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Informacje ogólne</h1>
+<h1 class="title">Wprowadzenie do relacyjnych baz danych</h1>
 </div>
 
 
@@ -171,27 +179,239 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="projektowanie-relacyjnych-baz-danych" class="level2">
-<h2 class="anchored" data-anchor-id="projektowanie-relacyjnych-baz-danych">Projektowanie Relacyjnych Baz Danych</h2>
-<p>Kod:</p>
-<p>Semestr: zimowy</p>
+<section id="wykład-1-wprowadzenie-do-relacyjnych-baz-danych" class="level1">
+<h1>🧩 Wykład 1: Wprowadzenie do relacyjnych baz danych</h1>
+<section id="wprowadzenie-i-cele-wykładu" class="level2">
+<h2 class="anchored" data-anchor-id="wprowadzenie-i-cele-wykładu">Wprowadzenie i cele wykładu</h2>
+<p>Celem wykładu jest zapoznanie się z podstawami relacyjnych baz danych — ich historią, pojęciami, architekturą, strukturą danych oraz zasadami integralności. Po tym wykładzie student powinien rozumieć, czym jest baza danych, jak działa DBMS, co oznacza model relacyjny oraz jakie są klucze i reguły spójności danych.</p>
 </section>
-<section id="kalendarz" class="level2">
-<h2 class="anchored" data-anchor-id="kalendarz">Kalendarz</h2>
-<!-- TODO: uzupełnić na podstawie https://wel.wat.edu.pl/planyzajec/zima/dr__Zajac_Sebastian.htm -->
-<section id="wykład-dla-grup" class="level3">
-<h3 class="anchored" data-anchor-id="wykład-dla-grup">Wykład dla grup:</h3>
+<section id="historia-i-ewolucja-baz-danych" class="level2">
+<h2 class="anchored" data-anchor-id="historia-i-ewolucja-baz-danych">Historia i ewolucja baz danych</h2>
+<p>Bazy danych nie są wynalazkiem XXI wieku — ich początki sięgają lat 60. XX wieku, gdy organizacje zaczęły gromadzić coraz większe ilości danych.</p>
+<section id="systemy-plikowe" class="level3">
+<h3 class="anchored" data-anchor-id="systemy-plikowe">🔹 Systemy plikowe</h3>
+<p>Pierwsze systemy przechowywały dane w plikach na dyskach. Choć były proste, miały poważne ograniczenia:</p>
+<ul>
+<li>Brak centralnej kontroli nad danymi</li>
+<li>Trudność w utrzymaniu spójności</li>
+<li>Brak uniwersalnych narzędzi do wyszukiwania</li>
+</ul>
+<p>💡 Zadanie: Na jakich innych obiektach, oprócz plików, można pracować w systemach operacyjnych?</p>
+</section>
+<section id="wczesne-systemy-dbms" class="level3">
+<h3 class="anchored" data-anchor-id="wczesne-systemy-dbms">🔹 Wczesne systemy DBMS</h3>
+<p>W latach 60. i 70. pojawiły się pierwsze systemy zarządzania bazami danych (DBMS). Zapewniały:</p>
+<ul>
+<li>centralną kontrolę danych,</li>
+<li>integralność i bezpieczeństwo,</li>
+<li>wydajne przetwarzanie i wyszukiwanie.</li>
+</ul>
+</section>
+<section id="modele-hierarchiczne-i-sieciowe" class="level3">
+<h3 class="anchored" data-anchor-id="modele-hierarchiczne-i-sieciowe">🔹 Modele hierarchiczne i sieciowe</h3>
+<p>Wczesne systemy wykorzystywały struktury drzewiaste lub grafowe. Były skuteczne, ale trudne w modyfikacji i rozwoju.</p>
+</section>
+<section id="przełom-model-relacyjny" class="level3">
+<h3 class="anchored" data-anchor-id="przełom-model-relacyjny">🔹 Przełom: model relacyjny</h3>
+<p>W 1970 roku Edgar F. Codd zaproponował model relacyjny danych, w którym:</p>
+<ul>
+<li>dane są przechowywane w tabelach (relacjach),</li>
+<li>każda tabela ma kolumny (atrybuty) i wiersze (krotki).</li>
+</ul>
+<p>Zalety:</p>
+<ul>
+<li>prostota i przejrzystość,</li>
+<li>elastyczność (łatwo dodawać nowe tabele),</li>
+<li>bezpieczeństwo i spójność danych.</li>
+</ul>
+</section>
+<section id="sql-język-pracy-z-danymi" class="level3">
+<h3 class="anchored" data-anchor-id="sql-język-pracy-z-danymi">🔹 SQL – język pracy z danymi</h3>
+<p>Wraz z rozwojem modelu relacyjnego powstał SQL (Structured Query Language) – język do tworzenia, modyfikowania i pobierania danych.</p>
+<p>Dziś SQL jest fundamentem większości systemów: od aplikacji biurowych po duże systemy korporacyjne. Nawet współczesne rozwiązania NoSQL często nawiązują do idei relacyjnych.</p>
+</section>
+</section>
+<section id="dane-informacja-baza-danych-i-dbms" class="level2">
+<h2 class="anchored" data-anchor-id="dane-informacja-baza-danych-i-dbms">Dane, informacja, baza danych i DBMS</h2>
+<section id="dane-a-informacja" class="level3">
+<h3 class="anchored" data-anchor-id="dane-a-informacja">🔹 Dane a informacja</h3>
+<ul>
+<li><p>Dane – surowe fakty, liczby, teksty, które same w sobie niewiele znaczą. 👉 np. 25, Warszawa, 12345</p></li>
+<li><p>Informacja – dane zinterpretowane i zorganizowane w kontekście. 👉 np. „25 klientów z Warszawy złożyło zamówienie w ostatnim tygodniu”.</p></li>
+</ul>
+<p>Dane to materiał, informacja to znaczenie.</p>
+</section>
+<section id="baza-danych" class="level3">
+<h3 class="anchored" data-anchor-id="baza-danych">🔹 Baza danych</h3>
+<p>Zorganizowany zbiór danych umożliwiający ich łatwe przeszukiwanie, aktualizację i analizę.</p>
+<p>Cechy:</p>
+<ul>
+<li>Strukturalność</li>
+<li>Centralizacja</li>
+<li>Trwałość i bezpieczeństwo</li>
+</ul>
+<p>Przykłady:</p>
+<ul>
+<li>Lista kontaktów w telefonie</li>
+<li>System rezerwacji hotelowej</li>
+<li>Sklep internetowy</li>
+</ul>
+<p>Termin ,,baza danych’’ uzywany jest na wiele róznych sposobów, ale na wykładzie <strong>baza danych</strong> oznacza zbiór danych przechowywanych w pewien zorganizowany sposób. Najprościej wyobrazić sobie bazę danych jako szafkę na dokumenty. Jest to miejsce umozliwiające przechowywanie informacji, niezaleznie od ich typu i sposobu organizacji.</p>
+</section>
+<section id="system-zarządzania-bazą-danych-dbms" class="level3">
+<h3 class="anchored" data-anchor-id="system-zarządzania-bazą-danych-dbms">🔹 System Zarządzania Bazą Danych (DBMS)</h3>
+<p>Bardzo często uzywamy terminu “baza danych” do określenia oprogramowania bazy danych, którego uzywamy. Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie sustemem zarządzania bazą danych (SZBD) lub (DBMS - Database Management System). Sama baza danych jest pojemnikiem tworzonym i modyfikowanym przez SZBD. Konkretna postać BD zienia się w zalezności od zastosowań.</p>
+<p>Oprogramowanie do tworzenia, modyfikowania i przetwarzania baz danych.</p>
+<p>Funkcje DBMS:</p>
+<ul>
+<li>Tworzenie i modyfikacja schematów</li>
+<li>Operacje CRUD (Create, Read, Update, Delete)</li>
+<li>Zarządzanie bezpieczeństwem i uprawnieniami</li>
+<li>Optymalizacja zapytań</li>
+</ul>
+<p>Przykłady: MySQL, PostgreSQL, Oracle, SQL Server, SQLite.</p>
+</section>
+</section>
+<section id="architektura-systemów-baz-danych" class="level2">
+<h2 class="anchored" data-anchor-id="architektura-systemów-baz-danych">Architektura systemów baz danych</h2>
+<p>Systemy baz danych są zorganizowane według poziomów abstrakcji, co pozwala oddzielić sposób przechowywania danych od ich widoku dla użytkownika.</p>
+<section id="poziomy-abstrakcji" class="level3">
+<h3 class="anchored" data-anchor-id="poziomy-abstrakcji">🔹 Poziomy abstrakcji</h3>
 <ol type="1">
-<li>TODO: dzień tygodnia, godzina, sala</li>
+<li>Poziom fizyczny (wewnętrzny)</li>
+</ol>
+<ul>
+<li>opisuje sposób przechowywania danych (pliki, indeksy, struktury).</li>
+</ul>
+<ol start="2" type="1">
+<li>Poziom logiczny (pośredni)</li>
+</ol>
+<ul>
+<li>opisuje strukturę danych (tabele, relacje, typy danych).</li>
+</ul>
+<ol start="3" type="1">
+<li>Poziom zewnętrzny (widok użytkownika)</li>
+</ol>
+<ul>
+<li>pokazuje dane z perspektywy użytkownika lub aplikacji.</li>
+</ul>
+<p>Zmiany w jednym poziomie nie wymagają zmian w pozostałych — to tzw. niezależność danych.</p>
+</section>
+<section id="model-ansisparc" class="level3">
+<h3 class="anchored" data-anchor-id="model-ansisparc">🔹 Model ANSI/SPARC</h3>
+<p>Formalny model trójpoziomowy:</p>
+<ul>
+<li>poziom wewnętrzny – fizyczne przechowywanie danych,</li>
+<li>poziom pojęciowy – logiczna struktura bazy,</li>
+<li>poziom zewnętrzny – widoki użytkowników.</li>
+</ul>
+<p>Zalety:</p>
+<ul>
+<li>izolacja danych,</li>
+<li>bezpieczeństwo,</li>
+<li>elastyczność i skalowalność.</li>
+</ul>
+</section>
+</section>
+<section id="model-relacyjny" class="level2">
+<h2 class="anchored" data-anchor-id="model-relacyjny">Model relacyjny</h2>
+<section id="relacja-tabela" class="level3">
+<h3 class="anchored" data-anchor-id="relacja-tabela">🔹 Relacja (tabela)</h3>
+<p>TABELA to:</p>
+<ul>
+<li>Zbiór danych o tej samej strukturze.</li>
+<li>Uporządkowana lista zawierająca dane określonego typu</li>
+</ul>
+<p>Każda tabela opisuje jeden typ obiektów (np. Studenci, Kursy).</p>
+<p>Najwazniejsze, ze tabela przechowuje dane jednego typu. W jednej tabeli nie pojawi się jednocześnie lista kontaktów i lista zamówień. &gt; Uwaga: Technicznie taka tabela jest mozliwa do realizacji ale pobieranie konkretnych elementów &gt; byłoby znacznie utrudnione.</p>
+<blockquote class="blockquote">
+<p>Uwaga: Kazda tabela posiada <strong>nazwę</strong> pozwalającą jednoznacznie ją zidentyfikować. Nazwa zawsze jest unikalna - zadna inna tabela nie moze mieć takiej samej nazwy.</p>
+</blockquote>
+</section>
+<section id="krotka-wiersz" class="level3">
+<h3 class="anchored" data-anchor-id="krotka-wiersz">🔹 Krotka (wiersz)</h3>
+<p>Pojedynczy rekord w tabeli (np. dane jednego studenta).</p>
+</section>
+<section id="atrybut-kolumna" class="level3">
+<h3 class="anchored" data-anchor-id="atrybut-kolumna">🔹 Atrybut (kolumna)</h3>
+<p>Właściwość obiektu – ma nazwę i typ danych (np. Imię, Nazwisko, NrIndeksu).</p>
+</section>
+<section id="domena" class="level3">
+<h3 class="anchored" data-anchor-id="domena">🔹 Domena</h3>
+<p>Zbiór dopuszczalnych wartości atrybutu (np. liczby całkowite, ciągi znaków do 50 znaków).</p>
+</section>
+<section id="schemat-i-instancja" class="level3">
+<h3 class="anchored" data-anchor-id="schemat-i-instancja">🔹 Schemat i instancja</h3>
+<ul>
+<li>Schemat relacji – struktura tabeli (nazwy kolumn, typy).</li>
+<li>Instancja relacji – aktualna zawartość tabeli.</li>
+</ul>
+</section>
+</section>
+<section id="klucze-i-integralność-danych" class="level2">
+<h2 class="anchored" data-anchor-id="klucze-i-integralność-danych">Klucze i integralność danych</h2>
+<section id="klucz-główny-primary-key" class="level3">
+<h3 class="anchored" data-anchor-id="klucz-główny-primary-key">🔹 Klucz główny (Primary Key)</h3>
+<ul>
+<li>jednoznacznie identyfikuje każdy rekord,</li>
+<li>nie może mieć wartości NULL.</li>
+</ul>
+<p>Przykład: NrIndeksu w tabeli Studenci.</p>
+</section>
+<section id="klucz-kandydujący-candidate-key" class="level3">
+<h3 class="anchored" data-anchor-id="klucz-kandydujący-candidate-key">🔹 Klucz kandydujący (Candidate Key)</h3>
+<ul>
+<li>każdy atrybut (lub ich kombinacja), który mógłby być kluczem głównym. Przykład: NrIndeksu i PESEL – wybieramy jeden jako główny.</li>
+</ul>
+</section>
+<section id="klucz-obcy-foreign-key" class="level3">
+<h3 class="anchored" data-anchor-id="klucz-obcy-foreign-key">🔹 Klucz obcy (Foreign Key)</h3>
+<ul>
+<li>atrybut wskazujący na klucz główny w innej tabeli. Przykład: NrIndeksu w tabeli Oceny odnosi się do Studenci.</li>
+</ul>
+</section>
+<section id="integralność-danych" class="level3">
+<h3 class="anchored" data-anchor-id="integralność-danych">🔹 Integralność danych</h3>
+<ol type="1">
+<li>Integralność encji – każda krotka musi być jednoznacznie identyfikowana.</li>
+<li>Integralność referencyjna – wartości kluczy obcych muszą istnieć w tabelach nadrzędnych.</li>
+<li>Integralność dziedzinowa – wartości atrybutów muszą mieścić się w swoich domenach.</li>
 </ol>
 </section>
-<section id="laboratorium-dla-grup" class="level3">
-<h3 class="anchored" data-anchor-id="laboratorium-dla-grup">Laboratorium dla grup:</h3>
+</section>
+<section id="zestaw-pytań-testowych" class="level2">
+<h2 class="anchored" data-anchor-id="zestaw-pytań-testowych">🧠 Zestaw pytań testowych</h2>
+<section id="pytania-zamknięte-jednokrotnego-wyboru" class="level3">
+<h3 class="anchored" data-anchor-id="pytania-zamknięte-jednokrotnego-wyboru">✅ Pytania zamknięte (jednokrotnego wyboru)</h3>
 <ol type="1">
-<li>TODO: dzień tygodnia, godzina, sala</li>
+<li>Kto zaproponował model relacyjny danych?</li>
+</ol>
+<ol type="a">
+<li>Donald Knuth</li>
+<li>Edgar F. Codd</li>
+<li>Bill Gates</li>
+<li>Charles Bachman</li>
+</ol>
+<ol start="2" type="1">
+<li>Co opisuje poziom logiczny w architekturze ANSI/SPARC?</li>
+</ol>
+<ol type="a">
+<li>Sposób fizycznego zapisu danych</li>
+<li>Widok danych przez użytkownika</li>
+<li>Strukturę danych i relac</li>
+</ol>
+<p>✏️ Pytania otwarte / opisowe</p>
+<ol type="1">
+<li>Wyjaśnij różnicę między danymi a informacją.</li>
+<li>Wymień i krótko opisz trzy poziomy abstrakcji w modelu ANSI/SPARC.</li>
+<li>Co to jest klucz główny i jakie są jego cechy?</li>
+<li>Podaj przykład relacji i wskaż w niej krotki oraz atrybuty.</li>
+<li>Dlaczego model relacyjny okazał się przełomem w historii baz danych?</li>
+<li>Jakie są trzy podstawowe zasady integralności danych?</li>
 </ol>
 
 
+</section>
 </section>
 </section>
 

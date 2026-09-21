@@ -1,0 +1,329 @@
+---
+title: "Model Relacyjny i podstawy SQL"
+---
+
+## ✅ Sprawdź się z wykładu 3
+
+<div id="rsod-quiz"></div>
+<script src="../assets/js/quiz-engine.js"></script>
+<script>
+CourseQuiz.mount(document.getElementById('rsod-quiz'), {
+  course: "prba2026",
+  lecture: "wyklad4",
+  title: "Wykład 3: Od modelu ER do modelu relacyjnego",
+  submitUrl: "https://sebastianzajac.pl/rsod-quiz/submit.php",
+  questions: [
+    {
+      id: "q1", points: 1, diff: "bardzo łatwe",
+      text: "Każda encja z modelu ER staje się w modelu relacyjnym:",
+      options: [
+        {v:"A", t:"Kolumną"},
+        {v:"B", t:"Tabelą"},
+        {v:"C", t:"Kluczem obcym"},
+        {v:"D", t:"Widokiem"}
+      ]
+    },
+    {
+      id: "q2", points: 1, diff: "łatwe",
+      text: "Jak przekształcamy atrybut złożony (np. Adres) do modelu relacyjnego?",
+      options: [
+        {v:"A", t:"Zostawiamy jako jedną kolumnę tekstową"},
+        {v:"B", t:"Rozbijamy na osobne kolumny (Ulica, KodPocztowy, Miasto)"},
+        {v:"C", t:"Tworzymy osobną tabelę połączoną 1:1"},
+        {v:"D", t:"Usuwamy go — model relacyjny nie obsługuje adresów"}
+      ]
+    },
+    {
+      id: "q3", points: 2, diff: "średnie",
+      text: "Po której stronie związku 1:N umieszczamy klucz obcy?",
+      options: [
+        {v:"A", t:"Po stronie „1”"},
+        {v:"B", t:"Po stronie „N”"},
+        {v:"C", t:"W obu tabelach"},
+        {v:"D", t:"W osobnej tabeli pośredniczącej"}
+      ]
+    },
+    {
+      id: "q4", points: 2, diff: "trudne",
+      text: "Jak realizuje się związek N:M w modelu relacyjnym?",
+      options: [
+        {v:"A", t:"Kluczem obcym w jednej z tabel"},
+        {v:"B", t:"Kluczem obcym w obu tabelach jednocześnie, bez dodatkowej tabeli"},
+        {v:"C", t:"Przez tabelę pośredniczącą zawierającą klucze obce obu encji"},
+        {v:"D", t:"N:M nie da się zrealizować relacyjnie"}
+      ]
+    },
+    {
+      id: "q5", points: 3, diff: "wnioskowanie",
+      text: "Atrybut wielowartościowy „Email” zamieniamy w tabelę EMAIL(NrIndeksu, Email). Jaki to związek między STUDENT a EMAIL, i czy zgadza się to z regułą „klucz obcy dodajemy po stronie N”?",
+      options: [
+        {v:"A", t:"1:1 — NrIndeksu jest kluczem obcym po obu stronach"},
+        {v:"B", t:"1:N (jeden student, wiele emaili) — NrIndeksu jako klucz obcy w EMAIL zgadza się z regułą klucza po stronie N"},
+        {v:"C", t:"N:M — potrzebna byłaby trzecia tabela pośrednicząca"},
+        {v:"D", t:"Nie da się tego sklasyfikować"}
+      ]
+    }
+  ]
+});
+</script>
+
+
+## 1️⃣ Model relacyjny – przypomnienie i pojęcia podstawowe
+
+### 🔹 Relacja = tabela
+
+- Dane przechowywane w **tabelach** (relations)
+- Każdy **wiersz (row)** = rekord / krotka  
+- Każda **kolumna (column)** = atrybut  
+- **Dziedzina (domain)** = zbiór dopuszczalnych wartości w kolumnie
+
+| id | imie | nazwisko | rok_urodzenia |
+|----|-------|------------|----------------|
+| 1  | Adam  | Mickiewicz | 1798 |
+| 2  | Henryk | Sienkiewicz | 1846 |
+
+
+## 2️⃣ Klucze i więzy integralności
+
+### 🔸 Klucz główny (PRIMARY KEY)
+- Unikalnie identyfikuje każdy wiersz w tabeli.
+- Nie może być `NULL`.
+
+### 🔸 Klucz obcy (FOREIGN KEY)
+- Odwołuje się do innej tabeli (relacja między tabelami).
+
+### 🔸 Inne więzy:
+- `UNIQUE` – unikalność wartości w kolumnie.
+- `NOT NULL` – kolumna nie może mieć wartości pustej.
+- `CHECK` – warunek logiczny na wartość kolumny.
+
+
+## 3️⃣ Schemat bazy danych – przykład „Biblioteka”
+
+### Tabele:
+- **Autorzy** (`autor_id`, `imie`, `nazwisko`)
+- **Ksiazki** (`ksiazka_id`, `tytul`, `rok`, `autor_id`)
+
+### Relacja:
+- `Ksiazki.autor_id` $\to$ `Autorzy.autor_id` (klucz obcy)
+
+
+## 4️⃣ Tworzenie tabel (DDL – Data Definition Language)
+
+Polecenie `CREATE TABLE` służy do utworzenia nowej tabeli w bazie danych.  
+W tym poleceniu definiujemy nazwy kolumn, ich typy danych oraz różne więzy integralności, takie jak `PRIMARY KEY`, `NOT NULL` czy `FOREIGN KEY`.  
+Każda tabela powinna mieć kolumnę, która jednoznacznie identyfikuje każdy wiersz – to właśnie klucz główny.  
+W przykładzie poniżej tworzymy dwie tabele: **Autorzy** i **Ksiazki**, które będą ze sobą powiązane relacją klucz główny–klucz obcy.
+
+
+
+### Przykład w **SQLite** i **PostgreSQL**
+
+```sql
+CREATE TABLE Autorzy (
+    autor_id     INTEGER PRIMARY KEY,         -- w SQLite automatycznie AUTOINCREMENT
+    imie         TEXT NOT NULL,
+    nazwisko     TEXT NOT NULL
+);
+
+CREATE TABLE Ksiazki (
+    ksiazka_id   SERIAL PRIMARY KEY,          -- PostgreSQL: automatyczna numeracja
+    tytul        VARCHAR(200) NOT NULL,
+    rok          INTEGER CHECK (rok > 0),
+    autor_id     INTEGER,
+    FOREIGN KEY (autor_id) REFERENCES Autorzy(autor_id)
+);
+```
+
+- W SQLite INTEGER PRIMARY KEY = alias dla AUTOINCREMENT.
+- W PostgreSQL SERIAL lub GENERATED ALWAYS AS IDENTITY.
+
+W powyższym przykładzie tabela Autorzy przechowuje dane o autorach, a tabela Ksiazki – dane o książkach.
+Kolumna autor_id w tabeli Ksiazki jest kluczem obcym i wskazuje, który autor napisał daną książkę.
+Dzięki więzom integralności baza pilnuje, aby każda książka miała poprawnego autora.
+Takie powiązania są podstawą modelu relacyjnego.
+
+## 5️⃣ Modyfikacja i usuwanie tabel
+
+```sql
+ALTER TABLE Ksiazki ADD COLUMN gatunek TEXT;
+
+DROP TABLE Ksiazki;
+
+```
+
+## 6️⃣ Wstawianie danych (DML – Data Manipulation Language)
+
+Polecenie INSERT INTO służy do wprowadzania nowych wierszy (rekordów) do tabeli.
+Wartości muszą być zgodne z typami kolumn oraz ograniczeniami (NOT NULL, CHECK, itp.).
+Można dodać jeden lub wiele rekordów w jednym poleceniu.
+Poniżej wstawiamy kilku autorów oraz ich książki do utworzonych wcześniej tabel.
+
+```sql
+INSERT INTO Autorzy (imie, nazwisko) VALUES
+('Adam', 'Mickiewicz'),
+('Henryk', 'Sienkiewicz'),
+('Bolesław', 'Prus');
+
+INSERT INTO Ksiazki (tytul, rok, autor_id) VALUES
+('Pan Tadeusz', 1834, 1),
+('Quo Vadis', 1896, 2),
+('Lalka', 1890, 3);
+```
+
+Każdy rekord reprezentuje jedną pozycję w tabeli.
+Polecenie INSERT wymaga podania wartości w tej samej kolejności, w jakiej wymieniono kolumny.
+Jeśli nie podamy jakiejś kolumny, a ma ona zdefiniowaną wartość domyślną (DEFAULT), baza wstawi ją automatycznie.
+Dzięki temu możemy stopniowo budować zawartość naszej bazy danych.
+
+## 7️⃣ Wybieranie danych – SELECT
+
+### 🧩 Podstawowy SELECT
+
+Polecenie SELECT jest najczęściej używanym poleceniem SQL i służy do pobierania danych z tabel.
+Pozwala określić, które kolumny chcemy zobaczyć i z których tabel dane mają pochodzić.
+Jeśli użyjemy gwiazdki *, oznacza to, że wybieramy wszystkie kolumny.
+Poniższe zapytanie zwraca wszystkich autorów z tabeli Autorzy.
+
+```sql
+SELECT * FROM Autorzy;
+```
+### 🧩 Wybór konkretnych kolumn
+
+```sql
+SELECT imie, nazwisko FROM Autorzy;
+```
+
+Wynik to pełna tabela z kolumnami autor_id, imie i nazwisko.
+Często jednak potrzebujemy tylko części danych, np. imienia i nazwiska – wtedy podajemy konkretne kolumny:
+
+### 🧩 Nadawanie aliasów
+
+```sql
+SELECT imie AS "Imię", nazwisko AS "Nazwisko" FROM Autorzy;
+```
+
+Takie zapytania pomagają ograniczyć ilość danych i zwiększyć czytelność wyników.
+Warto też nadawać aliasy (AS), które pozwalają zmienić nazwę kolumn w wynikach i nadać im bardziej opisowy wygląd.
+
+
+## 8️⃣ Filtrowanie – WHERE
+
+Kiedy chcemy wybrać tylko część danych, używamy klauzuli WHERE.
+Dzięki niej możemy ustawić warunki, jakie muszą spełniać rekordy, by pojawiły się w wyniku.
+To bardzo potężne narzędzie, które pozwala np. wyszukiwać książki z konkretnego roku lub autora.
+W poniższym przykładzie wybieramy książki wydane po roku 1850.
+
+
+```sql
+SELECT * FROM Ksiazki
+WHERE rok > 1850;
+```
+
+### 🧠 Operatory:
+
+Możemy też stosować inne operatory: 
+
+- =, <>, <, >, <=, >=
+- LIKE 'Q%' → zaczyna się na Q
+- IN (...)
+- BETWEEN 1800 AND 1900
+- IS NULL, IS NOT NULL
+
+
+Na przykład, aby znaleźć wszystkie książki, których tytuł zawiera literę „a”, używamy wzorca z LIKE:
+
+
+```sql
+SELECT tytul FROM Ksiazki WHERE tytul LIKE '%a%';
+```
+
+Klauzula WHERE pozwala więc filtrować dane na wiele sposobów, co czyni zapytania SQL bardzo elastycznymi.
+
+
+## 9️⃣ Sortowanie – ORDER BY
+
+Po pobraniu danych często chcemy uporządkować je według określonego kryterium.
+Do tego służy klauzula ORDER BY, dzięki której możemy sortować rosnąco (ASC) lub malejąco (DESC).
+Sortowanie działa na dowolnej kolumnie, także tych, które nie są wyświetlane w wyniku.
+W przykładzie poniżej porządkujemy książki według roku wydania od najnowszej do najstarszej.
+
+```sql
+SELECT * FROM Ksiazki ORDER BY rok DESC;
+```
+
+Jeśli nie podamy kierunku sortowania, domyślnie jest to ASC (rosnąco).
+Można też sortować według kilku kolumn jednocześnie, np. najpierw po autorze, a potem po roku.
+Sortowanie poprawia czytelność wyników i pozwala szybciej analizować dane.
+
+## 🔟 Grupowanie i agregacja – GROUP BY, HAVING
+
+Czasem chcemy policzyć, ile danych należy do danej kategorii – np. ilu autorów napisało więcej niż jedną książkę.
+Do tego służy GROUP BY, które grupuje dane według wybranej kolumny.
+W połączeniu z funkcjami agregującymi, takimi jak COUNT(), AVG(), SUM(), MIN() czy MAX(), daje duże możliwości analizy.
+Klauzula HAVING pozwala odfiltrować grupy po obliczeniu agregacji.
+
+```sql
+SELECT autor_id, COUNT(*) AS liczba_ksiazek
+FROM Ksiazki
+GROUP BY autor_id
+HAVING COUNT(*) > 1;
+```
+
+To zapytanie zwraca tylko tych autorów, którzy mają więcej niż jedną książkę.
+Różnica między WHERE a HAVING polega na tym, że WHERE filtruje pojedyncze wiersze przed grupowaniem, a HAVING filtruje całe grupy po agregacji.
+Wyniki można potem łączyć z innymi tabelami, by uzyskać bardziej opisowe raporty.
+
+
+## 1️⃣1️⃣ Łączenie tabel – JOIN
+
+W relacyjnym modelu danych informacje są rozproszone w różnych tabelach, które łączy się przy pomocy kluczy obcych.
+Polecenie JOIN pozwala zestawić dane z kilku tabel na podstawie wspólnej kolumny.
+Najczęściej używany jest INNER JOIN, który zwraca tylko rekordy, dla których istnieje dopasowanie w obu tabelach.
+W przykładzie łączymy tabelę Ksiazki z Autorzy, aby zobaczyć tytuł książki i jej autora.
+
+
+### 🔹 INNER JOIN
+```sql
+SELECT k.tytul, a.imie, a.nazwisko
+FROM Ksiazki k
+JOIN Autorzy a ON k.autor_id = a.autor_id;
+```
+
+Wynikiem będzie lista książek wraz z imieniem i nazwiskiem autora.
+Jeśli chcemy, aby w wynikach pojawiły się także książki bez autora (lub autorzy bez książek), używamy odpowiednio LEFT JOIN lub RIGHT JOIN.
+Łączenie tabel to fundament relacyjnych baz danych – dzięki niemu dane są spójne i nie trzeba ich powielać.
+
+### 🔹 LEFT JOIN
+```sql
+SELECT k.tytul, a.imie, a.nazwisko
+FROM Ksiazki k
+LEFT JOIN Autorzy a ON k.autor_id = a.autor_id;
+```
+
+## 1️⃣2️⃣ Aktualizacja i usuwanie danych
+
+Polecenie UPDATE pozwala modyfikować dane już istniejące w tabeli.
+Zawsze należy używać klauzuli WHERE, aby zmiana nie objęła wszystkich rekordów.
+Z kolei DELETE służy do usuwania rekordów – również z warunkiem, by nie usunąć wszystkiego przez pomyłkę.
+Przykład poniżej pokazuje, jak zmienić rok wydania książki i usunąć starsze pozycje.
+
+```sql
+UPDATE Ksiazki SET rok = 1836 WHERE tytul = 'Pan Tadeusz';
+
+DELETE FROM Ksiazki WHERE rok < 1850;
+```
+
+UPDATE pozwala też aktualizować wiele kolumn naraz, a nawet wykonywać obliczenia.
+Z kolei DELETE usuwa rekordy z tabeli, ale nie zmienia struktury bazy.
+Warto zawsze testować warunek WHERE wcześniej przy pomocy SELECT, by uniknąć niechcianych usunięć.
+
+
+## Podsumowanie 
+
+SQL jest językiem deklaratywnym – opisujemy co chcemy uzyskać, a nie jak to zrobić.
+Dzięki temu użytkownik nie musi znać szczegółów działania bazy danych, wystarczy, że opisze warunki i strukturę zapytania.
+Poznane dziś polecenia (CREATE, INSERT, SELECT, UPDATE, DELETE, JOIN, GROUP BY) to fundament pracy z bazami danych.
+Opanowanie ich pozwala budować i analizować nawet bardzo złożone systemy informacyjne.
+
+

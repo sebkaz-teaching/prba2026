@@ -1,0 +1,244 @@
+---
+title: "Wprowadzenie do relacyjnych baz danych"
+---
+
+# 🧩 Wykład 1: Wprowadzenie do relacyjnych baz danych
+
+## Wprowadzenie i cele wykładu
+
+Celem wykładu jest zapoznanie się z podstawami relacyjnych baz danych — ich historią, pojęciami, architekturą, strukturą danych oraz zasadami integralności.
+Po tym wykładzie student powinien rozumieć, czym jest baza danych, jak działa DBMS, co oznacza model relacyjny oraz jakie są klucze i reguły spójności danych.
+
+## Historia i ewolucja baz danych
+
+Bazy danych nie są wynalazkiem XXI wieku — ich początki sięgają lat 60. XX wieku, gdy organizacje zaczęły gromadzić coraz większe ilości danych.
+
+### 🔹 Systemy plikowe
+
+Pierwsze systemy przechowywały dane w plikach na dyskach.
+Choć były proste, miały poważne ograniczenia:
+
+- Brak centralnej kontroli nad danymi
+- Trudność w utrzymaniu spójności
+- Brak uniwersalnych narzędzi do wyszukiwania
+
+💡 Zadanie: Na jakich innych obiektach, oprócz plików, można pracować w systemach operacyjnych?
+
+### 🔹 Wczesne systemy DBMS
+
+W latach 60. i 70. pojawiły się pierwsze systemy zarządzania bazami danych (DBMS).
+Zapewniały:
+
+- centralną kontrolę danych,
+- integralność i bezpieczeństwo,
+- wydajne przetwarzanie i wyszukiwanie.
+
+
+
+
+### 🔹 Modele hierarchiczne i sieciowe
+
+Wczesne systemy wykorzystywały struktury drzewiaste lub grafowe.
+Były skuteczne, ale trudne w modyfikacji i rozwoju.
+
+### 🔹 Przełom: model relacyjny
+
+W 1970 roku Edgar F. Codd zaproponował model relacyjny danych, w którym:
+
+- dane są przechowywane w tabelach (relacjach),
+- każda tabela ma kolumny (atrybuty) i wiersze (krotki).
+
+Zalety:
+
+- prostota i przejrzystość,
+- elastyczność (łatwo dodawać nowe tabele),
+- bezpieczeństwo i spójność danych.
+
+### 🔹 SQL – język pracy z danymi
+
+Wraz z rozwojem modelu relacyjnego powstał SQL (Structured Query Language) – język do tworzenia, modyfikowania i pobierania danych.
+
+Dziś SQL jest fundamentem większości systemów: od aplikacji biurowych po duże systemy korporacyjne.
+Nawet współczesne rozwiązania NoSQL często nawiązują do idei relacyjnych.
+
+## Dane, informacja, baza danych i DBMS
+
+### 🔹 Dane a informacja
+
+- Dane – surowe fakty, liczby, teksty, które same w sobie niewiele znaczą.
+👉 np. 25, Warszawa, 12345
+
+- Informacja – dane zinterpretowane i zorganizowane w kontekście.
+👉 np. „25 klientów z Warszawy złożyło zamówienie w ostatnim tygodniu”.
+
+Dane to materiał, informacja to znaczenie.
+
+
+### 🔹 Baza danych
+
+Zorganizowany zbiór danych umożliwiający ich łatwe przeszukiwanie, aktualizację i analizę.
+
+Cechy:
+
+- Strukturalność
+- Centralizacja
+- Trwałość i bezpieczeństwo
+
+Przykłady:
+
+- Lista kontaktów w telefonie
+- System rezerwacji hotelowej
+- Sklep internetowy
+
+Termin ,,baza danych'' uzywany jest na wiele róznych sposobów, ale na wykładzie 
+**baza danych** oznacza zbiór danych przechowywanych w pewien zorganizowany sposób. 
+Najprościej wyobrazić sobie bazę danych jako szafkę na dokumenty. Jest to miejsce umozliwiające
+przechowywanie informacji, niezaleznie od ich typu i sposobu organizacji. 
+
+### 🔹 System Zarządzania Bazą Danych (DBMS)
+
+Bardzo często uzywamy terminu "baza danych" do określenia oprogramowania bazy danych, którego uzywamy. 
+Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie sustemem 
+zarządzania bazą danych (SZBD) lub (DBMS - Database Management System). Sama baza danych jest pojemnikiem tworzonym i modyfikowanym przez SZBD. Konkretna postać BD zienia się w zalezności od zastosowań. 
+
+
+Oprogramowanie do tworzenia, modyfikowania i przetwarzania baz danych.
+
+Funkcje DBMS:
+
+- Tworzenie i modyfikacja schematów
+- Operacje CRUD (Create, Read, Update, Delete)
+- Zarządzanie bezpieczeństwem i uprawnieniami
+- Optymalizacja zapytań
+
+Przykłady:
+MySQL, PostgreSQL, Oracle, SQL Server, SQLite.
+
+
+
+## Architektura systemów baz danych
+
+Systemy baz danych są zorganizowane według poziomów abstrakcji, co pozwala oddzielić sposób przechowywania danych od ich widoku dla użytkownika.
+
+### 🔹 Poziomy abstrakcji
+
+1.	Poziom fizyczny (wewnętrzny)
+
+- opisuje sposób przechowywania danych (pliki, indeksy, struktury).
+
+2.	Poziom logiczny (pośredni)
+
+- opisuje strukturę danych (tabele, relacje, typy danych).
+
+3.	Poziom zewnętrzny (widok użytkownika)
+
+- pokazuje dane z perspektywy użytkownika lub aplikacji.
+
+Zmiany w jednym poziomie nie wymagają zmian w pozostałych — to tzw. niezależność danych.
+
+### 🔹 Model ANSI/SPARC
+
+Formalny model trójpoziomowy:
+
+- poziom wewnętrzny – fizyczne przechowywanie danych,
+- poziom pojęciowy – logiczna struktura bazy,
+- poziom zewnętrzny – widoki użytkowników.
+
+Zalety:
+
+- izolacja danych,
+- bezpieczeństwo,
+- elastyczność i skalowalność.
+
+
+
+## Model relacyjny
+
+### 🔹 Relacja (tabela)
+
+TABELA to:
+
+- Zbiór danych o tej samej strukturze.
+- Uporządkowana lista zawierająca dane określonego typu
+
+Każda tabela opisuje jeden typ obiektów (np. Studenci, Kursy).
+
+Najwazniejsze, ze tabela przechowuje dane jednego typu. W jednej tabeli nie pojawi się 
+jednocześnie lista kontaktów i lista zamówień.
+> Uwaga: Technicznie taka tabela jest mozliwa do realizacji ale pobieranie konkretnych elementów 
+> byłoby znacznie utrudnione. 
+
+> Uwaga: Kazda tabela posiada **nazwę** pozwalającą jednoznacznie ją zidentyfikować. 
+> Nazwa zawsze jest unikalna - zadna inna tabela nie moze mieć takiej samej nazwy. 
+
+
+### 🔹 Krotka (wiersz)
+
+Pojedynczy rekord w tabeli (np. dane jednego studenta).
+
+### 🔹 Atrybut (kolumna)
+
+Właściwość obiektu – ma nazwę i typ danych (np. Imię, Nazwisko, NrIndeksu).
+
+### 🔹 Domena
+
+Zbiór dopuszczalnych wartości atrybutu (np. liczby całkowite, ciągi znaków do 50 znaków).
+
+### 🔹 Schemat i instancja
+
+- Schemat relacji – struktura tabeli (nazwy kolumn, typy).
+- Instancja relacji – aktualna zawartość tabeli.
+
+## Klucze i integralność danych
+
+### 🔹 Klucz główny (Primary Key)
+
+- jednoznacznie identyfikuje każdy rekord,
+- nie może mieć wartości NULL.
+  
+Przykład: NrIndeksu w tabeli Studenci.
+
+### 🔹 Klucz kandydujący (Candidate Key)
+
+- każdy atrybut (lub ich kombinacja), który mógłby być kluczem głównym.
+Przykład: NrIndeksu i PESEL – wybieramy jeden jako główny.
+
+### 🔹 Klucz obcy (Foreign Key)
+
+- atrybut wskazujący na klucz główny w innej tabeli.
+Przykład: NrIndeksu w tabeli Oceny odnosi się do Studenci.
+
+### 🔹 Integralność danych
+
+1.	Integralność encji – każda krotka musi być jednoznacznie identyfikowana.
+2.	Integralność referencyjna – wartości kluczy obcych muszą istnieć w tabelach nadrzędnych.
+3.	Integralność dziedzinowa – wartości atrybutów muszą mieścić się w swoich domenach.
+
+
+
+## 🧠 Zestaw pytań testowych
+
+### ✅ Pytania zamknięte (jednokrotnego wyboru)
+
+1.	Kto zaproponował model relacyjny danych?
+
+a) Donald Knuth
+b) Edgar F. Codd
+c) Bill Gates
+d) Charles Bachman
+	
+2.	Co opisuje poziom logiczny w architekturze ANSI/SPARC?
+
+a) Sposób fizycznego zapisu danych
+b) Widok danych przez użytkownika
+c) Strukturę danych i relac
+
+
+✏️ Pytania otwarte / opisowe
+
+1. Wyjaśnij różnicę między danymi a informacją.
+2. Wymień i krótko opisz trzy poziomy abstrakcji w modelu ANSI/SPARC.
+3. Co to jest klucz główny i jakie są jego cechy?
+4. Podaj przykład relacji i wskaż w niej krotki oraz atrybuty.
+5. Dlaczego model relacyjny okazał się przełomem w historii baz danych?
+6. Jakie są trzy podstawowe zasady integralności danych?

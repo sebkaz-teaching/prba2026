@@ -1,0 +1,189 @@
+---
+title: "Projektowanie koncepcyjne – model ER (Entity-Relationship)"
+---
+
+## ✅ Sprawdź się z wykładu 1
+
+<div id="rsod-quiz"></div>
+<script src="../assets/js/quiz-engine.js"></script>
+<script>
+CourseQuiz.mount(document.getElementById('rsod-quiz'), {
+  course: "prba2026",
+  lecture: "wyklad2",
+  title: "Wykład 1: Wprowadzenie do relacyjnych baz danych",
+  submitUrl: "https://sebastianzajac.pl/rsod-quiz/submit.php",
+  questions: [
+    {
+      id: "q1", points: 1, diff: "bardzo łatwe",
+      text: "Kto zaproponował model relacyjny danych w 1970 roku?",
+      options: [
+        {v:"A", t:"Donald Knuth"},
+        {v:"B", t:"Edgar F. Codd"},
+        {v:"C", t:"Bill Gates"},
+        {v:"D", t:"Charles Bachman"}
+      ]
+    },
+    {
+      id: "q2", points: 1, diff: "łatwe",
+      text: "Czym różni się dana od informacji?",
+      options: [
+        {v:"A", t:"To synonimy, nie ma różnicy"},
+        {v:"B", t:"Dana to surowy fakt, informacja to dana zinterpretowana w kontekście"},
+        {v:"C", t:"Informacja zawsze jest liczbą"},
+        {v:"D", t:"Dana dotyczy wyłącznie tekstu"}
+      ]
+    },
+    {
+      id: "q3", points: 2, diff: "średnie",
+      text: "W architekturze ANSI/SPARC, który poziom opisuje strukturę danych (tabele, relacje, typy danych)?",
+      options: [
+        {v:"A", t:"Poziom fizyczny (wewnętrzny)"},
+        {v:"B", t:"Poziom logiczny (pojęciowy)"},
+        {v:"C", t:"Poziom zewnętrzny"},
+        {v:"D", t:"Poziom sieciowy"}
+      ]
+    },
+    {
+      id: "q4", points: 2, diff: "trudne",
+      text: "Co to jest integralność referencyjna?",
+      options: [
+        {v:"A", t:"Każda krotka musi być jednoznacznie identyfikowana"},
+        {v:"B", t:"Wartości atrybutów muszą mieścić się w swoich domenach"},
+        {v:"C", t:"Wartości kluczy obcych muszą istnieć w tabelach nadrzędnych"},
+        {v:"D", t:"Tabela musi mieć unikalną nazwę"}
+      ]
+    },
+    {
+      id: "q5", points: 3, diff: "wnioskowanie",
+      text: "Tabela Oceny ma kolumnę NrIndeksu jako klucz obcy do tabeli Studenci. Ktoś próbuje wstawić ocenę dla studenta o numerze indeksu, którego nie ma w tabeli Studenci. Która zasada integralności to zablokuje?",
+      options: [
+        {v:"A", t:"Integralność encji"},
+        {v:"B", t:"Integralność dziedzinowa"},
+        {v:"C", t:"Integralność referencyjna"},
+        {v:"D", t:"Żadna — taka operacja jest dozwolona"}
+      ]
+    }
+  ]
+});
+</script>
+
+## Analiza wymagań użytkownika
+
+Każdy projekt bazy danych zaczyna się od zrozumienia czego oczekuje użytkownik.
+Bez tego łatwo stworzyć system, który jest poprawny technicznie, ale bezużyteczny w praktyce.
+
+Przykład 1 – biblioteka
+
+Biblioteka chce mieć system, który przechowuje dane o:
+
+- książkach (tytuł, autor, rok wydania, ISBN),
+- czytelnikach (imię, nazwisko, numer karty bibliotecznej),
+- wypożyczeniach (jaka książka, który czytelnik, kiedy wypożyczona i kiedy oddana).
+
+Przykład 2 – sklep internetowy
+
+Sklep potrzebuje informacji o:
+
+- klientach (imię, adres, e-mail),
+- produktach (nazwa, cena, kategoria),
+- zamówieniach (który klient, jakie produkty, kiedy złożono, status zamówienia).
+
+👉 Zwróć uwagę:
+
+- w bibliotece najważniejszy jest związek wypożyczeń,
+- w sklepie – związek zamówień.
+
+Już na tym etapie widać, że kluczowe są powiązania, a nie tylko same dane.
+
+
+
+##  Diagramy encja–związek 
+
+Model ERD (Entity–Relationship Diagram) pozwala w przejrzysty sposób przedstawić jakie obiekty istnieją w systemie i jak są ze sobą powiązane.
+
+- Encje rysujemy jako prostokąty.
+- Przykład: „Student”, „Książka”, „Zamówienie”.
+- Atrybuty zapisujemy jako elipsy i łączymy z encją.
+- „Student” → Imię, Nazwisko, NrIndeksu.
+- Związki przedstawiamy jako romby.
+- „Student” $\to$ „Wypożycza” $\to$ „Książka”.
+
+Przykład wizualny do opowiedzenia:
+
+- Wyobraźcie sobie trzy prostokąty: „Student”, „Książka” i „Bibliotekarz”.
+- Łączymy je rombem „Wypożycza”.
+- Dodajemy atrybuty: do studenta „NrIndeksu”, do książki „ISBN”, a do związku „Data wypożyczenia”.
+
+👉 Dzięki temu widzimy nie tylko obiekty, ale i relacje między nimi.
+
+⸻
+
+## Typy związków 
+
+Związek 1:1 (jeden do jednego)
+
+- Każdy obiekt jednej encji odpowiada najwyżej jednemu obiektowi drugiej encji.
+- Przykład: każdy człowiek ma jedno unikalne PESEL.
+
+Związek 1:N (jeden do wielu)
+
+- Jeden obiekt encji A może być powiązany z wieloma obiektami encji B, ale nie odwrotnie.
+- Przykład: jeden wykładowca prowadzi wiele kursów, ale każdy kurs ma dokładnie jednego prowadzącego.
+
+Związek N:M (wiele do wielu)
+
+- Jeden obiekt encji A może być powiązany z wieloma obiektami encji B i odwrotnie.
+- Przykład: studenci zapisują się na wiele kursów, a każdy kurs realizowany jest przez wielu studentów.
+
+Mini-case: kino
+
+- Encje: „Film”, „Widz”, „Seans”.
+- Widzowie mogą oglądać wiele filmów, a każdy film może być oglądany przez wielu widzów. To klasyczne N:M.
+
+
+
+##  Atrybuty proste, złożone, wielowartościowe
+
+- Atrybut prosty – nie da się go podzielić: „Data urodzenia”, „PESEL”.
+- Atrybut złożony – składa się z mniejszych: „Adres” → „Ulica”, „Kod pocztowy”, „Miasto”.
+- Atrybut wielowartościowy – może mieć wiele wartości dla jednej encji: „Numery telefonów” dla jednego studenta.
+
+👉 To ważne, bo w późniejszym projektowaniu relacyjnym atrybut wielowartościowy często trzeba przekształcić w oddzielną tabelę.
+
+Przykład:
+
+- Student może mieć wiele adresów e-mail.
+- W modelu ER narysujemy atrybut „Email” jako elipsę podwójną.
+- W modelu relacyjnym – stworzymy tabelę „AdresyEmail” powiązaną z tabelą „Studenci”.
+
+
+## Przykłady całościowe
+
+Na koniec możemy omówić kilka kompletnych mini-systemów, żeby pokazać różne rodzaje encji, związków i atrybutów.
+
+Przykład A – System rezerwacji hotelu
+
+- Encje: „Pokój”, „Gość”, „Rezerwacja”.
+- Związki: Gość „rezerwuje” Pokój.
+- Atrybuty: Rezerwacja ma datę początku, datę końca i status.
+
+Przykład B – Uczelnia
+
+- Encje: „Student”, „Kurs”, „Wykładowca”.
+- Związki: Student „zapisuje się na” Kurs, Wykładowca „prowadzi” Kurs.
+- Atrybuty: Student – imię, nazwisko, nr indeksu. Kurs – nazwa, punktacja ECTS.
+
+Przykład C – Sklep internetowy
+
+- Encje: „Klient”, „Produkt”, „Zamówienie”.
+- Związki: Klient „składa” Zamówienie, Zamówienie „zawiera” Produkt.
+- Atrybuty: Produkt – cena, opis; Zamówienie – data, status.
+
+⸻
+
+## Podsumowanie 
+
+- Projektowanie bazy danych zaczynamy od analizy wymagań użytkownika.
+- Model ER pozwala uporządkować wiedzę w postaci encje–atrybuty–związki.
+- Wyróżniamy związki 1:1, 1:N, N:M oraz atrybuty proste, złożone i wielowartościowe.
+- Diagram ERD to narzędzie komunikacji – łączy świat użytkownika ze światem projektanta i programisty.
