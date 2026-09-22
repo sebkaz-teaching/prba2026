@@ -105,7 +105,15 @@ WHERE autor_id = (
 1.	Podzapytanie wewnętrzne szuka identyfikatora autora autor_id, którego nazwisko to Sienkiewicz.
 2.	Zapytanie główne wybiera z tabeli Ksiazki tylko te rekordy, w których autor_id jest równy wynikowi podzapytania.
 
-> 🔸 Takie podzapytanie musi zwrócić jedną wartość (scalar subquery) – w przeciwnym razie wystąpi błąd.
+> 🔸 Takie podzapytanie **powinno** zwrócić jedną wartość (scalar subquery). Co się
+> stanie, gdy zwróci więcej niż jedną, zależy od silnika: **PostgreSQL zgłosi błąd**
+> (`more than one row returned by a subquery used as an expression`) — ale
+> **SQLite nie zgłasza błędu**, tylko po cichu bierze jeden z wierszy (który
+> konkretnie — nie jest gwarantowane) i ignoruje resztę. To niebezpieczne "milczące"
+> zachowanie: kod, który w SQLite "działa", może się wywrócić dopiero po
+> przeniesieniu na PostgreSQL. Nie polegajcie na konkretnym zachowaniu — jeśli
+> podzapytanie może zwrócić więcej niż jeden wiersz, użyjcie `IN` (sekcja niżej) albo
+> dodajcie `LIMIT 1` ze świadomym sortowaniem.
 
 ## 🔹 2. Podzapytanie zwracające wiele wartości (operator IN)
 

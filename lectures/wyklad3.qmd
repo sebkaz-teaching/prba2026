@@ -177,11 +177,38 @@ Przykład:
 
 - Każda osoba ma dokładnie jeden paszport.
 ```sql
-OSOBA(PESEL, Imię, Nazwisko)
-PASZPORT(NrPaszportu, DataWażności, PESEL)
+CREATE TABLE OSOBA (
+    PESEL     CHAR(11) PRIMARY KEY,
+    Imie      TEXT NOT NULL,
+    Nazwisko  TEXT NOT NULL
+);
+
+CREATE TABLE PASZPORT (
+    NrPaszportu   TEXT PRIMARY KEY,
+    DataWaznosci  DATE,
+    PESEL         CHAR(11) NOT NULL UNIQUE REFERENCES OSOBA(PESEL)
+);
 ```
 
-Dodajemy PESEL jako klucz obcy w tabeli PASZPORT.
+Dodajemy PESEL jako klucz obcy w tabeli PASZPORT — ale samo `FOREIGN KEY` (bez
+dodatkowych więzów) wymusza tylko, że wartość PESEL istnieje w OSOBA, **nie** że
+występuje tam co najwyżej raz. Bez `UNIQUE` nic nie stoi na przeszkodzie, żeby ta
+sama osoba miała **dwa** wiersze w PASZPORT — czyli w bazie realnie mielibyśmy
+związek 1:N, nie 1:1. Dopiero `PESEL ... UNIQUE` w PASZPORT naprawdę wymusza "co
+najwyżej jeden paszport na osobę".
+
+::: {.callout-note}
+## A co z "dokładnie jeden", nie "co najwyżej jeden"?
+`NOT NULL UNIQUE` w PASZPORT gwarantuje, że **jeśli** paszport istnieje, to
+przypisany do dokładnie jednej osoby, i że osoba ma co najwyżej jeden. Nie
+gwarantuje jednak, że **każda** OSOBA ma jakikolwiek paszport (to tzw. *obowiązkowy
+udział* — *mandatory participation* — po stronie OSOBA). Sam schemat relacyjny nie
+ma wygodnego sposobu, by wymusić "musi istnieć dokładnie jeden wiersz powiązany" —
+w praktyce robi się to na poziomie aplikacji albo triggerem, nie samymi
+`PRIMARY KEY`/`FOREIGN KEY`/`UNIQUE`. Warto rozróżniać "związek jest 1:1" (o
+*krotności*) od "udział jest obowiązkowy" (o tym, czy strona może nie mieć
+odpowiednika) — to dwa osobne pytania o ten sam związek.
+:::
 
 „Jeśli obie strony są naprawdę w relacji 1:1, można też rozważyć połączenie tych tabel — ale zwykle zostawia się je osobno, gdy przechowują różne grupy informacji
 
@@ -258,5 +285,5 @@ Ale zanim napiszemy SQL, zawsze powinniśmy mieć dobrze przemyślany model rela
 - Atrybuty złożone → rozbijamy
 - Atrybuty wielowartościowe → osobne tabele
 
-👉 W kolejnym wykładzie przejdziemy do normalizacji, czyli porządkowania tabel, by unikać błędów i redundancji.
+👉 Zanim dojdziemy do normalizacji (porządkowania tabel, by unikać błędów i redundancji — wykład 5), kolejny wykład to SQL: nauczymy się faktycznie tworzyć i wypełniać tabele, które dziś zaprojektowaliśmy na papierze.
 
