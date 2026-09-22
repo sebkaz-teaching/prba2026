@@ -1,5 +1,73 @@
 [
   {
+    "objectID": "scenariusze.html",
+    "href": "scenariusze.html",
+    "title": "Zaplecze szkoleniowe — zadania",
+    "section": "",
+    "text": "Projektujecie ewidencję fikcyjnego ośrodka „Dąb”. Kierownik chce wiedzieć, kto uczestniczy w szkoleniach, kto je prowadzi i ile miejsc pozostało. Projekt dotyczy indywidualnych uczestników. Kurs jest tematem, a edycja jego konkretnym przeprowadzeniem.\n\n\n\n\n\n\n\nObiekt\nDane\n\n\n\n\nUczestnicy\nU1 Ada, U2 Bartek, U3 Celina\n\n\nKursy\nK1 obsługa wyposażenia; K2 pierwsza pomoc\n\n\nEdycje\nE1: K1, limit 2; E2: K1, limit 4; E3: K2, limit 4\n\n\nZapisy\nU1–E1 confirmed; U2–E1 confirmed; U3–E2 confirmed; U2–E2 cancelled\n\n\n\nTabela przedstawia stan po rezygnacji Bartka z E2. Osoba może uczestniczyć w wielu edycjach; anulowanego zapisu nie usuwamy. Dalsze założenia ustalcie podczas rozmowy z prowadzącym odgrywającym klienta."
+  },
+  {
+    "objectID": "scenariusze.html#wasze-zadanie",
+    "href": "scenariusze.html#wasze-zadanie",
+    "title": "Zaplecze szkoleniowe — zadania",
+    "section": "",
+    "text": "Projektujecie ewidencję fikcyjnego ośrodka „Dąb”. Kierownik chce wiedzieć, kto uczestniczy w szkoleniach, kto je prowadzi i ile miejsc pozostało. Projekt dotyczy indywidualnych uczestników. Kurs jest tematem, a edycja jego konkretnym przeprowadzeniem.\n\n\n\n\n\n\n\nObiekt\nDane\n\n\n\n\nUczestnicy\nU1 Ada, U2 Bartek, U3 Celina\n\n\nKursy\nK1 obsługa wyposażenia; K2 pierwsza pomoc\n\n\nEdycje\nE1: K1, limit 2; E2: K1, limit 4; E3: K2, limit 4\n\n\nZapisy\nU1–E1 confirmed; U2–E1 confirmed; U3–E2 confirmed; U2–E2 cancelled\n\n\n\nTabela przedstawia stan po rezygnacji Bartka z E2. Osoba może uczestniczyć w wielu edycjach; anulowanego zapisu nie usuwamy. Dalsze założenia ustalcie podczas rozmowy z prowadzącym odgrywającym klienta."
+  },
+  {
+    "objectID": "scenariusze.html#jak-pracujemy",
+    "href": "scenariusze.html#jak-pracujemy",
+    "title": "Zaplecze szkoleniowe — zadania",
+    "section": "Jak pracujemy",
+    "text": "Jak pracujemy\nKażda para oddaje rozwiązanie, opis próby i krótkie uzasadnienie. Każda osoba powinna umieć wyjaśnić wynik. Dane i zadania są niezależne od pozostałych przedmiotów."
+  },
+  {
+    "objectID": "scenariusze.html#wykład-1-czego-naprawdę-potrzebuje-kierownik",
+    "href": "scenariusze.html#wykład-1-czego-naprawdę-potrzebuje-kierownik",
+    "title": "Zaplecze szkoleniowe — zadania",
+    "section": "Wykład 1 — Czego naprawdę potrzebuje kierownik?",
+    "text": "Wykład 1 — Czego naprawdę potrzebuje kierownik?\nMateriał do zajęć\n\nZadaj trzy pytania kierownikowi, których odpowiedzi wpływają na projekt. Zapisz odpowiedzi i przyjęte założenia.\nPrzygotuj słownik pojęć: uczestnik, kurs, edycja, zapis. Opisz dwie reguły spójności i skutki usunięcia osoby zamiast anulowania jednego zapisu.\n\nKolejne karty będą udostępniane wraz z następnymi zajęciami."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Informacje ogólne",
+    "section": "",
+    "text": "Kod:\nSemestr: zimowy",
+    "crumbs": [
+      "Informacje ogólne"
+    ]
+  },
+  {
+    "objectID": "index.html#projektowanie-relacyjnych-baz-danych",
+    "href": "index.html#projektowanie-relacyjnych-baz-danych",
+    "title": "Informacje ogólne",
+    "section": "",
+    "text": "Kod:\nSemestr: zimowy",
+    "crumbs": [
+      "Informacje ogólne"
+    ]
+  },
+  {
+    "objectID": "index.html#kalendarz",
+    "href": "index.html#kalendarz",
+    "title": "Informacje ogólne",
+    "section": "Kalendarz",
+    "text": "Kalendarz\n\n\nWykład dla grup:\n\nTODO: dzień tygodnia, godzina, sala\n\n\n\nLaboratorium dla grup:\n\nTODO: dzień tygodnia, godzina, sala",
+    "crumbs": [
+      "Informacje ogólne"
+    ]
+  },
+  {
+    "objectID": "index.html#scenariusze-zajęć",
+    "href": "index.html#scenariusze-zajęć",
+    "title": "Informacje ogólne",
+    "section": "Scenariusze zajęć",
+    "text": "Scenariusze zajęć\nOtwórz zadania i opis projektu.",
+    "crumbs": [
+      "Informacje ogólne"
+    ]
+  },
+  {
     "objectID": "lectures/wyklad1.html",
     "href": "lectures/wyklad1.html",
     "title": "Wprowadzenie do relacyjnych baz danych",
@@ -85,36 +153,6 @@
     "crumbs": [
       "Wykłady",
       "Wprowadzenie do relacyjnych baz danych"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Informacje ogólne",
-    "section": "",
-    "text": "Kod:\nSemestr: zimowy",
-    "crumbs": [
-      "Informacje ogólne"
-    ]
-  },
-  {
-    "objectID": "index.html#projektowanie-relacyjnych-baz-danych",
-    "href": "index.html#projektowanie-relacyjnych-baz-danych",
-    "title": "Informacje ogólne",
-    "section": "",
-    "text": "Kod:\nSemestr: zimowy",
-    "crumbs": [
-      "Informacje ogólne"
-    ]
-  },
-  {
-    "objectID": "index.html#kalendarz",
-    "href": "index.html#kalendarz",
-    "title": "Informacje ogólne",
-    "section": "Kalendarz",
-    "text": "Kalendarz\n\n\nWykład dla grup:\n\nTODO: dzień tygodnia, godzina, sala\n\n\n\nLaboratorium dla grup:\n\nTODO: dzień tygodnia, godzina, sala",
-    "crumbs": [
-      "Informacje ogólne"
     ]
   }
 ]

@@ -1,0 +1,30 @@
+---
+title: "Zaplecze szkoleniowe — zadania"
+toc: true
+---
+
+## Wasze zadanie
+
+Projektujecie ewidencję fikcyjnego ośrodka „Dąb”. Kierownik chce wiedzieć, kto uczestniczy w szkoleniach, kto je prowadzi i ile miejsc pozostało. Projekt dotyczy indywidualnych uczestników. Kurs jest tematem, a edycja jego konkretnym przeprowadzeniem.
+
+| Obiekt | Dane |
+|---|---|
+| Uczestnicy | U1 Ada, U2 Bartek, U3 Celina |
+| Kursy | K1 obsługa wyposażenia; K2 pierwsza pomoc |
+| Edycje | E1: K1, limit 2; E2: K1, limit 4; E3: K2, limit 4 |
+| Zapisy | U1–E1 confirmed; U2–E1 confirmed; U3–E2 confirmed; U2–E2 cancelled |
+
+Tabela przedstawia stan po rezygnacji Bartka z E2. Osoba może uczestniczyć w wielu edycjach; anulowanego zapisu nie usuwamy. Dalsze założenia ustalcie podczas rozmowy z prowadzącym odgrywającym klienta.
+
+## Jak pracujemy
+
+Każda para oddaje rozwiązanie, opis próby i krótkie uzasadnienie. Każda osoba powinna umieć wyjaśnić wynik. Dane i zadania są niezależne od pozostałych przedmiotów.
+
+## Wykład 1 — Czego naprawdę potrzebuje kierownik?
+
+[Materiał do zajęć](lectures/wyklad1.qmd)
+
+1. Zadaj trzy pytania kierownikowi, których odpowiedzi wpływają na projekt. Zapisz odpowiedzi i przyjęte założenia.
+2. Przygotuj słownik pojęć: uczestnik, kurs, edycja, zapis. Opisz dwie reguły spójności i skutki usunięcia osoby zamiast anulowania jednego zapisu.
+
+Kolejne karty będą udostępniane wraz z następnymi zajęciami.
