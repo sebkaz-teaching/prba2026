@@ -51,7 +51,7 @@ wykład, odgrywasz fikcyjnego kierownika ośrodka (klienta). Nie chodzi o pytani
 rzeczywistej osoby ani wywiad poza uczelnią. Powiedz to wprost przed rozpoczęciem.
 
 **Przygotowanie:** otwórz [kartę studencką](../scenariusze.qmd). Studenci potrzebują
-kartki lub edytora tekstu. Nie zadajemy wcześniejszej instalacji ani przygotowania
+przeglądarki z dostępem do formularza. Notatkę mogą przygotować w edytorze tekstu. Nie zadajemy wcześniejszej instalacji ani przygotowania
 bazy. Publiczna tabela przedstawia stan po anulowaniu zapisu Bartka do E2.
 
 **Cel:** odróżnianie obiektu od związku między obiektami oraz zebranie wymagań przed
@@ -61,7 +61,7 @@ i konsekwencje zmiany danych. SQL i ERD nie są produktem tego ćwiczenia.
 **Przebieg ćwiczenia — 25 minut w ramach wykładu:**
 
 1. 5 min: pary układają trzy pytania o nieustalone reguły i zapisują ich znaczenie.
-2. 5 min: zbierasz pytania i odpowiadasz jako klient; wspólne ustalenia zapisujesz
+2. 5 min: studenci wysyłają pytania formularzem; odczytujesz je w panelu i odpowiadasz jako klient; wspólne ustalenia zapisujesz
    na tablicy. Powtarzające się pytania obsługujesz raz dla całej grupy.
 3. 10 min: pary uzupełniają słownik czterech pojęć, dwie reguły z kontrprzykładami
    i analizę rezygnacji Bartka.
@@ -88,8 +88,10 @@ ale pytanie powinno wnosić coś do opisu danych.
 **Oczekiwany efekt:** około jednej strony na parę: autorzy, trzy pytania z
 uzasadnieniem i odpowiedziami/założeniami, cztery pojęcia z przykładami i potrzebnymi
 informacjami, dwie reguły z sytuacjami naruszającymi oraz analiza rezygnacji.
-Przejrzyj notatki na zajęciach; studenci zachowują je na kolejne spotkanie.
-Nie wymagaj przesyłania pliku ani prezentacji, jeśli nie ustalisz tego osobno.
+Przejrzyj prace w chronionym panelu: `results.php?view=assignments&course=prba2026&lecture=wyklad1`.
+Pary wysyłają pytania, a po omówieniu uzupełnioną notatkę tym samym formularzem.
+Kolejne zmienione wersje pozostają w historii, bez automatycznej oceny. Studentom
+przypomnij o pobraniu lokalnej kopii przed zamknięciem strony. Nie trzeba przesyłać pliku ani przygotowywać prezentacji.
 
 **Wskazówki do omówienia:** kurs K1 i jego edycje E1/E2 to różne obiekty. Uczestnik
 U2 istnieje niezależnie od zapisu U2–E2. Rezygnacja zmienia status tego zapisu;

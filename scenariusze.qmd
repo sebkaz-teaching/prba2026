@@ -11,7 +11,8 @@ w zespół, który ma zaprojektować bazę danych dla fikcyjnego ośrodka szkole
 i jakie zasady mają obowiązywać.
 
 **Kierownik ośrodka to fikcyjny klient. Jego rolę odgrywa prowadzący wykład.**
-Pytania zadajecie prowadzącemu na zajęciach. Nie musicie szukać prawdziwego
+Pytania wpisujecie w formularzu na dole tej strony. Prowadzący odczyta je w swoim
+panelu i omówi wybrane kwestie na zajęciach. Nie musicie szukać prawdziwego
 kierownika, kontaktować się z żadną jednostką ani zbierać rzeczywistych danych.
 
 Na pierwszym wykładzie przygotujecie krótką notatkę wymagań. Nie trzeba jeszcze
@@ -54,8 +55,8 @@ z E2**. Anulowanych zapisów nie usuwamy. Osoba może uczestniczyć w wielu edyc
 
 ### Co przygotować przed zajęciami?
 
-Przeczytajcie opis i tabelę powyżej. Wystarczy kartka i długopis albo dowolny
-edytor tekstu. Nie ma obowiązkowego pliku do przygotowania w domu; notatkę
+Przeczytajcie opis i tabelę powyżej. Do wysłania pracy potrzebujecie przeglądarki i połączenia z internetem.
+Notatkę możecie wcześniej przygotować w edytorze tekstu. Nie ma obowiązkowego pliku do przygotowania w domu; notatkę
 wykonacie na zajęciach. Jeśli nie rozumiecie symbolu lub pojęcia, zaznaczcie je
 jako pytanie do wyjaśnienia.
 
@@ -78,17 +79,16 @@ nie komplet trzech pytań do przepisania.
 Nie powtarzajcie jedynie informacji już podanych w tabeli. Pytanie o kolor
 przycisku nie pomoże ustalić modelu danych na tym etapie.
 
-### Krok 2 — Zapytajcie klienta i zapiszcie odpowiedzi (5 minut)
+### Krok 2 — Wyślijcie pytania przez formularz (5 minut)
 
-Prowadzący zbiera pytania od par i odpowiada **w roli kierownika ośrodka**.
-Zapisujecie odpowiedzi dotyczące swoich pytań oraz ustalenia wspólne dla całej
-grupy. Pytania mogą być zadawane na głos; nie trzeba przygotowywać prezentacji.
+Wpiszcie imiona autorów, adresy e-mail i trzy pytania wraz z uzasadnieniem,
+dlaczego odpowiedź wpłynie na projekt danych. Jedna osoba wysyła formularz
+w imieniu pary. Pole drugiego adresu pozostawcie puste tylko przy pracy samodzielnej.
 
-| Nasze pytanie | Dlaczego to ważne dla danych? | Odpowiedź prowadzącego / nasze założenie |
-|---|---|---|
-| 1. … | … | … |
-| 2. … | … | … |
-| 3. … | … | … |
+Na tym etapie możecie wysłać same pytania; pozostałe pola uzupełnicie później.
+Prowadzący widzi wpisy w panelu i omawia je na zajęciach. Formularz nie generuje
+automatycznej odpowiedzi kierownika. Ustalenia po omówieniu możecie dopisać
+w polach pytań i przesłać uzupełnioną wersję.
 
 Jeśli zabraknie czasu na odpowiedź, wpiszcie „założenie do potwierdzenia” i swoją
 propozycję. Nie przedstawiajcie domysłu jako wymagania potwierdzonego przez klienta.
@@ -125,8 +125,45 @@ Każda osoba powinna umieć wyjaśnić przynajmniej jeden zapisany wniosek.
 - dwie reguły z przykładami naruszeń;
 - krótkie wyjaśnienie przypadku Bartka.
 
-Notatkę pokażcie prowadzącemu na zakończenie ćwiczenia i zachowajcie do kolejnych
-zajęć. Ta karta nie wymaga przesłania pliku, osobnej prezentacji ani gotowej bazy.
-Sprawdzamy, czy potraficie uzasadnić wymagania i odróżnić ustalone fakty od założeń.
+Notatkę prześlijcie poniższym formularzem. Po wysłaniu zaczekajcie na numer
+zapisanej pracy. Każda zmieniona i wysłana wersja pozostaje w historii; ponowienie
+identycznego wysłania w tej samej otwartej stronie nie dodaje duplikatu.
+Nie otrzymujecie automatycznych punktów za odpowiedzi opisowe.
+
+### Formularz pary
+
+Trzy pytania są wymagane; pojęcia, reguły i analizę przypadku można uzupełnić po
+omówieniu. Każde pole treści mieści do 2000 znaków. Dane identyfikacyjne i treść
+trafią do prowadzącego; nie będą wyświetlane publicznie na tej stronie.
+Formularz nie zachowuje szkicu po zamknięciu lub odświeżeniu strony — użyjcie
+„Pobierz kopię”, aby zachować tekst na swoim urządzeniu.
+
+```{=html}
+<form id="assignment-form" data-endpoint="https://sebastianzajac.pl/rsod-quiz/assignment-submit.php">
+  <p><label for="work-authors">Imiona i nazwiska autorów *</label><br>
+  <input id="work-authors" name="authors" required maxlength="200" class="form-control" autocomplete="off"></p>
+  <p><label for="work-email">E-mail osoby wysyłającej *</label><br>
+  <input id="work-email" name="email" type="email" required maxlength="254" class="form-control" autocomplete="email"></p>
+  <p><label for="work-partner">E-mail drugiej osoby (przy pracy w parze)</label><br>
+  <input id="work-partner" name="partner_email" type="email" maxlength="254" class="form-control" autocomplete="off"></p>
+  <p><label for="work-question1">Pytanie 1 i dlaczego jest ważne dla projektu *</label><br>
+  <textarea id="work-question1" name="question1" rows="4" maxlength="2000" class="form-control" required></textarea></p>
+  <p><label for="work-question2">Pytanie 2 i dlaczego jest ważne dla projektu *</label><br>
+  <textarea id="work-question2" name="question2" rows="4" maxlength="2000" class="form-control" required></textarea></p>
+  <p><label for="work-question3">Pytanie 3 i dlaczego jest ważne dla projektu *</label><br>
+  <textarea id="work-question3" name="question3" rows="4" maxlength="2000" class="form-control" required></textarea></p>
+  <p><label for="work-concepts">Cztery pojęcia: opis, przykład i potrzebna informacja</label><br>
+  <textarea id="work-concepts" name="concepts" rows="4" maxlength="2000" class="form-control"></textarea></p>
+  <p><label for="work-rules">Dwie reguły i przykłady ich naruszenia</label><br>
+  <textarea id="work-rules" name="rules" rows="4" maxlength="2000" class="form-control"></textarea></p>
+  <p><label for="work-case">Co zmienia rezygnacja Bartka, a co powinno pozostać?</label><br>
+  <textarea id="work-case" name="case" rows="4" maxlength="2000" class="form-control"></textarea></p>
+  <button type="submit" class="btn btn-primary">Wyślij pracę do prowadzącego</button>
+  <button type="button" id="assignment-download" class="btn btn-secondary">Pobierz kopię</button>
+  <p id="assignment-status" role="status" aria-live="polite"></p>
+</form>
+<noscript>Włącz JavaScript, aby wysłać pracę z tej strony.</noscript>
+<script src="assets/js/assignment-form.js"></script>
+```
 
 Kolejne karty będą udostępniane wraz z następnymi zajęciami.
