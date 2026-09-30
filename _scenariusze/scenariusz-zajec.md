@@ -46,15 +46,59 @@ Projekt rozwija się w ramach tego kursu. Przed kolejnymi zajęciami przypomnij 
 
 Materiał: [Wprowadzenie](../lectures/wyklad1.qmd).
 
-**Sytuacja:** kierownik mówi tylko: „Chcę listę ludzi i szkoleń”. To jeszcze nie specyfikacja.
+**Podział ról:** studenci pracują w parach jako projektanci bazy. Ty, prowadzący
+wykład, odgrywasz fikcyjnego kierownika ośrodka (klienta). Nie chodzi o pytania do
+rzeczywistej osoby ani wywiad poza uczelnią. Powiedz to wprost przed rozpoczęciem.
 
-**Zadanie A:** zadaj trzy pytania, od których zależy projekt. Przykładowe trafne pytania: czy kurs jest powtarzany, czy zapis można anulować, czy przechowujemy historię. Wynik: trzy pytania i zapisane odpowiedzi klienta.
+**Przygotowanie:** otwórz [kartę studencką](../scenariusze.qmd). Studenci potrzebują
+kartki lub edytora tekstu. Nie zadajemy wcześniejszej instalacji ani przygotowania
+bazy. Publiczna tabela przedstawia stan po anulowaniu zapisu Bartka do E2.
 
-**Zadanie B:** rozdziel pojęcia kursu, edycji i zapisu na przykładzie E1/E2. Oddaj słownik pojęć oraz dwie reguły spójności. Oczekiwane: wspólny temat K1 nie oznacza, że E1 i E2 są tym samym wydarzeniem.
+**Cel:** odróżnianie obiektu od związku między obiektami oraz zebranie wymagań przed
+projektowaniem tabel. Uczestnicy mają ustalić potrzebne informacje, ograniczenia
+i konsekwencje zmiany danych. SQL i ERD nie są produktem tego ćwiczenia.
 
-**Nowe zdarzenie:** pokaż przejście: przed rezygnacją zapis U2–E2 miał status `confirmed`, po rezygnacji ma `cancelled`. Tabela początkowa przedstawia stan po tej zmianie. Usunięcie jego danych z całej ewidencji zniszczyłoby również zapis do E1. Dyskusja prowadzi do rozdzielenia osoby od zdarzenia/związku.
+**Przebieg ćwiczenia — 25 minut w ramach wykładu:**
 
-**Pytanie końcowe:** „Co trzeba ustalić przed wyborem typów kolumn?” Odpowiedź: znaczenie danych, identyfikację obiektów i reguły dziedziny.
+1. 5 min: pary układają trzy pytania o nieustalone reguły i zapisują ich znaczenie.
+2. 5 min: zbierasz pytania i odpowiadasz jako klient; wspólne ustalenia zapisujesz
+   na tablicy. Powtarzające się pytania obsługujesz raz dla całej grupy.
+3. 10 min: pary uzupełniają słownik czterech pojęć, dwie reguły z kontrprzykładami
+   i analizę rezygnacji Bartka.
+4. 5 min: wybrane pary przedstawiają pytanie i regułę; pozostali porównują notatki.
+
+Ten blok zastępuje rozmowę z klientem i zadania pierwszego wykładu w ogólnym
+harmonogramie; nie jest dodatkowymi 25 minutami ponad 90 minut spotkania.
+
+**Odpowiedzi klienta — używaj kontraktu kursu:**
+
+| Przykładowe pytanie studenta | Odpowiedź klienta | Sens dla projektu |
+|---|---|---|
+| Czy edycję prowadzi kilka osób? | W obecnej wersji jedna. | Powiązanie edycji z prowadzącym. |
+| Czy jedna osoba może mieć dwa zapisy do tej samej edycji? | Nie. | Unikalność pary osoba–edycja. |
+| Co przy ponownym zgłoszeniu po rezygnacji? | Zmieniamy status tego samego zapisu po sprawdzeniu limitu. | Tożsamość zapisu pozostaje; status może się zmienić. |
+| Czy anulowany zapis zajmuje miejsce? | Nie. | Raport wolnych miejsc uwzględnia potwierdzone zapisy. |
+| Czy zapisujemy wszystkie zmiany statusu? | Na tym etapie tylko aktualny status. | Nie obiecujemy pełnego dziennika zdarzeń. |
+| Czy limit może być wyższy od pojemności sali? | Nie. | Reguła porównująca dane edycji i sali. |
+
+Pytania spoza ustalonego zakresu oznacz jako odłożone lub wspólnie przyjmij jawne
+założenie. Nie oceniaj odgadywania odpowiedzi. Podane już fakty można doprecyzować,
+ale pytanie powinno wnosić coś do opisu danych.
+
+**Oczekiwany efekt:** około jednej strony na parę: autorzy, trzy pytania z
+uzasadnieniem i odpowiedziami/założeniami, cztery pojęcia z przykładami i potrzebnymi
+informacjami, dwie reguły z sytuacjami naruszającymi oraz analiza rezygnacji.
+Przejrzyj notatki na zajęciach; studenci zachowują je na kolejne spotkanie.
+Nie wymagaj przesyłania pliku ani prezentacji, jeśli nie ustalisz tego osobno.
+
+**Wskazówki do omówienia:** kurs K1 i jego edycje E1/E2 to różne obiekty. Uczestnik
+U2 istnieje niezależnie od zapisu U2–E2. Rezygnacja zmienia status tego zapisu;
+nie usuwa uczestnika ani jego potwierdzonego zapisu do E1. Trafnymi regułami są np.
+brak dwóch zapisów tej samej osoby do jednej edycji i nieprzekraczanie limitu
+potwierdzonych zapisów. Student powinien do każdej podać własny kontrprzykład.
+
+**Pytanie końcowe:** „Co trzeba ustalić przed wyborem typów kolumn?”. Oczekiwane:
+znaczenie danych, identyfikację obiektów, powiązania i reguły dziedziny.
 
 ## Wykład 2 — Diagram, który da się obronić
 

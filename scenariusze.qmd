@@ -1,30 +1,132 @@
 ---
-title: "Zaplecze szkoleniowe — zadania"
+title: "Zaplecze szkoleniowe — zadania dla studentów"
 toc: true
 ---
 
-## Wasze zadanie
+## Dla kogo jest to zadanie?
 
-Projektujecie ewidencję fikcyjnego ośrodka „Dąb”. Kierownik chce wiedzieć, kto uczestniczy w szkoleniach, kto je prowadzi i ile miejsc pozostało. Projekt dotyczy indywidualnych uczestników. Kurs jest tematem, a edycja jego konkretnym przeprowadzeniem.
+**To zadanie dla studentów, wykonywane w parach podczas wykładu.** Wcielacie się
+w zespół, który ma zaprojektować bazę danych dla fikcyjnego ośrodka szkoleniowego
+„Dąb”. Waszym pierwszym zadaniem jest ustalić, jakie informacje trzeba zapisywać
+i jakie zasady mają obowiązywać.
 
-| Obiekt | Dane |
+**Kierownik ośrodka to fikcyjny klient. Jego rolę odgrywa prowadzący wykład.**
+Pytania zadajecie prowadzącemu na zajęciach. Nie musicie szukać prawdziwego
+kierownika, kontaktować się z żadną jednostką ani zbierać rzeczywistych danych.
+
+Na pierwszym wykładzie przygotujecie krótką notatkę wymagań. Nie trzeba jeszcze
+pisać SQL, instalować bazy, rysować diagramu ani tworzyć aplikacji. W kolejnych
+wykładach ta sama historia posłuży do projektowania modelu i zapytań.
+
+## Wykład 1 — Ustalcie, co ma pamiętać baza
+
+[Materiał do zajęć](lectures/wyklad1.qmd)
+
+### Sytuacja do przeanalizowania
+
+Wyobraźcie sobie, że kierownik mówi:
+
+> Organizujemy szkolenia dla uczestników. Ten sam temat może być realizowany
+> kilka razy, dla różnych osób. Chcę wiedzieć, kto jest zapisany na konkretne
+> zajęcia, kto je prowadzi i ile miejsc jeszcze zostało. Zdarzają się rezygnacje.
+
+To opis potrzeby, ale jeszcze nie kompletna instrukcja zaprojektowania bazy.
+Waszym zadaniem jest zamienić go na **nazwane informacje i sprawdzalne zasady**.
+
+### Dane, które już znacie
+
+- **Kurs** oznacza temat, np. „Obsługa wyposażenia”.
+- **Edycja** oznacza konkretne przeprowadzenie kursu, np. jego termin dla danej
+  grupy. Ten sam kurs może mieć kilka edycji.
+- **Zapis** opisuje uczestnictwo konkretnej osoby w konkretnej edycji.
+- Status `confirmed` oznacza zapis potwierdzony, a `cancelled` — anulowany.
+
+| Obiekt | Dane przykładowe |
 |---|---|
 | Uczestnicy | U1 Ada, U2 Bartek, U3 Celina |
 | Kursy | K1 obsługa wyposażenia; K2 pierwsza pomoc |
 | Edycje | E1: K1, limit 2; E2: K1, limit 4; E3: K2, limit 4 |
 | Zapisy | U1–E1 confirmed; U2–E1 confirmed; U3–E2 confirmed; U2–E2 cancelled |
 
-Tabela przedstawia stan po rezygnacji Bartka z E2. Osoba może uczestniczyć w wielu edycjach; anulowanego zapisu nie usuwamy. Dalsze założenia ustalcie podczas rozmowy z prowadzącym odgrywającym klienta.
+Symbole U1, K1 i E1 są identyfikatorami różnych rodzajów obiektów, nie nazwiskami
+ani numerami wierszy do zgadywania. Tabela pokazuje stan **po rezygnacji Bartka
+z E2**. Anulowanych zapisów nie usuwamy. Osoba może uczestniczyć w wielu edycjach.
 
-## Jak pracujemy
+### Co przygotować przed zajęciami?
 
-Każda para oddaje rozwiązanie, opis próby i krótkie uzasadnienie. Każda osoba powinna umieć wyjaśnić wynik. Dane i zadania są niezależne od pozostałych przedmiotów.
+Przeczytajcie opis i tabelę powyżej. Wystarczy kartka i długopis albo dowolny
+edytor tekstu. Nie ma obowiązkowego pliku do przygotowania w domu; notatkę
+wykonacie na zajęciach. Jeśli nie rozumiecie symbolu lub pojęcia, zaznaczcie je
+jako pytanie do wyjaśnienia.
 
-## Wykład 1 — Czego naprawdę potrzebuje kierownik?
+### Krok 1 — Znajdźcie trzy brakujące ustalenia (5 minut)
 
-[Materiał do zajęć](lectures/wyklad1.qmd)
+W parze zastanówcie się, **czego nadal nie wiecie, a co może zmienić sposób
+przechowywania danych lub ocenę poprawności zapisu**. Przygotujcie trzy pytania
+związane z opisem. Możecie rozważyć:
 
-1. Zadaj trzy pytania kierownikowi, których odpowiedzi wpływają na projekt. Zapisz odpowiedzi i przyjęte założenia.
-2. Przygotuj słownik pojęć: uczestnik, kurs, edycja, zapis. Opisz dwie reguły spójności i skutki usunięcia osoby zamiast anulowania jednego zapisu.
+- Czy zdarzenie lub powiązanie może się powtarzać?
+- Co ma się stać, gdy zmieni się decyzja uczestnika?
+- Które sytuacje system powinien odrzucać?
+- Jakich informacji brakuje do raportu, o który prosi kierownik?
+
+Przykład formy pytania: „Czy jedna edycja może mieć kilku prowadzących?”.
+Dopiszcie, **dlaczego odpowiedź ma znaczenie**: „Musimy ustalić, czy dla edycji
+zapisać jednego prowadzącego, czy umożliwić przypisanie kilku”. To przykład,
+nie komplet trzech pytań do przepisania.
+
+Nie powtarzajcie jedynie informacji już podanych w tabeli. Pytanie o kolor
+przycisku nie pomoże ustalić modelu danych na tym etapie.
+
+### Krok 2 — Zapytajcie klienta i zapiszcie odpowiedzi (5 minut)
+
+Prowadzący zbiera pytania od par i odpowiada **w roli kierownika ośrodka**.
+Zapisujecie odpowiedzi dotyczące swoich pytań oraz ustalenia wspólne dla całej
+grupy. Pytania mogą być zadawane na głos; nie trzeba przygotowywać prezentacji.
+
+| Nasze pytanie | Dlaczego to ważne dla danych? | Odpowiedź prowadzącego / nasze założenie |
+|---|---|---|
+| 1. … | … | … |
+| 2. … | … | … |
+| 3. … | … | … |
+
+Jeśli zabraknie czasu na odpowiedź, wpiszcie „założenie do potwierdzenia” i swoją
+propozycję. Nie przedstawiajcie domysłu jako wymagania potwierdzonego przez klienta.
+Przy samodzielnym przygotowaniu poza zajęciami pozostawcie pytania do omówienia.
+
+### Krok 3 — Przygotujcie notatkę projektu (10 minut)
+
+Na podstawie danych i rozmowy zapiszcie:
+
+1. **Cztery pojęcia:** uczestnik, kurs, edycja i zapis. Wyjaśnijcie własnymi słowami,
+   co oznaczają, podajcie po jednym przykładzie z tabeli oraz wskażcie informację,
+   którą trzeba pamiętać o każdym z nich.
+2. **Dwie reguły poprawności danych.** Każdą zapiszcie zwykłym zdaniem. Dopiszcie
+   konkretną sytuację, która naruszałaby tę regułę. Nie trzeba używać SQL.
+3. **Analizę rezygnacji Bartka:** przed rezygnacją U2–E2 miał status `confirmed`,
+   a po niej `cancelled`. Która informacja się zmienia? Co powinno pozostać?
+   Jakie konsekwencje miałoby usunięcie Bartka z całej ewidencji?
+
+Nie chodzi o wymyślenie jak największej liczby tabel. Zastanawiacie się, **co jest
+osobnym obiektem, co opisuje udział osoby w zajęciach i jak zmiana jednej
+informacji wpływa na pozostałe**.
+
+### Krok 4 — Przedstawcie i sprawdźcie wynik (5 minut)
+
+Wybrane pary przedstawiają jedno pytanie z odpowiedzią oraz jedną regułę
+z przykładem jej naruszenia. Pozostałe pary porównują to ze swoją notatką.
+Każda osoba powinna umieć wyjaśnić przynajmniej jeden zapisany wniosek.
+
+**Efekt pracy: jedna notatka pary, około jednej strony**, zawierająca:
+
+- imiona autorów;
+- trzy pytania, ich znaczenie oraz odpowiedzi lub jawne założenia;
+- cztery pojęcia z przykładami i potrzebnymi informacjami;
+- dwie reguły z przykładami naruszeń;
+- krótkie wyjaśnienie przypadku Bartka.
+
+Notatkę pokażcie prowadzącemu na zakończenie ćwiczenia i zachowajcie do kolejnych
+zajęć. Ta karta nie wymaga przesłania pliku, osobnej prezentacji ani gotowej bazy.
+Sprawdzamy, czy potraficie uzasadnić wymagania i odróżnić ustalone fakty od założeń.
 
 Kolejne karty będą udostępniane wraz z następnymi zajęciami.

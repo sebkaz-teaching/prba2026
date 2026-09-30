@@ -98,7 +98,7 @@ przechowywanie informacji, niezaleznie od ich typu i sposobu organizacji.
 ### 🔹 System Zarządzania Bazą Danych (DBMS)
 
 Bardzo często uzywamy terminu "baza danych" do określenia oprogramowania bazy danych, którego uzywamy. 
-Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie sustemem 
+Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie systemem
 zarządzania bazą danych (SZBD) lub (DBMS - Database Management System). Sama baza danych jest pojemnikiem tworzonym i modyfikowanym przez SZBD. Konkretna postać BD zienia się w zalezności od zastosowań. 
 
 

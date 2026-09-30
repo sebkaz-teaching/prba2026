@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Zaplecze szkoleniowe — zadania – Projektowanie Relacyjnych Baz Danych</title>
+<title>Zaplecze szkoleniowe — zadania dla studentów – Projektowanie Relacyjnych Baz Danych</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -146,9 +146,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title"><strong>Sections</strong></h2>
    
   <ul class="collapse">
-  <li><a href="#wasze-zadanie" id="toc-wasze-zadanie" class="nav-link active" data-scroll-target="#wasze-zadanie">Wasze zadanie</a></li>
-  <li><a href="#jak-pracujemy" id="toc-jak-pracujemy" class="nav-link" data-scroll-target="#jak-pracujemy">Jak pracujemy</a></li>
-  <li><a href="#wykład-1-czego-naprawdę-potrzebuje-kierownik" id="toc-wykład-1-czego-naprawdę-potrzebuje-kierownik" class="nav-link" data-scroll-target="#wykład-1-czego-naprawdę-potrzebuje-kierownik">Wykład 1 — Czego naprawdę potrzebuje kierownik?</a></li>
+  <li><a href="#dla-kogo-jest-to-zadanie" id="toc-dla-kogo-jest-to-zadanie" class="nav-link active" data-scroll-target="#dla-kogo-jest-to-zadanie">Dla kogo jest to zadanie?</a></li>
+  <li><a href="#wykład-1-ustalcie-co-ma-pamiętać-baza" id="toc-wykład-1-ustalcie-co-ma-pamiętać-baza" class="nav-link" data-scroll-target="#wykład-1-ustalcie-co-ma-pamiętać-baza">Wykład 1 — Ustalcie, co ma pamiętać baza</a></li>
   </ul>
 </nav>
     </div>
@@ -157,7 +156,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Zaplecze szkoleniowe — zadania</h1>
+<h1 class="title">Zaplecze szkoleniowe — zadania dla studentów</h1>
 </div>
 
 
@@ -174,9 +173,31 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="wasze-zadanie" class="level2">
-<h2 class="anchored" data-anchor-id="wasze-zadanie">Wasze zadanie</h2>
-<p>Projektujecie ewidencję fikcyjnego ośrodka „Dąb”. Kierownik chce wiedzieć, kto uczestniczy w szkoleniach, kto je prowadzi i ile miejsc pozostało. Projekt dotyczy indywidualnych uczestników. Kurs jest tematem, a edycja jego konkretnym przeprowadzeniem.</p>
+<section id="dla-kogo-jest-to-zadanie" class="level2">
+<h2 class="anchored" data-anchor-id="dla-kogo-jest-to-zadanie">Dla kogo jest to zadanie?</h2>
+<p><strong>To zadanie dla studentów, wykonywane w parach podczas wykładu.</strong> Wcielacie się w zespół, który ma zaprojektować bazę danych dla fikcyjnego ośrodka szkoleniowego „Dąb”. Waszym pierwszym zadaniem jest ustalić, jakie informacje trzeba zapisywać i jakie zasady mają obowiązywać.</p>
+<p><strong>Kierownik ośrodka to fikcyjny klient. Jego rolę odgrywa prowadzący wykład.</strong> Pytania zadajecie prowadzącemu na zajęciach. Nie musicie szukać prawdziwego kierownika, kontaktować się z żadną jednostką ani zbierać rzeczywistych danych.</p>
+<p>Na pierwszym wykładzie przygotujecie krótką notatkę wymagań. Nie trzeba jeszcze pisać SQL, instalować bazy, rysować diagramu ani tworzyć aplikacji. W kolejnych wykładach ta sama historia posłuży do projektowania modelu i zapytań.</p>
+</section>
+<section id="wykład-1-ustalcie-co-ma-pamiętać-baza" class="level2">
+<h2 class="anchored" data-anchor-id="wykład-1-ustalcie-co-ma-pamiętać-baza">Wykład 1 — Ustalcie, co ma pamiętać baza</h2>
+<p><a href="./lectures/wyklad1.html">Materiał do zajęć</a></p>
+<section id="sytuacja-do-przeanalizowania" class="level3">
+<h3 class="anchored" data-anchor-id="sytuacja-do-przeanalizowania">Sytuacja do przeanalizowania</h3>
+<p>Wyobraźcie sobie, że kierownik mówi:</p>
+<blockquote class="blockquote">
+<p>Organizujemy szkolenia dla uczestników. Ten sam temat może być realizowany kilka razy, dla różnych osób. Chcę wiedzieć, kto jest zapisany na konkretne zajęcia, kto je prowadzi i ile miejsc jeszcze zostało. Zdarzają się rezygnacje.</p>
+</blockquote>
+<p>To opis potrzeby, ale jeszcze nie kompletna instrukcja zaprojektowania bazy. Waszym zadaniem jest zamienić go na <strong>nazwane informacje i sprawdzalne zasady</strong>.</p>
+</section>
+<section id="dane-które-już-znacie" class="level3">
+<h3 class="anchored" data-anchor-id="dane-które-już-znacie">Dane, które już znacie</h3>
+<ul>
+<li><strong>Kurs</strong> oznacza temat, np. „Obsługa wyposażenia”.</li>
+<li><strong>Edycja</strong> oznacza konkretne przeprowadzenie kursu, np. jego termin dla danej grupy. Ten sam kurs może mieć kilka edycji.</li>
+<li><strong>Zapis</strong> opisuje uczestnictwo konkretnej osoby w konkretnej edycji.</li>
+<li>Status <code>confirmed</code> oznacza zapis potwierdzony, a <code>cancelled</code> — anulowany.</li>
+</ul>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -185,7 +206,7 @@ ul.task-list li input[type="checkbox"] {
 <thead>
 <tr class="header">
 <th>Obiekt</th>
-<th>Dane</th>
+<th>Dane przykładowe</th>
 </tr>
 </thead>
 <tbody>
@@ -207,22 +228,86 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
-<p>Tabela przedstawia stan po rezygnacji Bartka z E2. Osoba może uczestniczyć w wielu edycjach; anulowanego zapisu nie usuwamy. Dalsze założenia ustalcie podczas rozmowy z prowadzącym odgrywającym klienta.</p>
+<p>Symbole U1, K1 i E1 są identyfikatorami różnych rodzajów obiektów, nie nazwiskami ani numerami wierszy do zgadywania. Tabela pokazuje stan <strong>po rezygnacji Bartka z E2</strong>. Anulowanych zapisów nie usuwamy. Osoba może uczestniczyć w wielu edycjach.</p>
 </section>
-<section id="jak-pracujemy" class="level2">
-<h2 class="anchored" data-anchor-id="jak-pracujemy">Jak pracujemy</h2>
-<p>Każda para oddaje rozwiązanie, opis próby i krótkie uzasadnienie. Każda osoba powinna umieć wyjaśnić wynik. Dane i zadania są niezależne od pozostałych przedmiotów.</p>
+<section id="co-przygotować-przed-zajęciami" class="level3">
+<h3 class="anchored" data-anchor-id="co-przygotować-przed-zajęciami">Co przygotować przed zajęciami?</h3>
+<p>Przeczytajcie opis i tabelę powyżej. Wystarczy kartka i długopis albo dowolny edytor tekstu. Nie ma obowiązkowego pliku do przygotowania w domu; notatkę wykonacie na zajęciach. Jeśli nie rozumiecie symbolu lub pojęcia, zaznaczcie je jako pytanie do wyjaśnienia.</p>
 </section>
-<section id="wykład-1-czego-naprawdę-potrzebuje-kierownik" class="level2">
-<h2 class="anchored" data-anchor-id="wykład-1-czego-naprawdę-potrzebuje-kierownik">Wykład 1 — Czego naprawdę potrzebuje kierownik?</h2>
-<p><a href="./lectures/wyklad1.html">Materiał do zajęć</a></p>
+<section id="krok-1-znajdźcie-trzy-brakujące-ustalenia-5-minut" class="level3">
+<h3 class="anchored" data-anchor-id="krok-1-znajdźcie-trzy-brakujące-ustalenia-5-minut">Krok 1 — Znajdźcie trzy brakujące ustalenia (5 minut)</h3>
+<p>W parze zastanówcie się, <strong>czego nadal nie wiecie, a co może zmienić sposób przechowywania danych lub ocenę poprawności zapisu</strong>. Przygotujcie trzy pytania związane z opisem. Możecie rozważyć:</p>
+<ul>
+<li>Czy zdarzenie lub powiązanie może się powtarzać?</li>
+<li>Co ma się stać, gdy zmieni się decyzja uczestnika?</li>
+<li>Które sytuacje system powinien odrzucać?</li>
+<li>Jakich informacji brakuje do raportu, o który prosi kierownik?</li>
+</ul>
+<p>Przykład formy pytania: „Czy jedna edycja może mieć kilku prowadzących?”. Dopiszcie, <strong>dlaczego odpowiedź ma znaczenie</strong>: „Musimy ustalić, czy dla edycji zapisać jednego prowadzącego, czy umożliwić przypisanie kilku”. To przykład, nie komplet trzech pytań do przepisania.</p>
+<p>Nie powtarzajcie jedynie informacji już podanych w tabeli. Pytanie o kolor przycisku nie pomoże ustalić modelu danych na tym etapie.</p>
+</section>
+<section id="krok-2-zapytajcie-klienta-i-zapiszcie-odpowiedzi-5-minut" class="level3">
+<h3 class="anchored" data-anchor-id="krok-2-zapytajcie-klienta-i-zapiszcie-odpowiedzi-5-minut">Krok 2 — Zapytajcie klienta i zapiszcie odpowiedzi (5 minut)</h3>
+<p>Prowadzący zbiera pytania od par i odpowiada <strong>w roli kierownika ośrodka</strong>. Zapisujecie odpowiedzi dotyczące swoich pytań oraz ustalenia wspólne dla całej grupy. Pytania mogą być zadawane na głos; nie trzeba przygotowywać prezentacji.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Nasze pytanie</th>
+<th>Dlaczego to ważne dla danych?</th>
+<th>Odpowiedź prowadzącego / nasze założenie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. …</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="even">
+<td>2. …</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="odd">
+<td>3. …</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>Jeśli zabraknie czasu na odpowiedź, wpiszcie „założenie do potwierdzenia” i swoją propozycję. Nie przedstawiajcie domysłu jako wymagania potwierdzonego przez klienta. Przy samodzielnym przygotowaniu poza zajęciami pozostawcie pytania do omówienia.</p>
+</section>
+<section id="krok-3-przygotujcie-notatkę-projektu-10-minut" class="level3">
+<h3 class="anchored" data-anchor-id="krok-3-przygotujcie-notatkę-projektu-10-minut">Krok 3 — Przygotujcie notatkę projektu (10 minut)</h3>
+<p>Na podstawie danych i rozmowy zapiszcie:</p>
 <ol type="1">
-<li>Zadaj trzy pytania kierownikowi, których odpowiedzi wpływają na projekt. Zapisz odpowiedzi i przyjęte założenia.</li>
-<li>Przygotuj słownik pojęć: uczestnik, kurs, edycja, zapis. Opisz dwie reguły spójności i skutki usunięcia osoby zamiast anulowania jednego zapisu.</li>
+<li><strong>Cztery pojęcia:</strong> uczestnik, kurs, edycja i zapis. Wyjaśnijcie własnymi słowami, co oznaczają, podajcie po jednym przykładzie z tabeli oraz wskażcie informację, którą trzeba pamiętać o każdym z nich.</li>
+<li><strong>Dwie reguły poprawności danych.</strong> Każdą zapiszcie zwykłym zdaniem. Dopiszcie konkretną sytuację, która naruszałaby tę regułę. Nie trzeba używać SQL.</li>
+<li><strong>Analizę rezygnacji Bartka:</strong> przed rezygnacją U2–E2 miał status <code>confirmed</code>, a po niej <code>cancelled</code>. Która informacja się zmienia? Co powinno pozostać? Jakie konsekwencje miałoby usunięcie Bartka z całej ewidencji?</li>
 </ol>
+<p>Nie chodzi o wymyślenie jak największej liczby tabel. Zastanawiacie się, <strong>co jest osobnym obiektem, co opisuje udział osoby w zajęciach i jak zmiana jednej informacji wpływa na pozostałe</strong>.</p>
+</section>
+<section id="krok-4-przedstawcie-i-sprawdźcie-wynik-5-minut" class="level3">
+<h3 class="anchored" data-anchor-id="krok-4-przedstawcie-i-sprawdźcie-wynik-5-minut">Krok 4 — Przedstawcie i sprawdźcie wynik (5 minut)</h3>
+<p>Wybrane pary przedstawiają jedno pytanie z odpowiedzią oraz jedną regułę z przykładem jej naruszenia. Pozostałe pary porównują to ze swoją notatką. Każda osoba powinna umieć wyjaśnić przynajmniej jeden zapisany wniosek.</p>
+<p><strong>Efekt pracy: jedna notatka pary, około jednej strony</strong>, zawierająca:</p>
+<ul>
+<li>imiona autorów;</li>
+<li>trzy pytania, ich znaczenie oraz odpowiedzi lub jawne założenia;</li>
+<li>cztery pojęcia z przykładami i potrzebnymi informacjami;</li>
+<li>dwie reguły z przykładami naruszeń;</li>
+<li>krótkie wyjaśnienie przypadku Bartka.</li>
+</ul>
+<p>Notatkę pokażcie prowadzącemu na zakończenie ćwiczenia i zachowajcie do kolejnych zajęć. Ta karta nie wymaga przesłania pliku, osobnej prezentacji ani gotowej bazy. Sprawdzamy, czy potraficie uzasadnić wymagania i odróżnić ustalone fakty od założeń.</p>
 <p>Kolejne karty będą udostępniane wraz z następnymi zajęciami.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
