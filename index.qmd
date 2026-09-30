@@ -8,17 +8,30 @@ Kod:
 
 Semestr: zimowy
 
-## Kalendarz
+## Kalendarz — semestr zimowy 2026/2027
 
-<!-- TODO: uzupełnić na podstawie https://wel.wat.edu.pl/planyzajec/zima/dr__Zajac_Sebastian.htm -->
+### Wykłady
 
-### Wykład dla grup:
+| Termin |
+|---|
+| 2 października 2026 |
+| 8 października 2026 |
+| 15 października 2026 |
+| 16 października 2026 |
+| 22 października 2026 |
+| 28 października 2026 |
+| 4 listopada 2026 |
 
-1. TODO: dzień tygodnia, godzina, sala
+### Laboratoria
 
-### Laboratorium dla grup:
+| Termin | Wymiar | Informacja |
+|---|---|---|
+| 17 listopada 2026 | — | Zajęcia zostaną przeniesione lub odrobione w innym terminie. Termin zastępczy zostanie podany. |
+| 7 grudnia 2026 | 6 × 45 min | Zgodnie z planem. |
+| 25 stycznia 2027 | 6 × 45 min | Zgodnie z planem. |
 
-1. TODO: dzień tygodnia, godzina, sala
+Informacja o przeniesieniu dotyczy wyłącznie zajęć z 17 listopada.
+Godziny rozpoczęcia i sale sprawdźcie w planie zajęć swojej grupy.
 
 ## Scenariusze zajęć
 
