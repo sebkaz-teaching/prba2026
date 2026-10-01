@@ -2,243 +2,326 @@
 title: "Wprowadzenie do relacyjnych baz danych"
 ---
 
-# 🧩 Wykład 1: Wprowadzenie do relacyjnych baz danych
+# Wykład 1: Wprowadzenie do relacyjnych baz danych
 
-## Wprowadzenie i cele wykładu
+## Od problemu organizacyjnego do projektu bazy
 
-Celem wykładu jest zapoznanie się z podstawami relacyjnych baz danych — ich historią, pojęciami, architekturą, strukturą danych oraz zasadami integralności.
-Po tym wykładzie student powinien rozumieć, czym jest baza danych, jak działa DBMS, co oznacza model relacyjny oraz jakie są klucze i reguły spójności danych.
+Wyobraźmy sobie ośrodek szkoleniowy, który organizuje kilka kursów. Początkowo wystarcza arkusz: nazwisko uczestnika, temat kursu, termin, sala i nazwisko prowadzącego. Z czasem ten sam kurs odbywa się wielokrotnie, uczestnicy zmieniają decyzje, a kilka osób jednocześnie aktualizuje zapisy.
 
-## Historia i ewolucja baz danych
+Wtedy pojawiają się pytania:
 
-Bazy danych nie są wynalazkiem XXI wieku — ich początki sięgają lat 60. XX wieku, gdy organizacje zaczęły gromadzić coraz większe ilości danych.
+- Która lista uczestników jest aktualna?
+- Czy rezygnacja z jednego terminu usuwa osobę również z pozostałych zajęć?
+- Czy dwa wpisy o tej samej osobie oznaczają pomyłkę, czy dwa różne zapisy?
+- Jak policzyć wolne miejsca, jeśli część zapisów anulowano?
 
-### 🔹 Systemy plikowe
+**Projektowanie bazy zaczyna się od ustalenia znaczenia danych i zasad ich zmieniania.** Wybór programu i pisanie poleceń są kolejnymi krokami. Nawet sprawnie działający system może udzielać błędnych odpowiedzi, jeśli źle opisaliśmy rzeczywistość.
 
-Pierwsze systemy przechowywały dane w plikach na dyskach.
-Choć były proste, miały poważne ograniczenia:
+### Co mamy zrozumieć po tym wykładzie?
 
-- Brak centralnej kontroli nad danymi
-- Trudność w utrzymaniu spójności
-- Brak uniwersalnych narzędzi do wyszukiwania
+1. Czym różnią się dane, informacja, baza danych i program zarządzający bazą.
+2. Dlaczego model relacyjny oddziela logiczny opis danych od szczegółów ich przechowywania.
+3. Po co rozróżniamy perspektywę użytkownika, wspólny model bazy i fizyczny zapis.
+4. Co oznaczają tabela, wiersz, kolumna, dziedzina, schemat i stan danych.
+5. Jak identyfikatory i ograniczenia pomagają wykrywać błędne zapisy.
 
-💡 Zadanie: Na jakich innych obiektach, oprócz plików, można pracować w systemach operacyjnych?
+**Na pierwszych zajęciach poznajemy pojęcia, ale zadaniem projektowym jest zebranie wymagań.** Nie trzeba jeszcze samodzielnie projektować tabel, rysować formalnego diagramu ani pisać zapytań.
 
-### 🔹 Wczesne systemy DBMS
+## Dlaczego same pliki przestały wystarczać?
 
-W latach 60. i 70. pojawiły się pierwsze systemy zarządzania bazami danych (DBMS).
-Zapewniały:
+### Przechowywanie danych w oddzielnych plikach
 
-- centralną kontrolę danych,
-- integralność i bezpieczeństwo,
-- wydajne przetwarzanie i wyszukiwanie.
+W podejściu plikowym każdy program może utrzymywać własny zestaw danych i własne reguły ich odczytu. Jedna osoba prowadzi listę zgłoszeń, druga listę obecności, a trzecia zestawienie sal. Problemem nie jest sam plik, lecz brak wspólnie egzekwowanego opisu danych i zasad pracy.
 
+W naszym ośrodku nazwisko uczestnika może pojawić się w kilku arkuszach. Jeśli poprawimy je tylko w jednym miejscu, powstaną sprzeczne wersje. Jeśli dwa programy inaczej rozumieją „anulowanie”, jeden może usunąć zapis, a drugi całą osobę.
 
+| Problem | Przykład w ośrodku | Czego potrzebujemy? |
+|---|---|---|
+| Powielanie faktów | Dane prowadzącego są przepisywane przy każdym zapisie | Jednego uzgodnionego miejsca przechowywania danego faktu |
+| Sprzeczne aktualizacje | Dwie osoby inaczej zmieniają tę samą listę | Kontroli równoczesnej pracy |
+| Brak wspólnych ograniczeń | Zapis wskazuje nieistniejący termin | Sprawdzania poprawności powiązań |
+| Zależność programu od formatu | Zmiana układu pliku wymaga poprawienia wielu programów | Oddzielenia sposobu użycia danych od ich fizycznego zapisu |
 
+Baza danych również może korzystać z plików na dysku. Różnica polega na tym, że wyspecjalizowane oprogramowanie zarządza ich zawartością i udostępnia dane według określonych reguł. Nie chodzi więc o zastąpienie „złych plików” czymś, co nie używa plików.
 
-### 🔹 Modele hierarchiczne i sieciowe
+**Pytanie do przemyślenia:** czy przeniesienie trzech sprzecznych arkuszy do jednego katalogu sprawi, że ich zawartość stanie się spójna?
 
-Wczesne systemy wykorzystywały struktury drzewiaste lub grafowe.
-Były skuteczne, ale trudne w modyfikacji i rozwoju.
+### Od modeli hierarchicznych do modelu relacyjnego
 
-### 🔹 Przełom: model relacyjny
+W latach 60. i 70. XX wieku rozwijały się systemy zarządzania dużymi zbiorami danych. Modele hierarchiczne organizowały dane w struktury przypominające drzewa. Modele sieciowe pozwalały opisywać bardziej rozbudowane powiązania i poruszać się po nich określonymi ścieżkami. Nie należy utożsamiać historycznego modelu sieciowego ze współczesną aplikacją działającą przez internet.
 
-W 1970 roku Edgar F. Codd zaproponował model relacyjny danych, w którym:
+Istotną trudnością była zależność programu od sposobu organizacji i dostępu do danych. **Edgar F. Codd w pracy z 1970 roku zaproponował model relacyjny**, oparty na relacjach matematycznych. Ważną ideą było umożliwienie pracy na logicznym opisie danych bez znajomości szczegółów ich wewnętrznej reprezentacji. [Praca Codda — IBM Research](https://research.ibm.com/publications/a-relational-model-of-data-for-large-shared-data-banks).
 
-- dane są przechowywane w tabelach (relacjach),
-- każda tabela ma kolumny (atrybuty) i wiersze (krotki).
+Dla użytkownika oznacza to zmianę sposobu myślenia: zamiast wskazywać ścieżkę przejścia po fizycznych strukturach, opisuje on, **jakich danych potrzebuje**. Sposób ich znalezienia w dużej mierze dobiera system zarządzający bazą.
 
-Zalety:
+Model relacyjny nie gwarantuje sam z siebie bezpieczeństwa ani poprawności wszystkich danych. Daje podstawy ich opisu i przetwarzania; projektant musi jeszcze określić właściwe reguły, a system musi je egzekwować.
 
-- prostota i przejrzystość,
-- elastyczność (łatwo dodawać nowe tabele),
-- bezpieczeństwo i spójność danych.
+## Dane, informacja, baza danych i oprogramowanie
 
-### 🔹 SQL – język pracy z danymi
+### Dane a informacja
 
-Wraz z rozwojem modelu relacyjnego powstał SQL (Structured Query Language) – język do tworzenia, modyfikowania i pobierania danych.
+**Dane** to zapisane wartości, takie jak liczba `4`, oznaczenie `E2` czy tekst `cancelled`. **Informacja** powstaje, gdy odczytujemy te wartości w odpowiednim kontekście.
 
-Dziś SQL jest fundamentem większości systemów: od aplikacji biurowych po duże systemy korporacyjne.
-Nawet współczesne rozwiązania NoSQL często nawiązują do idei relacyjnych.
+Przykład:
 
-## Dane, informacja, baza danych i DBMS
+- `4` oznacza limit uczestników edycji E2;
+- na E2 jest jeden potwierdzony zapis;
+- z połączenia tych danych wynika informacja: **na E2 pozostały trzy wolne miejsca**.
 
-### 🔹 Dane a informacja
+Sam zapis liczby nie mówi, czy chodzi o liczbę sal, uczestników, czy wolnych miejsc. Dlatego w projekcie musimy ustalić znaczenie każdej informacji. Równie ważne jest znaczenie statusu: anulowany zapis istnieje w ewidencji, lecz nie zajmuje miejsca.
 
-- Dane – surowe fakty, liczby, teksty, które same w sobie niewiele znaczą.
-👉 np. 25, Warszawa, 12345
+### Baza danych — co przechowujemy?
 
-- Informacja – dane zinterpretowane i zorganizowane w kontekście.
-👉 np. „25 klientów z Warszawy złożyło zamówienie w ostatnim tygodniu”.
+**Baza danych**, w skrócie **BD**, to zorganizowany zbiór powiązanych danych dotyczących określonego obszaru rzeczywistości. Angielski termin to **database**, skrót **DB**.
 
-Dane to materiał, informacja to znaczenie.
+W ośrodku bazą są zapisane informacje o uczestnikach, kursach, edycjach i zgłoszeniach wraz z ich organizacją. Baza nie musi znajdować się na jednym fizycznym komputerze: centralny, uzgodniony opis danych nie oznacza obowiązkowo jednego miejsca ich przechowywania.
 
+Nie wystarczy też nazwać zbioru „bazą”, aby automatycznie stał się trwały i bezpieczny. Trwałość, kontrola dostępu i możliwość odtworzenia danych wymagają odpowiednich mechanizmów oraz konfiguracji.
 
-### 🔹 Baza danych
+### DBMS i SZBD — kto zarządza danymi?
 
-Zorganizowany zbiór danych umożliwiający ich łatwe przeszukiwanie, aktualizację i analizę.
+**DBMS — Database Management System** oznacza **system zarządzania bazą danych**, po polsku **SZBD**. To oprogramowanie, które obsługuje tworzenie struktur, odczyt i modyfikowanie danych oraz kontrolę dostępu do nich.
 
-Cechy:
+Rozróżnijmy trzy rzeczy:
 
-- Strukturalność
-- Centralizacja
-- Trwałość i bezpieczeństwo
+| Element | Co oznacza? | Przykład |
+|---|---|---|
+| Baza danych | Konkretny zbiór danych i jego struktura | Dane naszego ośrodka |
+| DBMS / SZBD | Oprogramowanie zarządzające bazą | PostgreSQL, MySQL, Oracle Database, Microsoft SQL Server, SQLite |
+| Aplikacja | Narzędzie realizujące potrzeby użytkownika | Formularz zapisów i raport dla kierownika |
 
-Przykłady:
+Jeden system zarządzania może obsługiwać różne bazy, a z tych samych danych mogą korzystać różne aplikacje. SQLite jest przykładem silnika działającego wewnątrz aplikacji, a nie obowiązkowo jako osobny serwer. To nadal system zarządzający bazą.
 
-- Lista kontaktów w telefonie
-- System rezerwacji hotelowej
-- Sklep internetowy
+Do zadań DBMS należą między innymi:
 
-Termin ,,baza danych'' uzywany jest na wiele róznych sposobów, ale na wykładzie 
-**baza danych** oznacza zbiór danych przechowywanych w pewien zorganizowany sposób. 
-Najprościej wyobrazić sobie bazę danych jako szafkę na dokumenty. Jest to miejsce umozliwiające
-przechowywanie informacji, niezaleznie od ich typu i sposobu organizacji. 
+- **obsługa struktury:** jakie dane przechowujemy i jakie ograniczenia obowiązują;
+- **odczyt i modyfikacja:** znajdowanie, dodawanie, poprawianie i usuwanie danych;
+- **kontrola spójności:** odrzucanie operacji naruszających zdefiniowane ograniczenia;
+- **koordynowanie zmian:** obsługa transakcji, czyli operacji wykonywanych jako jedna logiczna całość;
+- **organizacja dostępu:** dobór sposobu wyszukania danych oraz mechanizmy uprawnień i odtwarzania właściwe danemu systemowi.
 
-### 🔹 System Zarządzania Bazą Danych (DBMS)
+Oprogramowanie nie domyśli się jednak, że limit szkolenia powinien wynosić 12. **Regułę trzeba najpierw uzgodnić, a dopiero później zapisać i egzekwować.**
 
-Bardzo często uzywamy terminu "baza danych" do określenia oprogramowania bazy danych, którego uzywamy. 
-Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie systemem
-zarządzania bazą danych (SZBD) lub (DBMS - Database Management System). Sama baza danych jest pojemnikiem tworzonym i modyfikowanym przez SZBD. Konkretna postać BD zienia się w zalezności od zastosowań. 
+### CRUD — cztery podstawowe operacje
 
+**CRUD — Create, Read, Update, Delete** to nazwa czterech podstawowych rodzajów operacji na danych.
 
-Oprogramowanie do tworzenia, modyfikowania i przetwarzania baz danych.
+| Litera | Angielska nazwa | Znaczenie | Przykład |
+|---|---|---|---|
+| C | Create | Utworzenie danych | Dodanie nowej edycji kursu |
+| R | Read | Odczyt danych | Wyświetlenie zapisów na E1 |
+| U | Update | Aktualizacja danych | Zmiana statusu zapisu na anulowany |
+| D | Delete | Usunięcie danych | Usunięcie omyłkowo utworzonego rekordu, jeśli pozwalają na to reguły |
 
-Funkcje DBMS:
+Rezygnacja uczestnika nie musi oznaczać operacji Delete. W naszym projekcie zachowujemy zapis i zmieniamy jego status, więc jest to **Update**. Wybór operacji wynika ze znaczenia zdarzenia.
 
-- Tworzenie i modyfikacja schematów
-- Operacje CRUD (Create, Read, Update, Delete)
-- Zarządzanie bezpieczeństwem i uprawnieniami
-- Optymalizacja zapytań
+### SQL — język, a nie baza
 
-Przykłady:
-MySQL, PostgreSQL, Oracle, SQL Server, SQLite.
+**SQL — Structured Query Language**, po polsku **strukturalny język zapytań**, służy między innymi do definiowania struktur, pobierania i zmieniania danych w systemach relacyjnych.
 
+Polecenia **SELECT** (wybierz dane), **INSERT** (wstaw dane), **UPDATE** (zaktualizuj dane) i **DELETE** (usuń dane) odpowiadają różnym operacjom. To angielskie słowa kluczowe, nie skróty. Litera C w CRUD oznacza tworzenie rekordu; nie należy jej utożsamiać wyłącznie z poleceniem `CREATE TABLE`, które tworzy strukturę tabeli.
 
+Na razie wystarczy rozumieć intencję: „pokaż potwierdzonych uczestników E1”. Składni zapytań będziemy uczyć się później. **SQL jest językiem, PostgreSQL jest systemem zarządzającym, a dane ośrodka stanowią bazę.**
 
-## Architektura systemów baz danych
+## Po co nam trzy poziomy opisu danych?
 
-Systemy baz danych są zorganizowane według poziomów abstrakcji, co pozwala oddzielić sposób przechowywania danych od ich widoku dla użytkownika.
+Poznaliśmy problem rozproszonych plików oraz rolę wspólnego systemu zarządzającego. Pozostaje pytanie: **czy każdy użytkownik musi znać całą strukturę bazy i sposób zapisu na dysku?**
 
-### 🔹 Poziomy abstrakcji
+W ośrodku występują różne potrzeby:
 
-1.	Poziom fizyczny (wewnętrzny)
+- prowadzący chce listy potwierdzonych uczestników swojej edycji;
+- kierownik chce zestawienia wszystkich terminów i wolnych miejsc;
+- osoba administrująca bazą chce przyspieszyć odczyt dużej liczby zapisów.
 
-- opisuje sposób przechowywania danych (pliki, indeksy, struktury).
+To trzy spojrzenia na te same dane. Nie powinniśmy tworzyć trzech niezależnych, ręcznie uzgadnianych kopii tylko dlatego, że odbiorcy potrzebują innych zestawień. Nie chcemy też zmieniać raportu kierownika za każdym razem, gdy administrator zmieni organizację plików.
 
-2.	Poziom logiczny (pośredni)
+**Właśnie temu rozdzieleniu służy architektura ANSI/SPARC.** Łączy się z wcześniejszą częścią wykładu poprzez ideę niezależności danych: użytkownik opisuje potrzebną informację, a szczegóły przechowywania pozostają zadaniem systemu.
 
-- opisuje strukturę danych (tabele, relacje, typy danych).
+### Co oznacza ANSI/SPARC?
 
-3.	Poziom zewnętrzny (widok użytkownika)
+- **ANSI — American National Standards Institute**: Amerykański Narodowy Instytut Normalizacyjny.
+- **SPARC — Standards Planning and Requirements Committee**: komitet planowania standardów i wymagań.
 
-- pokazuje dane z perspektywy użytkownika lub aplikacji.
+Nazwa odnosi się do prac nad architekturą systemów baz danych. Wykorzystujemy ją jako **model odniesienia**, który porządkuje trzy poziomy opisu. Nie jest to dodatkowy program do instalacji ani obietnica, że każdy produkt ma trzy osobne moduły dokładnie o tych nazwach. [Raport architektury ANSI/X3/SPARC](https://doi.org/10.1016/0306-4379(78)90001-7).
 
-Zmiany w jednym poziomie nie wymagają zmian w pozostałych — to tzw. niezależność danych.
+### Te same dane, trzy różne pytania
 
-### 🔹 Model ANSI/SPARC
+| Poziom | Nazwa angielska | Pytanie | Przykład w ośrodku |
+|---|---|---|---|
+| Zewnętrzny | External level | Jakich danych potrzebuje dany użytkownik lub aplikacja? | Lista uczestników E1 dla prowadzącego; raport wolnych miejsc dla kierownika |
+| Pojęciowy, czyli logiczny opis całej bazy | Conceptual level | Jakie fakty przechowujemy i jak są ze sobą powiązane? | Uczestnicy, edycje i zapisy; zapis wskazuje uczestnika i edycję oraz ma status |
+| Wewnętrzny, czyli fizyczny | Internal level | Jak system zapisuje i odnajduje te dane? | Pliki, strony danych i indeksy przyspieszające wyszukiwanie |
 
-Formalny model trójpoziomowy:
+**Poziom zewnętrzny** nie oznacza tylko wyglądu okienka. Określa zakres i postać danych dostępnych z danej perspektywy. Może być realizowany przez zapytania, raporty lub widoki bazy. Samo pominięcie kolumny w raporcie nie odbiera uprawnień do jej odczytu inną drogą — kontrolę dostępu trzeba skonfigurować.
 
-- poziom wewnętrzny – fizyczne przechowywanie danych,
-- poziom pojęciowy – logiczna struktura bazy,
-- poziom zewnętrzny – widoki użytkowników.
+**Poziom pojęciowy** jest wspólnym opisem całej bazy, a nie osobną listą dla każdego odbiorcy. W systemie relacyjnym wyrażamy go za pomocą struktur relacyjnych i ograniczeń. Pytamy tutaj o znaczenie danych, a nie o położenie bajtów na dysku.
 
-Zalety:
+**Poziom wewnętrzny** obejmuje technikę przechowywania. Indeks można na tym etapie wyobrazić sobie jako dodatkową strukturę ułatwiającą znalezienie danych, podobnie jak indeks haseł w książce. Szczegóły indeksowania nie są potrzebne do zrozumienia reguły zapisu na kurs.
 
-- izolacja danych,
-- bezpieczeństwo,
-- elastyczność i skalowalność.
+```{mermaid}
+flowchart TB
+    A["Prowadzący: lista uczestników E1"] --> C["Wspólny opis: uczestnik — zapis — edycja"]
+    B["Kierownik: terminy i wolne miejsca"] --> C
+    C --> D["Zapis wewnętrzny: pliki i indeksy"]
+```
 
+Strzałki oznaczają powiązanie opisów, nie kopiowanie bazy ani kolejność przesyłania żądania przez sieć.
 
+### Niezależność fizyczna i logiczna — co ma pozostać bez zmian?
 
-## Model relacyjny
+**Fizyczna niezależność danych — physical data independence** oznacza możliwość zmiany organizacji przechowywania bez zmiany logicznego opisu danych. Administrator może dodać indeks ułatwiający wyszukiwanie zapisów po edycji. Prowadzący nadal prosi o tę samą listę uczestników, a znaczenie jej kolumn pozostaje takie samo.
 
-### 🔹 Relacja (tabela)
+**Logiczna niezależność danych — logical data independence** oznacza możliwość zmiany wspólnego schematu przy zachowaniu potrzebnych opisów zewnętrznych i współpracujących z nimi aplikacji. Przykładowo po rozdzieleniu opisu kursu i jego edycji można utrzymać dotychczasowy raport dzięki odpowiedniemu odwzorowaniu danych.
 
-TABELA to:
+To **cel projektowy, nie automatyczna ochrona przed każdą zmianą**. Usunięcie informacji potrzebnej raportowi albo zmiana znaczenia kolumny może wymagać poprawienia aplikacji. Zachowanie zgodnego raportu po przebudowie schematu również wymaga pracy.
 
-- Zbiór danych o tej samej strukturze.
-- Uporządkowana lista zawierająca dane określonego typu
+::: {.callout-note}
+## Co łączy ten model z resztą wykładu?
 
-Każda tabela opisuje jeden typ obiektów (np. Studenci, Kursy).
+Pliki pokazały problem zależności programów od organizacji danych. DBMS dostarcza mechanizmy wspólnego zarządzania. ANSI/SPARC pomaga rozdzielić **potrzeby odbiorcy, znaczenie danych i sposób ich zapisu**. Za chwilę model relacyjny pokaże, jak opisać wspólną strukturę za pomocą relacji i kluczy.
 
-Najwazniejsze, ze tabela przechowuje dane jednego typu. W jednej tabeli nie pojawi się 
-jednocześnie lista kontaktów i lista zamówień.
-> Uwaga: Technicznie taka tabela jest mozliwa do realizacji ale pobieranie konkretnych elementów 
-> byłoby znacznie utrudnione. 
+Nie myl tych trzech poziomów z podziałem aplikacji na interfejs, serwer i bazę. ANSI/SPARC opisuje perspektywy danych, a nie trzy komputery lub procesy.
+:::
 
-> Uwaga: Kazda tabela posiada **nazwę** pozwalającą jednoznacznie ją zidentyfikować. 
-> Nazwa zawsze jest unikalna - zadna inna tabela nie moze mieć takiej samej nazwy. 
+**Sprawdź rozumienie:** dodajemy indeks, przygotowujemy nowy raport dla prowadzącego i zmieniamy sposób powiązania zapisów z edycjami. Którego poziomu dotyczy każda z tych zmian?
 
+## Jak model relacyjny opisuje dane?
 
-### 🔹 Krotka (wiersz)
+### Relacja, tabela i znaczenie wiersza
 
-Pojedynczy rekord w tabeli (np. dane jednego studenta).
+W matematycznym modelu relacyjnym **relacja — relation** jest zbiorem krotek o określonej strukturze. Praktycznym sposobem jej przedstawienia jest tabela. Tabele języka SQL nie odwzorowują wszystkich własności relacji idealnie: mogą między innymi zawierać powtórzenia wierszy, jeśli odpowiednie ograniczenia ich nie zabraniają.
 
-### 🔹 Atrybut (kolumna)
+Przykładowy fragment danych o zapisach:
 
-Właściwość obiektu – ma nazwę i typ danych (np. Imię, Nazwisko, NrIndeksu).
+| enrollment_id | participant_id | edition_id | status |
+|---|---|---|---|
+| Z1 | U1 | E1 | confirmed |
+| Z2 | U2 | E1 | confirmed |
+| Z3 | U3 | E2 | confirmed |
+| Z4 | U2 | E2 | cancelled |
 
-### 🔹 Domena
+W nazwach kolumn `id` oznacza **identifier**, czyli identyfikator. U1 to Ada, U2 to Bartek, U3 to Celina. Każdy wiersz opisuje **jeden zapis uczestnika na edycję**, a nie całą osobę ani cały kurs.
 
-Zbiór dopuszczalnych wartości atrybutu (np. liczby całkowite, ciągi znaków do 50 znaków).
+Dobra tabela ma jasno ustalone znaczenie wiersza. Może opisywać obiekty, zdarzenia lub powiązania — tabela zapisów jest właśnie przykładem powiązania. Nie chodzi o to, żeby wszystkie kolumny miały ten sam typ danych, lecz żeby wspólnie opisywały ten sam rodzaj faktu.
 
-### 🔹 Schemat i instancja
+**Tabela nie jest uporządkowaną listą.** Bez jawnego sortowania nie wolno zakładać kolejności wyników. Służy do tego między innymi `ORDER BY` — „uporządkuj według”. Nazwa tabeli musi być jednoznaczna w odpowiedniej przestrzeni nazw; różne schematy tej samej bazy mogą zawierać tabele o tej samej krótkiej nazwie.
 
-- Schemat relacji – struktura tabeli (nazwy kolumn, typy).
-- Instancja relacji – aktualna zawartość tabeli.
+### Krotka, atrybut i dziedzina
 
-## Klucze i integralność danych
+- **Krotka — tuple**, w praktyce wiersz lub rekord: pojedynczy zapis zgodny ze strukturą relacji. Wiersz Z4 mówi o zapisie Bartka do E2, obecnie anulowanym.
+- **Atrybut — attribute**, w praktyce kolumna: nazwana właściwość, np. status zapisu albo identyfikator edycji.
+- **Dziedzina — domain**: zbiór dopuszczalnych wartości atrybutu. Status w naszym projekcie przyjmuje `confirmed` albo `cancelled`.
 
-### 🔹 Klucz główny (Primary Key)
+Typ „tekst” dopuszcza znacznie więcej wartości niż te dwa statusy. **Typ danych i reguła dziedziny nie zawsze są tym samym.** Podobnie liczba całkowita może być ujemna, ale limit uczestników ma być dodatni.
 
-- jednoznacznie identyfikuje każdy rekord,
-- nie może mieć wartości NULL.
-  
-Przykład: NrIndeksu w tabeli Studenci.
+### Schemat a aktualny stan danych
 
-### 🔹 Klucz kandydujący (Candidate Key)
+**Schemat relacji — relation schema** opisuje jej strukturę: atrybuty, ich dziedziny oraz ograniczenia. **Stan relacji — relation instance** to zbiór krotek występujących w danym momencie.
 
-- każdy atrybut (lub ich kombinacja), który mógłby być kluczem głównym.
-Przykład: NrIndeksu i PESEL – wybieramy jeden jako główny.
+- Dopisanie kolejnego uczestnika zmienia stan danych, ale nie musi zmieniać schematu.
+- Dodanie nowego atrybutu opisującego zapis zmienia schemat.
+- Zmiana `confirmed` na `cancelled` zmienia stan konkretnego zapisu.
 
-### 🔹 Klucz obcy (Foreign Key)
+Słowo „schemat” bywa też nazwą przestrzeni nazw w konkretnym systemie bazodanowym. Tutaj interesuje nas przede wszystkim schemat jako **opis struktury**, w odróżnieniu od aktualnej zawartości.
 
-- atrybut wskazujący na klucz główny w innej tabeli.
-Przykład: NrIndeksu w tabeli Oceny odnosi się do Studenci.
+## Jak rozpoznać rekord i odrzucić błędny zapis?
 
-### 🔹 Integralność danych
+### Klucz kandydujący i klucz główny
 
-1.	Integralność encji – każda krotka musi być jednoznacznie identyfikowana.
-2.	Integralność referencyjna – wartości kluczy obcych muszą istnieć w tabelach nadrzędnych.
-3.	Integralność dziedzinowa – wartości atrybutów muszą mieścić się w swoich domenach.
+Dwie osoby mogą mieć takie samo imię i nazwisko. Potrzebujemy więc sposobu jednoznacznego wskazania rekordu, który nie zależy od jego miejsca na ekranie.
 
+**Klucz kandydujący — candidate key** jest minimalnym zestawem atrybutów jednoznacznie identyfikującym krotkę. „Minimalny” znaczy, że usunięcie któregokolwiek atrybutu z tego zestawu pozbawiłoby go tej własności. Klucz może składać się z jednej lub kilku kolumn.
 
+**Klucz główny — primary key, PK** to wybrany klucz kandydujący. Jego wartości mają być unikalne, a żaden składnik nie może być `NULL`. **NULL nie jest skrótem**: w SQL jest znacznikiem braku wartości, nie liczbą zero ani pustym tekstem.
 
-## 🧠 Zestaw pytań testowych
+W tabeli uczestników możemy użyć `participant_id`. Adres e-mail nie staje się dobrym kluczem tylko dlatego, że w kilku przykładowych wierszach jest różny. Najpierw trzeba ustalić, czy jest wymagany i czy rzeczywiście ma być unikalny.
 
-### ✅ Pytania zamknięte (jednokrotnego wyboru)
+W tabeli zapisów można nadać każdemu rekordowi `enrollment_id`, lecz nadal potrzebna jest reguła „najwyżej jeden zapis danej osoby do danej edycji”. Dwa różne identyfikatory zapisu same nie zapobiegną powtórzeniu pary uczestnik–edycja.
 
-1.	Kto zaproponował model relacyjny danych?
+### Klucz obcy — odwołanie do istniejących danych
 
-a) Donald Knuth
-b) Edgar F. Codd
-c) Bill Gates
-d) Charles Bachman
-	
-2.	Co opisuje poziom logiczny w architekturze ANSI/SPARC?
+**Klucz obcy — foreign key, FK** to atrybut lub zestaw atrybutów, którego wartości odwołują się do dopuszczonego klucza w tabeli wskazywanej. Najczęściej jest to jej klucz główny, ale może to być także odpowiedni klucz unikalny. Odwołanie może prowadzić również do tej samej tabeli.
 
-a) Sposób fizycznego zapisu danych
-b) Widok danych przez użytkownika
-c) Strukturę danych i relac
+W naszym przykładzie `participant_id` w zapisie wskazuje istniejącego uczestnika, a `edition_id` istniejącą edycję. Próba zapisania osoby U99, której nie ma w ewidencji, powinna zostać odrzucona przez poprawnie zdefiniowane ograniczenie.
 
+Klucz obcy nie przechowuje kopii całej osoby. Przechowuje odwołanie, dzięki któremu możemy powiązać zapis z właściwym uczestnikiem. Nie sprawdza jednak sam, czy na edycji jest wolne miejsce. [Przykłady ograniczeń w dokumentacji PostgreSQL](https://www.postgresql.org/docs/18/ddl-constraints.html).
 
-✏️ Pytania otwarte / opisowe
+### Integralność — jakie błędy chcemy wykryć?
 
-1. Wyjaśnij różnicę między danymi a informacją.
-2. Wymień i krótko opisz trzy poziomy abstrakcji w modelu ANSI/SPARC.
-3. Co to jest klucz główny i jakie są jego cechy?
-4. Podaj przykład relacji i wskaż w niej krotki oraz atrybuty.
-5. Dlaczego model relacyjny okazał się przełomem w historii baz danych?
-6. Jakie są trzy podstawowe zasady integralności danych?
+**Integralność danych — data integrity** oznacza zgodność danych z ustalonymi ograniczeniami. Rozróżnimy trzy podstawowe grupy:
+
+| Rodzaj | Nazwa angielska | Sens | Przykład błędu |
+|---|---|---|---|
+| Integralność encji | Entity integrity | Rekord ma jednoznaczną tożsamość; klucz główny jest unikalny i bez NULL | Dwie osoby otrzymały to samo `participant_id` |
+| Integralność referencyjna | Referential integrity | Odwołania prowadzą do istniejących danych | Zapis wskazuje uczestnika U99, którego nie ma |
+| Integralność dziedzinowa | Domain integrity | Wartości spełniają ograniczenia dziedziny | Limit wynosi −3 albo status ma niedopuszczalną wartość |
+
+Jeśli powiązanie jest opcjonalne, klucz obcy może dopuszczać brak wartości zgodnie z jego definicją. Gdy zapis obowiązkowo musi wskazywać uczestnika, oprócz odwołania wymagamy niepustej wartości. Te zasady należy ustalić jawnie.
+
+Istnieją też **reguły biznesowe — business rules**, np. nieprzekraczanie limitu potwierdzonych zapisów lub zakaz nakładających się zajęć w tej samej sali. Ich egzekwowanie może wymagać uwzględnienia wielu rekordów i odpowiedniej obsługi równoczesnych operacji. Nie każdą regułę da się wyrazić samym kluczem obcym czy typem kolumny.
+
+Na dzisiejszych zajęciach wystarczy umieć **nazwać regułę i pokazać sytuację, która ją narusza**. Dobór mechanizmu jej realizacji będzie kolejnym etapem projektu.
+
+## Od wykładu do pierwszego zadania projektowego
+
+Przeszliśmy od problemu kilku ewidencji do wspólnego opisu danych:
+
+1. Potrzeby użytkownika mówią, na jakie pytania ma odpowiadać system.
+2. Dane potrzebują ustalonego znaczenia i reguł.
+3. DBMS zarządza ich zapisem i przetwarzaniem.
+4. ANSI/SPARC rozdziela perspektywę odbiorcy, strukturę logiczną i zapis fizyczny.
+5. Model relacyjny daje pojęcia potrzebne do opisu struktury, a klucze i ograniczenia pomagają pilnować poprawności.
+
+Teraz pracujecie w parach jako projektanci bazy dla ośrodka. Prowadzący odgrywa klienta. **Najpierw ustalacie wymagania, nie próbujecie od razu zamieniać każdego słowa na tabelę.**
+
+Otwórzcie [opis projektu i formularz](../scenariusze.qmd). Przygotujcie trzy pytania z uzasadnieniem. Po omówieniu odpowiedzi uzupełnicie pojęcia, reguły i analizę przypadku. Formularz zostawcie otwarty w osobnej karcie, a przed zamknięciem pobierzcie kopię notatki.
+
+## Słownik skrótów i nazw
+
+| Skrót lub zapis | Pełna nazwa angielska | Znaczenie po polsku |
+|---|---|---|
+| BD / DB | Database | Baza danych; BD jest skrótem polskim, DB angielskim |
+| SZBD / DBMS | Database Management System | System zarządzania bazą danych |
+| SQL | Structured Query Language | Strukturalny język zapytań |
+| CRUD | Create, Read, Update, Delete | Tworzenie, odczyt, aktualizacja i usuwanie danych |
+| ANSI | American National Standards Institute | Amerykański Narodowy Instytut Normalizacyjny |
+| SPARC | Standards Planning and Requirements Committee | Komitet planowania standardów i wymagań |
+| PK | Primary Key | Klucz główny |
+| FK | Foreign Key | Klucz obcy |
+| ID / id | Identifier | Identyfikator |
+| NULL | Nie jest skrótem | Znacznik braku wartości w SQL |
+
+Nazwy produktów, takie jak PostgreSQL czy SQLite, oznaczają konkretne oprogramowanie. `confirmed` znaczy „potwierdzony”, a `cancelled` — „anulowany”; są to wartości statusu w naszym przykładzie.
+
+## Pytania do samodzielnego sprawdzenia
+
+To powtórka po lekturze, a nie formularz punktowanego quizu.
+
+### Pytania jednokrotnego wyboru
+
+1. Kto zaproponował model relacyjny w pracy z 1970 roku?
+
+   a. Donald Knuth.
+   b. Edgar F. Codd.
+   c. Bill Gates.
+   d. Charles Bachman.
+
+2. Co opisuje poziom pojęciowy, czyli logiczny, w architekturze ANSI/SPARC?
+
+   a. Położenie danych w plikach.
+   b. Wyłącznie wygląd formularza użytkownika.
+   c. Wspólną strukturę danych i ich powiązania.
+   d. Sposób zestawiania połączenia sieciowego.
+
+### Pytania opisowe
+
+1. Wyjaśnij różnicę między daną i informacją na przykładzie wolnych miejsc.
+2. Rozróżnij bazę ośrodka, DBMS i aplikację zapisów.
+3. Rozwiń CRUD i wyjaśnij, dlaczego anulowanie zapisu jest w naszym projekcie aktualizacją.
+4. Po co model ANSI/SPARC wprowadza trzy poziomy? Podaj przykład dla każdego z nich.
+5. Wyjaśnij różnicę między fizyczną i logiczną niezależnością danych. Czy każda zmiana jest przez to niewidoczna dla aplikacji?
+6. W tabeli zapisów wskaż krotkę, atrybut i przykład dziedziny. Czy kolejność wierszy określa ich tożsamość?
+7. Czym różni się schemat relacji od jej aktualnego stanu?
+8. Dlaczego imię i nazwisko nie muszą być kluczem? Co znaczy minimalność klucza kandydującego?
+9. Która zasada zabroni zapisania oceny dla nieistniejącego studenta, jeśli tabela ocen odwołuje się do studentów kluczem obcym?
+10. Podaj regułę ośrodka, której nie sprawdzi samo istnienie klucza obcego.

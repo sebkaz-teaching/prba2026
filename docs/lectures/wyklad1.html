@@ -72,6 +72,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="../style.css">
@@ -144,15 +147,17 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title"><strong>Sections</strong></h2>
    
   <ul class="collapse">
-  <li><a href="#wykład-1-wprowadzenie-do-relacyjnych-baz-danych" id="toc-wykład-1-wprowadzenie-do-relacyjnych-baz-danych" class="nav-link active" data-scroll-target="#wykład-1-wprowadzenie-do-relacyjnych-baz-danych">🧩 Wykład 1: Wprowadzenie do relacyjnych baz danych</a>
+  <li><a href="#wykład-1-wprowadzenie-do-relacyjnych-baz-danych" id="toc-wykład-1-wprowadzenie-do-relacyjnych-baz-danych" class="nav-link active" data-scroll-target="#wykład-1-wprowadzenie-do-relacyjnych-baz-danych">Wykład 1: Wprowadzenie do relacyjnych baz danych</a>
   <ul class="collapse">
-  <li><a href="#wprowadzenie-i-cele-wykładu" id="toc-wprowadzenie-i-cele-wykładu" class="nav-link" data-scroll-target="#wprowadzenie-i-cele-wykładu">Wprowadzenie i cele wykładu</a></li>
-  <li><a href="#historia-i-ewolucja-baz-danych" id="toc-historia-i-ewolucja-baz-danych" class="nav-link" data-scroll-target="#historia-i-ewolucja-baz-danych">Historia i ewolucja baz danych</a></li>
-  <li><a href="#dane-informacja-baza-danych-i-dbms" id="toc-dane-informacja-baza-danych-i-dbms" class="nav-link" data-scroll-target="#dane-informacja-baza-danych-i-dbms">Dane, informacja, baza danych i DBMS</a></li>
-  <li><a href="#architektura-systemów-baz-danych" id="toc-architektura-systemów-baz-danych" class="nav-link" data-scroll-target="#architektura-systemów-baz-danych">Architektura systemów baz danych</a></li>
-  <li><a href="#model-relacyjny" id="toc-model-relacyjny" class="nav-link" data-scroll-target="#model-relacyjny">Model relacyjny</a></li>
-  <li><a href="#klucze-i-integralność-danych" id="toc-klucze-i-integralność-danych" class="nav-link" data-scroll-target="#klucze-i-integralność-danych">Klucze i integralność danych</a></li>
-  <li><a href="#zestaw-pytań-testowych" id="toc-zestaw-pytań-testowych" class="nav-link" data-scroll-target="#zestaw-pytań-testowych">🧠 Zestaw pytań testowych</a></li>
+  <li><a href="#od-problemu-organizacyjnego-do-projektu-bazy" id="toc-od-problemu-organizacyjnego-do-projektu-bazy" class="nav-link" data-scroll-target="#od-problemu-organizacyjnego-do-projektu-bazy">Od problemu organizacyjnego do projektu bazy</a></li>
+  <li><a href="#dlaczego-same-pliki-przestały-wystarczać" id="toc-dlaczego-same-pliki-przestały-wystarczać" class="nav-link" data-scroll-target="#dlaczego-same-pliki-przestały-wystarczać">Dlaczego same pliki przestały wystarczać?</a></li>
+  <li><a href="#dane-informacja-baza-danych-i-oprogramowanie" id="toc-dane-informacja-baza-danych-i-oprogramowanie" class="nav-link" data-scroll-target="#dane-informacja-baza-danych-i-oprogramowanie">Dane, informacja, baza danych i oprogramowanie</a></li>
+  <li><a href="#po-co-nam-trzy-poziomy-opisu-danych" id="toc-po-co-nam-trzy-poziomy-opisu-danych" class="nav-link" data-scroll-target="#po-co-nam-trzy-poziomy-opisu-danych">Po co nam trzy poziomy opisu danych?</a></li>
+  <li><a href="#jak-model-relacyjny-opisuje-dane" id="toc-jak-model-relacyjny-opisuje-dane" class="nav-link" data-scroll-target="#jak-model-relacyjny-opisuje-dane">Jak model relacyjny opisuje dane?</a></li>
+  <li><a href="#jak-rozpoznać-rekord-i-odrzucić-błędny-zapis" id="toc-jak-rozpoznać-rekord-i-odrzucić-błędny-zapis" class="nav-link" data-scroll-target="#jak-rozpoznać-rekord-i-odrzucić-błędny-zapis">Jak rozpoznać rekord i odrzucić błędny zapis?</a></li>
+  <li><a href="#od-wykładu-do-pierwszego-zadania-projektowego" id="toc-od-wykładu-do-pierwszego-zadania-projektowego" class="nav-link" data-scroll-target="#od-wykładu-do-pierwszego-zadania-projektowego">Od wykładu do pierwszego zadania projektowego</a></li>
+  <li><a href="#słownik-skrótów-i-nazw" id="toc-słownik-skrótów-i-nazw" class="nav-link" data-scroll-target="#słownik-skrótów-i-nazw">Słownik skrótów i nazw</a></li>
+  <li><a href="#pytania-do-samodzielnego-sprawdzenia" id="toc-pytania-do-samodzielnego-sprawdzenia" class="nav-link" data-scroll-target="#pytania-do-samodzielnego-sprawdzenia">Pytania do samodzielnego sprawdzenia</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -180,234 +185,545 @@ ul.task-list li input[type="checkbox"] {
 
 
 <section id="wykład-1-wprowadzenie-do-relacyjnych-baz-danych" class="level1">
-<h1>🧩 Wykład 1: Wprowadzenie do relacyjnych baz danych</h1>
-<section id="wprowadzenie-i-cele-wykładu" class="level2">
-<h2 class="anchored" data-anchor-id="wprowadzenie-i-cele-wykładu">Wprowadzenie i cele wykładu</h2>
-<p>Celem wykładu jest zapoznanie się z podstawami relacyjnych baz danych — ich historią, pojęciami, architekturą, strukturą danych oraz zasadami integralności. Po tym wykładzie student powinien rozumieć, czym jest baza danych, jak działa DBMS, co oznacza model relacyjny oraz jakie są klucze i reguły spójności danych.</p>
-</section>
-<section id="historia-i-ewolucja-baz-danych" class="level2">
-<h2 class="anchored" data-anchor-id="historia-i-ewolucja-baz-danych">Historia i ewolucja baz danych</h2>
-<p>Bazy danych nie są wynalazkiem XXI wieku — ich początki sięgają lat 60. XX wieku, gdy organizacje zaczęły gromadzić coraz większe ilości danych.</p>
-<section id="systemy-plikowe" class="level3">
-<h3 class="anchored" data-anchor-id="systemy-plikowe">🔹 Systemy plikowe</h3>
-<p>Pierwsze systemy przechowywały dane w plikach na dyskach. Choć były proste, miały poważne ograniczenia:</p>
+<h1>Wykład 1: Wprowadzenie do relacyjnych baz danych</h1>
+<section id="od-problemu-organizacyjnego-do-projektu-bazy" class="level2">
+<h2 class="anchored" data-anchor-id="od-problemu-organizacyjnego-do-projektu-bazy">Od problemu organizacyjnego do projektu bazy</h2>
+<p>Wyobraźmy sobie ośrodek szkoleniowy, który organizuje kilka kursów. Początkowo wystarcza arkusz: nazwisko uczestnika, temat kursu, termin, sala i nazwisko prowadzącego. Z czasem ten sam kurs odbywa się wielokrotnie, uczestnicy zmieniają decyzje, a kilka osób jednocześnie aktualizuje zapisy.</p>
+<p>Wtedy pojawiają się pytania:</p>
 <ul>
-<li>Brak centralnej kontroli nad danymi</li>
-<li>Trudność w utrzymaniu spójności</li>
-<li>Brak uniwersalnych narzędzi do wyszukiwania</li>
+<li>Która lista uczestników jest aktualna?</li>
+<li>Czy rezygnacja z jednego terminu usuwa osobę również z pozostałych zajęć?</li>
+<li>Czy dwa wpisy o tej samej osobie oznaczają pomyłkę, czy dwa różne zapisy?</li>
+<li>Jak policzyć wolne miejsca, jeśli część zapisów anulowano?</li>
 </ul>
-<p>💡 Zadanie: Na jakich innych obiektach, oprócz plików, można pracować w systemach operacyjnych?</p>
-</section>
-<section id="wczesne-systemy-dbms" class="level3">
-<h3 class="anchored" data-anchor-id="wczesne-systemy-dbms">🔹 Wczesne systemy DBMS</h3>
-<p>W latach 60. i 70. pojawiły się pierwsze systemy zarządzania bazami danych (DBMS). Zapewniały:</p>
-<ul>
-<li>centralną kontrolę danych,</li>
-<li>integralność i bezpieczeństwo,</li>
-<li>wydajne przetwarzanie i wyszukiwanie.</li>
-</ul>
-</section>
-<section id="modele-hierarchiczne-i-sieciowe" class="level3">
-<h3 class="anchored" data-anchor-id="modele-hierarchiczne-i-sieciowe">🔹 Modele hierarchiczne i sieciowe</h3>
-<p>Wczesne systemy wykorzystywały struktury drzewiaste lub grafowe. Były skuteczne, ale trudne w modyfikacji i rozwoju.</p>
-</section>
-<section id="przełom-model-relacyjny" class="level3">
-<h3 class="anchored" data-anchor-id="przełom-model-relacyjny">🔹 Przełom: model relacyjny</h3>
-<p>W 1970 roku Edgar F. Codd zaproponował model relacyjny danych, w którym:</p>
-<ul>
-<li>dane są przechowywane w tabelach (relacjach),</li>
-<li>każda tabela ma kolumny (atrybuty) i wiersze (krotki).</li>
-</ul>
-<p>Zalety:</p>
-<ul>
-<li>prostota i przejrzystość,</li>
-<li>elastyczność (łatwo dodawać nowe tabele),</li>
-<li>bezpieczeństwo i spójność danych.</li>
-</ul>
-</section>
-<section id="sql-język-pracy-z-danymi" class="level3">
-<h3 class="anchored" data-anchor-id="sql-język-pracy-z-danymi">🔹 SQL – język pracy z danymi</h3>
-<p>Wraz z rozwojem modelu relacyjnego powstał SQL (Structured Query Language) – język do tworzenia, modyfikowania i pobierania danych.</p>
-<p>Dziś SQL jest fundamentem większości systemów: od aplikacji biurowych po duże systemy korporacyjne. Nawet współczesne rozwiązania NoSQL często nawiązują do idei relacyjnych.</p>
+<p><strong>Projektowanie bazy zaczyna się od ustalenia znaczenia danych i zasad ich zmieniania.</strong> Wybór programu i pisanie poleceń są kolejnymi krokami. Nawet sprawnie działający system może udzielać błędnych odpowiedzi, jeśli źle opisaliśmy rzeczywistość.</p>
+<section id="co-mamy-zrozumieć-po-tym-wykładzie" class="level3">
+<h3 class="anchored" data-anchor-id="co-mamy-zrozumieć-po-tym-wykładzie">Co mamy zrozumieć po tym wykładzie?</h3>
+<ol type="1">
+<li>Czym różnią się dane, informacja, baza danych i program zarządzający bazą.</li>
+<li>Dlaczego model relacyjny oddziela logiczny opis danych od szczegółów ich przechowywania.</li>
+<li>Po co rozróżniamy perspektywę użytkownika, wspólny model bazy i fizyczny zapis.</li>
+<li>Co oznaczają tabela, wiersz, kolumna, dziedzina, schemat i stan danych.</li>
+<li>Jak identyfikatory i ograniczenia pomagają wykrywać błędne zapisy.</li>
+</ol>
+<p><strong>Na pierwszych zajęciach poznajemy pojęcia, ale zadaniem projektowym jest zebranie wymagań.</strong> Nie trzeba jeszcze samodzielnie projektować tabel, rysować formalnego diagramu ani pisać zapytań.</p>
 </section>
 </section>
-<section id="dane-informacja-baza-danych-i-dbms" class="level2">
-<h2 class="anchored" data-anchor-id="dane-informacja-baza-danych-i-dbms">Dane, informacja, baza danych i DBMS</h2>
+<section id="dlaczego-same-pliki-przestały-wystarczać" class="level2">
+<h2 class="anchored" data-anchor-id="dlaczego-same-pliki-przestały-wystarczać">Dlaczego same pliki przestały wystarczać?</h2>
+<section id="przechowywanie-danych-w-oddzielnych-plikach" class="level3">
+<h3 class="anchored" data-anchor-id="przechowywanie-danych-w-oddzielnych-plikach">Przechowywanie danych w oddzielnych plikach</h3>
+<p>W podejściu plikowym każdy program może utrzymywać własny zestaw danych i własne reguły ich odczytu. Jedna osoba prowadzi listę zgłoszeń, druga listę obecności, a trzecia zestawienie sal. Problemem nie jest sam plik, lecz brak wspólnie egzekwowanego opisu danych i zasad pracy.</p>
+<p>W naszym ośrodku nazwisko uczestnika może pojawić się w kilku arkuszach. Jeśli poprawimy je tylko w jednym miejscu, powstaną sprzeczne wersje. Jeśli dwa programy inaczej rozumieją „anulowanie”, jeden może usunąć zapis, a drugi całą osobę.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Problem</th>
+<th>Przykład w ośrodku</th>
+<th>Czego potrzebujemy?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Powielanie faktów</td>
+<td>Dane prowadzącego są przepisywane przy każdym zapisie</td>
+<td>Jednego uzgodnionego miejsca przechowywania danego faktu</td>
+</tr>
+<tr class="even">
+<td>Sprzeczne aktualizacje</td>
+<td>Dwie osoby inaczej zmieniają tę samą listę</td>
+<td>Kontroli równoczesnej pracy</td>
+</tr>
+<tr class="odd">
+<td>Brak wspólnych ograniczeń</td>
+<td>Zapis wskazuje nieistniejący termin</td>
+<td>Sprawdzania poprawności powiązań</td>
+</tr>
+<tr class="even">
+<td>Zależność programu od formatu</td>
+<td>Zmiana układu pliku wymaga poprawienia wielu programów</td>
+<td>Oddzielenia sposobu użycia danych od ich fizycznego zapisu</td>
+</tr>
+</tbody>
+</table>
+<p>Baza danych również może korzystać z plików na dysku. Różnica polega na tym, że wyspecjalizowane oprogramowanie zarządza ich zawartością i udostępnia dane według określonych reguł. Nie chodzi więc o zastąpienie „złych plików” czymś, co nie używa plików.</p>
+<p><strong>Pytanie do przemyślenia:</strong> czy przeniesienie trzech sprzecznych arkuszy do jednego katalogu sprawi, że ich zawartość stanie się spójna?</p>
+</section>
+<section id="od-modeli-hierarchicznych-do-modelu-relacyjnego" class="level3">
+<h3 class="anchored" data-anchor-id="od-modeli-hierarchicznych-do-modelu-relacyjnego">Od modeli hierarchicznych do modelu relacyjnego</h3>
+<p>W latach 60. i 70. XX wieku rozwijały się systemy zarządzania dużymi zbiorami danych. Modele hierarchiczne organizowały dane w struktury przypominające drzewa. Modele sieciowe pozwalały opisywać bardziej rozbudowane powiązania i poruszać się po nich określonymi ścieżkami. Nie należy utożsamiać historycznego modelu sieciowego ze współczesną aplikacją działającą przez internet.</p>
+<p>Istotną trudnością była zależność programu od sposobu organizacji i dostępu do danych. <strong>Edgar F. Codd w pracy z 1970 roku zaproponował model relacyjny</strong>, oparty na relacjach matematycznych. Ważną ideą było umożliwienie pracy na logicznym opisie danych bez znajomości szczegółów ich wewnętrznej reprezentacji. <a href="https://research.ibm.com/publications/a-relational-model-of-data-for-large-shared-data-banks">Praca Codda — IBM Research</a>.</p>
+<p>Dla użytkownika oznacza to zmianę sposobu myślenia: zamiast wskazywać ścieżkę przejścia po fizycznych strukturach, opisuje on, <strong>jakich danych potrzebuje</strong>. Sposób ich znalezienia w dużej mierze dobiera system zarządzający bazą.</p>
+<p>Model relacyjny nie gwarantuje sam z siebie bezpieczeństwa ani poprawności wszystkich danych. Daje podstawy ich opisu i przetwarzania; projektant musi jeszcze określić właściwe reguły, a system musi je egzekwować.</p>
+</section>
+</section>
+<section id="dane-informacja-baza-danych-i-oprogramowanie" class="level2">
+<h2 class="anchored" data-anchor-id="dane-informacja-baza-danych-i-oprogramowanie">Dane, informacja, baza danych i oprogramowanie</h2>
 <section id="dane-a-informacja" class="level3">
-<h3 class="anchored" data-anchor-id="dane-a-informacja">🔹 Dane a informacja</h3>
+<h3 class="anchored" data-anchor-id="dane-a-informacja">Dane a informacja</h3>
+<p><strong>Dane</strong> to zapisane wartości, takie jak liczba <code>4</code>, oznaczenie <code>E2</code> czy tekst <code>cancelled</code>. <strong>Informacja</strong> powstaje, gdy odczytujemy te wartości w odpowiednim kontekście.</p>
+<p>Przykład:</p>
 <ul>
-<li><p>Dane – surowe fakty, liczby, teksty, które same w sobie niewiele znaczą. 👉 np. 25, Warszawa, 12345</p></li>
-<li><p>Informacja – dane zinterpretowane i zorganizowane w kontekście. 👉 np. „25 klientów z Warszawy złożyło zamówienie w ostatnim tygodniu”.</p></li>
+<li><code>4</code> oznacza limit uczestników edycji E2;</li>
+<li>na E2 jest jeden potwierdzony zapis;</li>
+<li>z połączenia tych danych wynika informacja: <strong>na E2 pozostały trzy wolne miejsca</strong>.</li>
 </ul>
-<p>Dane to materiał, informacja to znaczenie.</p>
+<p>Sam zapis liczby nie mówi, czy chodzi o liczbę sal, uczestników, czy wolnych miejsc. Dlatego w projekcie musimy ustalić znaczenie każdej informacji. Równie ważne jest znaczenie statusu: anulowany zapis istnieje w ewidencji, lecz nie zajmuje miejsca.</p>
 </section>
-<section id="baza-danych" class="level3">
-<h3 class="anchored" data-anchor-id="baza-danych">🔹 Baza danych</h3>
-<p>Zorganizowany zbiór danych umożliwiający ich łatwe przeszukiwanie, aktualizację i analizę.</p>
-<p>Cechy:</p>
+<section id="baza-danych-co-przechowujemy" class="level3">
+<h3 class="anchored" data-anchor-id="baza-danych-co-przechowujemy">Baza danych — co przechowujemy?</h3>
+<p><strong>Baza danych</strong>, w skrócie <strong>BD</strong>, to zorganizowany zbiór powiązanych danych dotyczących określonego obszaru rzeczywistości. Angielski termin to <strong>database</strong>, skrót <strong>DB</strong>.</p>
+<p>W ośrodku bazą są zapisane informacje o uczestnikach, kursach, edycjach i zgłoszeniach wraz z ich organizacją. Baza nie musi znajdować się na jednym fizycznym komputerze: centralny, uzgodniony opis danych nie oznacza obowiązkowo jednego miejsca ich przechowywania.</p>
+<p>Nie wystarczy też nazwać zbioru „bazą”, aby automatycznie stał się trwały i bezpieczny. Trwałość, kontrola dostępu i możliwość odtworzenia danych wymagają odpowiednich mechanizmów oraz konfiguracji.</p>
+</section>
+<section id="dbms-i-szbd-kto-zarządza-danymi" class="level3">
+<h3 class="anchored" data-anchor-id="dbms-i-szbd-kto-zarządza-danymi">DBMS i SZBD — kto zarządza danymi?</h3>
+<p><strong>DBMS — Database Management System</strong> oznacza <strong>system zarządzania bazą danych</strong>, po polsku <strong>SZBD</strong>. To oprogramowanie, które obsługuje tworzenie struktur, odczyt i modyfikowanie danych oraz kontrolę dostępu do nich.</p>
+<p>Rozróżnijmy trzy rzeczy:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Element</th>
+<th>Co oznacza?</th>
+<th>Przykład</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Baza danych</td>
+<td>Konkretny zbiór danych i jego struktura</td>
+<td>Dane naszego ośrodka</td>
+</tr>
+<tr class="even">
+<td>DBMS / SZBD</td>
+<td>Oprogramowanie zarządzające bazą</td>
+<td>PostgreSQL, MySQL, Oracle Database, Microsoft SQL Server, SQLite</td>
+</tr>
+<tr class="odd">
+<td>Aplikacja</td>
+<td>Narzędzie realizujące potrzeby użytkownika</td>
+<td>Formularz zapisów i raport dla kierownika</td>
+</tr>
+</tbody>
+</table>
+<p>Jeden system zarządzania może obsługiwać różne bazy, a z tych samych danych mogą korzystać różne aplikacje. SQLite jest przykładem silnika działającego wewnątrz aplikacji, a nie obowiązkowo jako osobny serwer. To nadal system zarządzający bazą.</p>
+<p>Do zadań DBMS należą między innymi:</p>
 <ul>
-<li>Strukturalność</li>
-<li>Centralizacja</li>
-<li>Trwałość i bezpieczeństwo</li>
+<li><strong>obsługa struktury:</strong> jakie dane przechowujemy i jakie ograniczenia obowiązują;</li>
+<li><strong>odczyt i modyfikacja:</strong> znajdowanie, dodawanie, poprawianie i usuwanie danych;</li>
+<li><strong>kontrola spójności:</strong> odrzucanie operacji naruszających zdefiniowane ograniczenia;</li>
+<li><strong>koordynowanie zmian:</strong> obsługa transakcji, czyli operacji wykonywanych jako jedna logiczna całość;</li>
+<li><strong>organizacja dostępu:</strong> dobór sposobu wyszukania danych oraz mechanizmy uprawnień i odtwarzania właściwe danemu systemowi.</li>
 </ul>
-<p>Przykłady:</p>
+<p>Oprogramowanie nie domyśli się jednak, że limit szkolenia powinien wynosić 12. <strong>Regułę trzeba najpierw uzgodnić, a dopiero później zapisać i egzekwować.</strong></p>
+</section>
+<section id="crud-cztery-podstawowe-operacje" class="level3">
+<h3 class="anchored" data-anchor-id="crud-cztery-podstawowe-operacje">CRUD — cztery podstawowe operacje</h3>
+<p><strong>CRUD — Create, Read, Update, Delete</strong> to nazwa czterech podstawowych rodzajów operacji na danych.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Litera</th>
+<th>Angielska nazwa</th>
+<th>Znaczenie</th>
+<th>Przykład</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C</td>
+<td>Create</td>
+<td>Utworzenie danych</td>
+<td>Dodanie nowej edycji kursu</td>
+</tr>
+<tr class="even">
+<td>R</td>
+<td>Read</td>
+<td>Odczyt danych</td>
+<td>Wyświetlenie zapisów na E1</td>
+</tr>
+<tr class="odd">
+<td>U</td>
+<td>Update</td>
+<td>Aktualizacja danych</td>
+<td>Zmiana statusu zapisu na anulowany</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td>Delete</td>
+<td>Usunięcie danych</td>
+<td>Usunięcie omyłkowo utworzonego rekordu, jeśli pozwalają na to reguły</td>
+</tr>
+</tbody>
+</table>
+<p>Rezygnacja uczestnika nie musi oznaczać operacji Delete. W naszym projekcie zachowujemy zapis i zmieniamy jego status, więc jest to <strong>Update</strong>. Wybór operacji wynika ze znaczenia zdarzenia.</p>
+</section>
+<section id="sql-język-a-nie-baza" class="level3">
+<h3 class="anchored" data-anchor-id="sql-język-a-nie-baza">SQL — język, a nie baza</h3>
+<p><strong>SQL — Structured Query Language</strong>, po polsku <strong>strukturalny język zapytań</strong>, służy między innymi do definiowania struktur, pobierania i zmieniania danych w systemach relacyjnych.</p>
+<p>Polecenia <strong>SELECT</strong> (wybierz dane), <strong>INSERT</strong> (wstaw dane), <strong>UPDATE</strong> (zaktualizuj dane) i <strong>DELETE</strong> (usuń dane) odpowiadają różnym operacjom. To angielskie słowa kluczowe, nie skróty. Litera C w CRUD oznacza tworzenie rekordu; nie należy jej utożsamiać wyłącznie z poleceniem <code>CREATE TABLE</code>, które tworzy strukturę tabeli.</p>
+<p>Na razie wystarczy rozumieć intencję: „pokaż potwierdzonych uczestników E1”. Składni zapytań będziemy uczyć się później. <strong>SQL jest językiem, PostgreSQL jest systemem zarządzającym, a dane ośrodka stanowią bazę.</strong></p>
+</section>
+</section>
+<section id="po-co-nam-trzy-poziomy-opisu-danych" class="level2">
+<h2 class="anchored" data-anchor-id="po-co-nam-trzy-poziomy-opisu-danych">Po co nam trzy poziomy opisu danych?</h2>
+<p>Poznaliśmy problem rozproszonych plików oraz rolę wspólnego systemu zarządzającego. Pozostaje pytanie: <strong>czy każdy użytkownik musi znać całą strukturę bazy i sposób zapisu na dysku?</strong></p>
+<p>W ośrodku występują różne potrzeby:</p>
 <ul>
-<li>Lista kontaktów w telefonie</li>
-<li>System rezerwacji hotelowej</li>
-<li>Sklep internetowy</li>
+<li>prowadzący chce listy potwierdzonych uczestników swojej edycji;</li>
+<li>kierownik chce zestawienia wszystkich terminów i wolnych miejsc;</li>
+<li>osoba administrująca bazą chce przyspieszyć odczyt dużej liczby zapisów.</li>
 </ul>
-<p>Termin ,,baza danych’’ uzywany jest na wiele róznych sposobów, ale na wykładzie <strong>baza danych</strong> oznacza zbiór danych przechowywanych w pewien zorganizowany sposób. Najprościej wyobrazić sobie bazę danych jako szafkę na dokumenty. Jest to miejsce umozliwiające przechowywanie informacji, niezaleznie od ich typu i sposobu organizacji.</p>
-</section>
-<section id="system-zarządzania-bazą-danych-dbms" class="level3">
-<h3 class="anchored" data-anchor-id="system-zarządzania-bazą-danych-dbms">🔹 System Zarządzania Bazą Danych (DBMS)</h3>
-<p>Bardzo często uzywamy terminu “baza danych” do określenia oprogramowania bazy danych, którego uzywamy. Takie podejście jest błędne i powoduje wiele nieporozumień. Oprogramowanie BD nazywane jest poprawnie systemem zarządzania bazą danych (SZBD) lub (DBMS - Database Management System). Sama baza danych jest pojemnikiem tworzonym i modyfikowanym przez SZBD. Konkretna postać BD zienia się w zalezności od zastosowań.</p>
-<p>Oprogramowanie do tworzenia, modyfikowania i przetwarzania baz danych.</p>
-<p>Funkcje DBMS:</p>
+<p>To trzy spojrzenia na te same dane. Nie powinniśmy tworzyć trzech niezależnych, ręcznie uzgadnianych kopii tylko dlatego, że odbiorcy potrzebują innych zestawień. Nie chcemy też zmieniać raportu kierownika za każdym razem, gdy administrator zmieni organizację plików.</p>
+<p><strong>Właśnie temu rozdzieleniu służy architektura ANSI/SPARC.</strong> Łączy się z wcześniejszą częścią wykładu poprzez ideę niezależności danych: użytkownik opisuje potrzebną informację, a szczegóły przechowywania pozostają zadaniem systemu.</p>
+<section id="co-oznacza-ansisparc" class="level3">
+<h3 class="anchored" data-anchor-id="co-oznacza-ansisparc">Co oznacza ANSI/SPARC?</h3>
 <ul>
-<li>Tworzenie i modyfikacja schematów</li>
-<li>Operacje CRUD (Create, Read, Update, Delete)</li>
-<li>Zarządzanie bezpieczeństwem i uprawnieniami</li>
-<li>Optymalizacja zapytań</li>
+<li><strong>ANSI — American National Standards Institute</strong>: Amerykański Narodowy Instytut Normalizacyjny.</li>
+<li><strong>SPARC — Standards Planning and Requirements Committee</strong>: komitet planowania standardów i wymagań.</li>
 </ul>
-<p>Przykłady: MySQL, PostgreSQL, Oracle, SQL Server, SQLite.</p>
+<p>Nazwa odnosi się do prac nad architekturą systemów baz danych. Wykorzystujemy ją jako <strong>model odniesienia</strong>, który porządkuje trzy poziomy opisu. Nie jest to dodatkowy program do instalacji ani obietnica, że każdy produkt ma trzy osobne moduły dokładnie o tych nazwach. <a href="https://doi.org/10.1016/0306-4379(78)90001-7">Raport architektury ANSI/X3/SPARC</a>.</p>
+</section>
+<section id="te-same-dane-trzy-różne-pytania" class="level3">
+<h3 class="anchored" data-anchor-id="te-same-dane-trzy-różne-pytania">Te same dane, trzy różne pytania</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Poziom</th>
+<th>Nazwa angielska</th>
+<th>Pytanie</th>
+<th>Przykład w ośrodku</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zewnętrzny</td>
+<td>External level</td>
+<td>Jakich danych potrzebuje dany użytkownik lub aplikacja?</td>
+<td>Lista uczestników E1 dla prowadzącego; raport wolnych miejsc dla kierownika</td>
+</tr>
+<tr class="even">
+<td>Pojęciowy, czyli logiczny opis całej bazy</td>
+<td>Conceptual level</td>
+<td>Jakie fakty przechowujemy i jak są ze sobą powiązane?</td>
+<td>Uczestnicy, edycje i zapisy; zapis wskazuje uczestnika i edycję oraz ma status</td>
+</tr>
+<tr class="odd">
+<td>Wewnętrzny, czyli fizyczny</td>
+<td>Internal level</td>
+<td>Jak system zapisuje i odnajduje te dane?</td>
+<td>Pliki, strony danych i indeksy przyspieszające wyszukiwanie</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Poziom zewnętrzny</strong> nie oznacza tylko wyglądu okienka. Określa zakres i postać danych dostępnych z danej perspektywy. Może być realizowany przez zapytania, raporty lub widoki bazy. Samo pominięcie kolumny w raporcie nie odbiera uprawnień do jej odczytu inną drogą — kontrolę dostępu trzeba skonfigurować.</p>
+<p><strong>Poziom pojęciowy</strong> jest wspólnym opisem całej bazy, a nie osobną listą dla każdego odbiorcy. W systemie relacyjnym wyrażamy go za pomocą struktur relacyjnych i ograniczeń. Pytamy tutaj o znaczenie danych, a nie o położenie bajtów na dysku.</p>
+<p><strong>Poziom wewnętrzny</strong> obejmuje technikę przechowywania. Indeks można na tym etapie wyobrazić sobie jako dodatkową strukturę ułatwiającą znalezienie danych, podobnie jak indeks haseł w książce. Szczegóły indeksowania nie są potrzebne do zrozumienia reguły zapisu na kurs.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+    A["Prowadzący: lista uczestników E1"] --&gt; C["Wspólny opis: uczestnik — zapis — edycja"]
+    B["Kierownik: terminy i wolne miejsca"] --&gt; C
+    C --&gt; D["Zapis wewnętrzny: pliki i indeksy"]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Strzałki oznaczają powiązanie opisów, nie kopiowanie bazy ani kolejność przesyłania żądania przez sieć.</p>
+</section>
+<section id="niezależność-fizyczna-i-logiczna-co-ma-pozostać-bez-zmian" class="level3">
+<h3 class="anchored" data-anchor-id="niezależność-fizyczna-i-logiczna-co-ma-pozostać-bez-zmian">Niezależność fizyczna i logiczna — co ma pozostać bez zmian?</h3>
+<p><strong>Fizyczna niezależność danych — physical data independence</strong> oznacza możliwość zmiany organizacji przechowywania bez zmiany logicznego opisu danych. Administrator może dodać indeks ułatwiający wyszukiwanie zapisów po edycji. Prowadzący nadal prosi o tę samą listę uczestników, a znaczenie jej kolumn pozostaje takie samo.</p>
+<p><strong>Logiczna niezależność danych — logical data independence</strong> oznacza możliwość zmiany wspólnego schematu przy zachowaniu potrzebnych opisów zewnętrznych i współpracujących z nimi aplikacji. Przykładowo po rozdzieleniu opisu kursu i jego edycji można utrzymać dotychczasowy raport dzięki odpowiedniemu odwzorowaniu danych.</p>
+<p>To <strong>cel projektowy, nie automatyczna ochrona przed każdą zmianą</strong>. Usunięcie informacji potrzebnej raportowi albo zmiana znaczenia kolumny może wymagać poprawienia aplikacji. Zachowanie zgodnego raportu po przebudowie schematu również wymaga pracy.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Co łączy ten model z resztą wykładu?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Pliki pokazały problem zależności programów od organizacji danych. DBMS dostarcza mechanizmy wspólnego zarządzania. ANSI/SPARC pomaga rozdzielić <strong>potrzeby odbiorcy, znaczenie danych i sposób ich zapisu</strong>. Za chwilę model relacyjny pokaże, jak opisać wspólną strukturę za pomocą relacji i kluczy.</p>
+<p>Nie myl tych trzech poziomów z podziałem aplikacji na interfejs, serwer i bazę. ANSI/SPARC opisuje perspektywy danych, a nie trzy komputery lub procesy.</p>
+</div>
+</div>
+<p><strong>Sprawdź rozumienie:</strong> dodajemy indeks, przygotowujemy nowy raport dla prowadzącego i zmieniamy sposób powiązania zapisów z edycjami. Którego poziomu dotyczy każda z tych zmian?</p>
 </section>
 </section>
-<section id="architektura-systemów-baz-danych" class="level2">
-<h2 class="anchored" data-anchor-id="architektura-systemów-baz-danych">Architektura systemów baz danych</h2>
-<p>Systemy baz danych są zorganizowane według poziomów abstrakcji, co pozwala oddzielić sposób przechowywania danych od ich widoku dla użytkownika.</p>
-<section id="poziomy-abstrakcji" class="level3">
-<h3 class="anchored" data-anchor-id="poziomy-abstrakcji">🔹 Poziomy abstrakcji</h3>
+<section id="jak-model-relacyjny-opisuje-dane" class="level2">
+<h2 class="anchored" data-anchor-id="jak-model-relacyjny-opisuje-dane">Jak model relacyjny opisuje dane?</h2>
+<section id="relacja-tabela-i-znaczenie-wiersza" class="level3">
+<h3 class="anchored" data-anchor-id="relacja-tabela-i-znaczenie-wiersza">Relacja, tabela i znaczenie wiersza</h3>
+<p>W matematycznym modelu relacyjnym <strong>relacja — relation</strong> jest zbiorem krotek o określonej strukturze. Praktycznym sposobem jej przedstawienia jest tabela. Tabele języka SQL nie odwzorowują wszystkich własności relacji idealnie: mogą między innymi zawierać powtórzenia wierszy, jeśli odpowiednie ograniczenia ich nie zabraniają.</p>
+<p>Przykładowy fragment danych o zapisach:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>enrollment_id</th>
+<th>participant_id</th>
+<th>edition_id</th>
+<th>status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Z1</td>
+<td>U1</td>
+<td>E1</td>
+<td>confirmed</td>
+</tr>
+<tr class="even">
+<td>Z2</td>
+<td>U2</td>
+<td>E1</td>
+<td>confirmed</td>
+</tr>
+<tr class="odd">
+<td>Z3</td>
+<td>U3</td>
+<td>E2</td>
+<td>confirmed</td>
+</tr>
+<tr class="even">
+<td>Z4</td>
+<td>U2</td>
+<td>E2</td>
+<td>cancelled</td>
+</tr>
+</tbody>
+</table>
+<p>W nazwach kolumn <code>id</code> oznacza <strong>identifier</strong>, czyli identyfikator. U1 to Ada, U2 to Bartek, U3 to Celina. Każdy wiersz opisuje <strong>jeden zapis uczestnika na edycję</strong>, a nie całą osobę ani cały kurs.</p>
+<p>Dobra tabela ma jasno ustalone znaczenie wiersza. Może opisywać obiekty, zdarzenia lub powiązania — tabela zapisów jest właśnie przykładem powiązania. Nie chodzi o to, żeby wszystkie kolumny miały ten sam typ danych, lecz żeby wspólnie opisywały ten sam rodzaj faktu.</p>
+<p><strong>Tabela nie jest uporządkowaną listą.</strong> Bez jawnego sortowania nie wolno zakładać kolejności wyników. Służy do tego między innymi <code>ORDER BY</code> — „uporządkuj według”. Nazwa tabeli musi być jednoznaczna w odpowiedniej przestrzeni nazw; różne schematy tej samej bazy mogą zawierać tabele o tej samej krótkiej nazwie.</p>
+</section>
+<section id="krotka-atrybut-i-dziedzina" class="level3">
+<h3 class="anchored" data-anchor-id="krotka-atrybut-i-dziedzina">Krotka, atrybut i dziedzina</h3>
+<ul>
+<li><strong>Krotka — tuple</strong>, w praktyce wiersz lub rekord: pojedynczy zapis zgodny ze strukturą relacji. Wiersz Z4 mówi o zapisie Bartka do E2, obecnie anulowanym.</li>
+<li><strong>Atrybut — attribute</strong>, w praktyce kolumna: nazwana właściwość, np. status zapisu albo identyfikator edycji.</li>
+<li><strong>Dziedzina — domain</strong>: zbiór dopuszczalnych wartości atrybutu. Status w naszym projekcie przyjmuje <code>confirmed</code> albo <code>cancelled</code>.</li>
+</ul>
+<p>Typ „tekst” dopuszcza znacznie więcej wartości niż te dwa statusy. <strong>Typ danych i reguła dziedziny nie zawsze są tym samym.</strong> Podobnie liczba całkowita może być ujemna, ale limit uczestników ma być dodatni.</p>
+</section>
+<section id="schemat-a-aktualny-stan-danych" class="level3">
+<h3 class="anchored" data-anchor-id="schemat-a-aktualny-stan-danych">Schemat a aktualny stan danych</h3>
+<p><strong>Schemat relacji — relation schema</strong> opisuje jej strukturę: atrybuty, ich dziedziny oraz ograniczenia. <strong>Stan relacji — relation instance</strong> to zbiór krotek występujących w danym momencie.</p>
+<ul>
+<li>Dopisanie kolejnego uczestnika zmienia stan danych, ale nie musi zmieniać schematu.</li>
+<li>Dodanie nowego atrybutu opisującego zapis zmienia schemat.</li>
+<li>Zmiana <code>confirmed</code> na <code>cancelled</code> zmienia stan konkretnego zapisu.</li>
+</ul>
+<p>Słowo „schemat” bywa też nazwą przestrzeni nazw w konkretnym systemie bazodanowym. Tutaj interesuje nas przede wszystkim schemat jako <strong>opis struktury</strong>, w odróżnieniu od aktualnej zawartości.</p>
+</section>
+</section>
+<section id="jak-rozpoznać-rekord-i-odrzucić-błędny-zapis" class="level2">
+<h2 class="anchored" data-anchor-id="jak-rozpoznać-rekord-i-odrzucić-błędny-zapis">Jak rozpoznać rekord i odrzucić błędny zapis?</h2>
+<section id="klucz-kandydujący-i-klucz-główny" class="level3">
+<h3 class="anchored" data-anchor-id="klucz-kandydujący-i-klucz-główny">Klucz kandydujący i klucz główny</h3>
+<p>Dwie osoby mogą mieć takie samo imię i nazwisko. Potrzebujemy więc sposobu jednoznacznego wskazania rekordu, który nie zależy od jego miejsca na ekranie.</p>
+<p><strong>Klucz kandydujący — candidate key</strong> jest minimalnym zestawem atrybutów jednoznacznie identyfikującym krotkę. „Minimalny” znaczy, że usunięcie któregokolwiek atrybutu z tego zestawu pozbawiłoby go tej własności. Klucz może składać się z jednej lub kilku kolumn.</p>
+<p><strong>Klucz główny — primary key, PK</strong> to wybrany klucz kandydujący. Jego wartości mają być unikalne, a żaden składnik nie może być <code>NULL</code>. <strong>NULL nie jest skrótem</strong>: w SQL jest znacznikiem braku wartości, nie liczbą zero ani pustym tekstem.</p>
+<p>W tabeli uczestników możemy użyć <code>participant_id</code>. Adres e-mail nie staje się dobrym kluczem tylko dlatego, że w kilku przykładowych wierszach jest różny. Najpierw trzeba ustalić, czy jest wymagany i czy rzeczywiście ma być unikalny.</p>
+<p>W tabeli zapisów można nadać każdemu rekordowi <code>enrollment_id</code>, lecz nadal potrzebna jest reguła „najwyżej jeden zapis danej osoby do danej edycji”. Dwa różne identyfikatory zapisu same nie zapobiegną powtórzeniu pary uczestnik–edycja.</p>
+</section>
+<section id="klucz-obcy-odwołanie-do-istniejących-danych" class="level3">
+<h3 class="anchored" data-anchor-id="klucz-obcy-odwołanie-do-istniejących-danych">Klucz obcy — odwołanie do istniejących danych</h3>
+<p><strong>Klucz obcy — foreign key, FK</strong> to atrybut lub zestaw atrybutów, którego wartości odwołują się do dopuszczonego klucza w tabeli wskazywanej. Najczęściej jest to jej klucz główny, ale może to być także odpowiedni klucz unikalny. Odwołanie może prowadzić również do tej samej tabeli.</p>
+<p>W naszym przykładzie <code>participant_id</code> w zapisie wskazuje istniejącego uczestnika, a <code>edition_id</code> istniejącą edycję. Próba zapisania osoby U99, której nie ma w ewidencji, powinna zostać odrzucona przez poprawnie zdefiniowane ograniczenie.</p>
+<p>Klucz obcy nie przechowuje kopii całej osoby. Przechowuje odwołanie, dzięki któremu możemy powiązać zapis z właściwym uczestnikiem. Nie sprawdza jednak sam, czy na edycji jest wolne miejsce. <a href="https://www.postgresql.org/docs/18/ddl-constraints.html">Przykłady ograniczeń w dokumentacji PostgreSQL</a>.</p>
+</section>
+<section id="integralność-jakie-błędy-chcemy-wykryć" class="level3">
+<h3 class="anchored" data-anchor-id="integralność-jakie-błędy-chcemy-wykryć">Integralność — jakie błędy chcemy wykryć?</h3>
+<p><strong>Integralność danych — data integrity</strong> oznacza zgodność danych z ustalonymi ograniczeniami. Rozróżnimy trzy podstawowe grupy:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rodzaj</th>
+<th>Nazwa angielska</th>
+<th>Sens</th>
+<th>Przykład błędu</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Integralność encji</td>
+<td>Entity integrity</td>
+<td>Rekord ma jednoznaczną tożsamość; klucz główny jest unikalny i bez NULL</td>
+<td>Dwie osoby otrzymały to samo <code>participant_id</code></td>
+</tr>
+<tr class="even">
+<td>Integralność referencyjna</td>
+<td>Referential integrity</td>
+<td>Odwołania prowadzą do istniejących danych</td>
+<td>Zapis wskazuje uczestnika U99, którego nie ma</td>
+</tr>
+<tr class="odd">
+<td>Integralność dziedzinowa</td>
+<td>Domain integrity</td>
+<td>Wartości spełniają ograniczenia dziedziny</td>
+<td>Limit wynosi −3 albo status ma niedopuszczalną wartość</td>
+</tr>
+</tbody>
+</table>
+<p>Jeśli powiązanie jest opcjonalne, klucz obcy może dopuszczać brak wartości zgodnie z jego definicją. Gdy zapis obowiązkowo musi wskazywać uczestnika, oprócz odwołania wymagamy niepustej wartości. Te zasady należy ustalić jawnie.</p>
+<p>Istnieją też <strong>reguły biznesowe — business rules</strong>, np. nieprzekraczanie limitu potwierdzonych zapisów lub zakaz nakładających się zajęć w tej samej sali. Ich egzekwowanie może wymagać uwzględnienia wielu rekordów i odpowiedniej obsługi równoczesnych operacji. Nie każdą regułę da się wyrazić samym kluczem obcym czy typem kolumny.</p>
+<p>Na dzisiejszych zajęciach wystarczy umieć <strong>nazwać regułę i pokazać sytuację, która ją narusza</strong>. Dobór mechanizmu jej realizacji będzie kolejnym etapem projektu.</p>
+</section>
+</section>
+<section id="od-wykładu-do-pierwszego-zadania-projektowego" class="level2">
+<h2 class="anchored" data-anchor-id="od-wykładu-do-pierwszego-zadania-projektowego">Od wykładu do pierwszego zadania projektowego</h2>
+<p>Przeszliśmy od problemu kilku ewidencji do wspólnego opisu danych:</p>
 <ol type="1">
-<li>Poziom fizyczny (wewnętrzny)</li>
+<li>Potrzeby użytkownika mówią, na jakie pytania ma odpowiadać system.</li>
+<li>Dane potrzebują ustalonego znaczenia i reguł.</li>
+<li>DBMS zarządza ich zapisem i przetwarzaniem.</li>
+<li>ANSI/SPARC rozdziela perspektywę odbiorcy, strukturę logiczną i zapis fizyczny.</li>
+<li>Model relacyjny daje pojęcia potrzebne do opisu struktury, a klucze i ograniczenia pomagają pilnować poprawności.</li>
 </ol>
-<ul>
-<li>opisuje sposób przechowywania danych (pliki, indeksy, struktury).</li>
-</ul>
-<ol start="2" type="1">
-<li>Poziom logiczny (pośredni)</li>
-</ol>
-<ul>
-<li>opisuje strukturę danych (tabele, relacje, typy danych).</li>
-</ul>
-<ol start="3" type="1">
-<li>Poziom zewnętrzny (widok użytkownika)</li>
-</ol>
-<ul>
-<li>pokazuje dane z perspektywy użytkownika lub aplikacji.</li>
-</ul>
-<p>Zmiany w jednym poziomie nie wymagają zmian w pozostałych — to tzw. niezależność danych.</p>
+<p>Teraz pracujecie w parach jako projektanci bazy dla ośrodka. Prowadzący odgrywa klienta. <strong>Najpierw ustalacie wymagania, nie próbujecie od razu zamieniać każdego słowa na tabelę.</strong></p>
+<p>Otwórzcie <a href="../scenariusze.html">opis projektu i formularz</a>. Przygotujcie trzy pytania z uzasadnieniem. Po omówieniu odpowiedzi uzupełnicie pojęcia, reguły i analizę przypadku. Formularz zostawcie otwarty w osobnej karcie, a przed zamknięciem pobierzcie kopię notatki.</p>
 </section>
-<section id="model-ansisparc" class="level3">
-<h3 class="anchored" data-anchor-id="model-ansisparc">🔹 Model ANSI/SPARC</h3>
-<p>Formalny model trójpoziomowy:</p>
-<ul>
-<li>poziom wewnętrzny – fizyczne przechowywanie danych,</li>
-<li>poziom pojęciowy – logiczna struktura bazy,</li>
-<li>poziom zewnętrzny – widoki użytkowników.</li>
-</ul>
-<p>Zalety:</p>
-<ul>
-<li>izolacja danych,</li>
-<li>bezpieczeństwo,</li>
-<li>elastyczność i skalowalność.</li>
-</ul>
+<section id="słownik-skrótów-i-nazw" class="level2">
+<h2 class="anchored" data-anchor-id="słownik-skrótów-i-nazw">Słownik skrótów i nazw</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Skrót lub zapis</th>
+<th>Pełna nazwa angielska</th>
+<th>Znaczenie po polsku</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BD / DB</td>
+<td>Database</td>
+<td>Baza danych; BD jest skrótem polskim, DB angielskim</td>
+</tr>
+<tr class="even">
+<td>SZBD / DBMS</td>
+<td>Database Management System</td>
+<td>System zarządzania bazą danych</td>
+</tr>
+<tr class="odd">
+<td>SQL</td>
+<td>Structured Query Language</td>
+<td>Strukturalny język zapytań</td>
+</tr>
+<tr class="even">
+<td>CRUD</td>
+<td>Create, Read, Update, Delete</td>
+<td>Tworzenie, odczyt, aktualizacja i usuwanie danych</td>
+</tr>
+<tr class="odd">
+<td>ANSI</td>
+<td>American National Standards Institute</td>
+<td>Amerykański Narodowy Instytut Normalizacyjny</td>
+</tr>
+<tr class="even">
+<td>SPARC</td>
+<td>Standards Planning and Requirements Committee</td>
+<td>Komitet planowania standardów i wymagań</td>
+</tr>
+<tr class="odd">
+<td>PK</td>
+<td>Primary Key</td>
+<td>Klucz główny</td>
+</tr>
+<tr class="even">
+<td>FK</td>
+<td>Foreign Key</td>
+<td>Klucz obcy</td>
+</tr>
+<tr class="odd">
+<td>ID / id</td>
+<td>Identifier</td>
+<td>Identyfikator</td>
+</tr>
+<tr class="even">
+<td>NULL</td>
+<td>Nie jest skrótem</td>
+<td>Znacznik braku wartości w SQL</td>
+</tr>
+</tbody>
+</table>
+<p>Nazwy produktów, takie jak PostgreSQL czy SQLite, oznaczają konkretne oprogramowanie. <code>confirmed</code> znaczy „potwierdzony”, a <code>cancelled</code> — „anulowany”; są to wartości statusu w naszym przykładzie.</p>
 </section>
-</section>
-<section id="model-relacyjny" class="level2">
-<h2 class="anchored" data-anchor-id="model-relacyjny">Model relacyjny</h2>
-<section id="relacja-tabela" class="level3">
-<h3 class="anchored" data-anchor-id="relacja-tabela">🔹 Relacja (tabela)</h3>
-<p>TABELA to:</p>
-<ul>
-<li>Zbiór danych o tej samej strukturze.</li>
-<li>Uporządkowana lista zawierająca dane określonego typu</li>
-</ul>
-<p>Każda tabela opisuje jeden typ obiektów (np. Studenci, Kursy).</p>
-<p>Najwazniejsze, ze tabela przechowuje dane jednego typu. W jednej tabeli nie pojawi się jednocześnie lista kontaktów i lista zamówień. &gt; Uwaga: Technicznie taka tabela jest mozliwa do realizacji ale pobieranie konkretnych elementów &gt; byłoby znacznie utrudnione.</p>
-<blockquote class="blockquote">
-<p>Uwaga: Kazda tabela posiada <strong>nazwę</strong> pozwalającą jednoznacznie ją zidentyfikować. Nazwa zawsze jest unikalna - zadna inna tabela nie moze mieć takiej samej nazwy.</p>
-</blockquote>
-</section>
-<section id="krotka-wiersz" class="level3">
-<h3 class="anchored" data-anchor-id="krotka-wiersz">🔹 Krotka (wiersz)</h3>
-<p>Pojedynczy rekord w tabeli (np. dane jednego studenta).</p>
-</section>
-<section id="atrybut-kolumna" class="level3">
-<h3 class="anchored" data-anchor-id="atrybut-kolumna">🔹 Atrybut (kolumna)</h3>
-<p>Właściwość obiektu – ma nazwę i typ danych (np. Imię, Nazwisko, NrIndeksu).</p>
-</section>
-<section id="domena" class="level3">
-<h3 class="anchored" data-anchor-id="domena">🔹 Domena</h3>
-<p>Zbiór dopuszczalnych wartości atrybutu (np. liczby całkowite, ciągi znaków do 50 znaków).</p>
-</section>
-<section id="schemat-i-instancja" class="level3">
-<h3 class="anchored" data-anchor-id="schemat-i-instancja">🔹 Schemat i instancja</h3>
-<ul>
-<li>Schemat relacji – struktura tabeli (nazwy kolumn, typy).</li>
-<li>Instancja relacji – aktualna zawartość tabeli.</li>
-</ul>
-</section>
-</section>
-<section id="klucze-i-integralność-danych" class="level2">
-<h2 class="anchored" data-anchor-id="klucze-i-integralność-danych">Klucze i integralność danych</h2>
-<section id="klucz-główny-primary-key" class="level3">
-<h3 class="anchored" data-anchor-id="klucz-główny-primary-key">🔹 Klucz główny (Primary Key)</h3>
-<ul>
-<li>jednoznacznie identyfikuje każdy rekord,</li>
-<li>nie może mieć wartości NULL.</li>
-</ul>
-<p>Przykład: NrIndeksu w tabeli Studenci.</p>
-</section>
-<section id="klucz-kandydujący-candidate-key" class="level3">
-<h3 class="anchored" data-anchor-id="klucz-kandydujący-candidate-key">🔹 Klucz kandydujący (Candidate Key)</h3>
-<ul>
-<li>każdy atrybut (lub ich kombinacja), który mógłby być kluczem głównym. Przykład: NrIndeksu i PESEL – wybieramy jeden jako główny.</li>
-</ul>
-</section>
-<section id="klucz-obcy-foreign-key" class="level3">
-<h3 class="anchored" data-anchor-id="klucz-obcy-foreign-key">🔹 Klucz obcy (Foreign Key)</h3>
-<ul>
-<li>atrybut wskazujący na klucz główny w innej tabeli. Przykład: NrIndeksu w tabeli Oceny odnosi się do Studenci.</li>
-</ul>
-</section>
-<section id="integralność-danych" class="level3">
-<h3 class="anchored" data-anchor-id="integralność-danych">🔹 Integralność danych</h3>
+<section id="pytania-do-samodzielnego-sprawdzenia" class="level2">
+<h2 class="anchored" data-anchor-id="pytania-do-samodzielnego-sprawdzenia">Pytania do samodzielnego sprawdzenia</h2>
+<p>To powtórka po lekturze, a nie formularz punktowanego quizu.</p>
+<section id="pytania-jednokrotnego-wyboru" class="level3">
+<h3 class="anchored" data-anchor-id="pytania-jednokrotnego-wyboru">Pytania jednokrotnego wyboru</h3>
 <ol type="1">
-<li>Integralność encji – każda krotka musi być jednoznacznie identyfikowana.</li>
-<li>Integralność referencyjna – wartości kluczy obcych muszą istnieć w tabelach nadrzędnych.</li>
-<li>Integralność dziedzinowa – wartości atrybutów muszą mieścić się w swoich domenach.</li>
-</ol>
-</section>
-</section>
-<section id="zestaw-pytań-testowych" class="level2">
-<h2 class="anchored" data-anchor-id="zestaw-pytań-testowych">🧠 Zestaw pytań testowych</h2>
-<section id="pytania-zamknięte-jednokrotnego-wyboru" class="level3">
-<h3 class="anchored" data-anchor-id="pytania-zamknięte-jednokrotnego-wyboru">✅ Pytania zamknięte (jednokrotnego wyboru)</h3>
-<ol type="1">
-<li>Kto zaproponował model relacyjny danych?</li>
-</ol>
+<li><p>Kto zaproponował model relacyjny w pracy z 1970 roku?</p>
 <ol type="a">
-<li>Donald Knuth</li>
-<li>Edgar F. Codd</li>
-<li>Bill Gates</li>
-<li>Charles Bachman</li>
-</ol>
-<ol start="2" type="1">
-<li>Co opisuje poziom logiczny w architekturze ANSI/SPARC?</li>
-</ol>
+<li>Donald Knuth.</li>
+<li>Edgar F. Codd.</li>
+<li>Bill Gates.</li>
+<li>Charles Bachman.</li>
+</ol></li>
+<li><p>Co opisuje poziom pojęciowy, czyli logiczny, w architekturze ANSI/SPARC?</p>
 <ol type="a">
-<li>Sposób fizycznego zapisu danych</li>
-<li>Widok danych przez użytkownika</li>
-<li>Strukturę danych i relac</li>
+<li>Położenie danych w plikach.</li>
+<li>Wyłącznie wygląd formularza użytkownika.</li>
+<li>Wspólną strukturę danych i ich powiązania.</li>
+<li>Sposób zestawiania połączenia sieciowego.</li>
+</ol></li>
 </ol>
-<p>✏️ Pytania otwarte / opisowe</p>
+</section>
+<section id="pytania-opisowe" class="level3">
+<h3 class="anchored" data-anchor-id="pytania-opisowe">Pytania opisowe</h3>
 <ol type="1">
-<li>Wyjaśnij różnicę między danymi a informacją.</li>
-<li>Wymień i krótko opisz trzy poziomy abstrakcji w modelu ANSI/SPARC.</li>
-<li>Co to jest klucz główny i jakie są jego cechy?</li>
-<li>Podaj przykład relacji i wskaż w niej krotki oraz atrybuty.</li>
-<li>Dlaczego model relacyjny okazał się przełomem w historii baz danych?</li>
-<li>Jakie są trzy podstawowe zasady integralności danych?</li>
+<li>Wyjaśnij różnicę między daną i informacją na przykładzie wolnych miejsc.</li>
+<li>Rozróżnij bazę ośrodka, DBMS i aplikację zapisów.</li>
+<li>Rozwiń CRUD i wyjaśnij, dlaczego anulowanie zapisu jest w naszym projekcie aktualizacją.</li>
+<li>Po co model ANSI/SPARC wprowadza trzy poziomy? Podaj przykład dla każdego z nich.</li>
+<li>Wyjaśnij różnicę między fizyczną i logiczną niezależnością danych. Czy każda zmiana jest przez to niewidoczna dla aplikacji?</li>
+<li>W tabeli zapisów wskaż krotkę, atrybut i przykład dziedziny. Czy kolejność wierszy określa ich tożsamość?</li>
+<li>Czym różni się schemat relacji od jej aktualnego stanu?</li>
+<li>Dlaczego imię i nazwisko nie muszą być kluczem? Co znaczy minimalność klucza kandydującego?</li>
+<li>Która zasada zabroni zapisania oceny dla nieistniejącego studenta, jeśli tabela ocen odwołuje się do studentów kluczem obcym?</li>
+<li>Podaj regułę ośrodka, której nie sprawdzi samo istnienie klucza obcego.</li>
 </ol>
 
 

@@ -5,15 +5,11 @@ toc: true
 
 ## Dla kogo jest to zadanie?
 
-**To zadanie dla studentów, wykonywane w parach podczas wykładu.** Wcielacie się
-w zespół, który ma zaprojektować bazę danych dla fikcyjnego ośrodka szkoleniowego
-„Dąb”. Waszym pierwszym zadaniem jest ustalić, jakie informacje trzeba zapisywać
-i jakie zasady mają obowiązywać.
+**To zadanie będziecie wykonywać w parach podczas wykładu.** Wasz zespół, który ma zaprojektować bazę danych dla ośrodka szkoleniowego „Dąb”. 
+Waszym pierwszym zadaniem jest ustalić, jakie _informacje_ trzeba zapisywać i jakie _zasady_ mają obowiązywać.
 
-**Kierownik ośrodka to fikcyjny klient. Jego rolę odgrywa prowadzący wykład.**
 Pytania wpisujecie w formularzu na dole tej strony. Prowadzący odczyta je w swoim
-panelu i omówi wybrane kwestie na zajęciach. Nie musicie szukać prawdziwego
-kierownika, kontaktować się z żadną jednostką ani zbierać rzeczywistych danych.
+panelu i omówi wybrane kwestie na zajęciach.
 
 Na pierwszym wykładzie przygotujecie krótką notatkę wymagań. Nie trzeba jeszcze
 pisać SQL, instalować bazy, rysować diagramu ani tworzyć aplikacji. W kolejnych
@@ -24,8 +20,6 @@ wykładach ta sama historia posłuży do projektowania modelu i zapytań.
 [Materiał do zajęć](lectures/wyklad1.qmd)
 
 ### Sytuacja do przeanalizowania
-
-Wyobraźcie sobie, że kierownik mówi:
 
 > Organizujemy szkolenia dla uczestników. Ten sam temat może być realizowany
 > kilka razy, dla różnych osób. Chcę wiedzieć, kto jest zapisany na konkretne
@@ -55,8 +49,9 @@ z E2**. Anulowanych zapisów nie usuwamy. Osoba może uczestniczyć w wielu edyc
 
 ### Co przygotować przed zajęciami?
 
-Przeczytajcie opis i tabelę powyżej. Do wysłania pracy potrzebujecie przeglądarki i połączenia z internetem.
-Notatkę możecie wcześniej przygotować w edytorze tekstu. Nie ma obowiązkowego pliku do przygotowania w domu; notatkę
+Przeczytajcie opis i tabelę powyżej. 
+Notatkę możecie wcześniej przygotować w edytorze tekstu. 
+Nie ma obowiązkowego pliku do przygotowania w domu; notatkę
 wykonacie na zajęciach. Jeśli nie rozumiecie symbolu lub pojęcia, zaznaczcie je
 jako pytanie do wyjaśnienia.
 
