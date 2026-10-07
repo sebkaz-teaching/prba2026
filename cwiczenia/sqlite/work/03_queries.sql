@@ -1,0 +1,3 @@
+-- Block 5: participant list and confirmed enrollment counts.
+-- Block 6: reconstruct the legacy report from normalized tables.
+-- Add ORDER BY when checking an expected output order.

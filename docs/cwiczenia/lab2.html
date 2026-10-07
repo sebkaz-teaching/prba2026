@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pl" xml:lang="pl"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Laboratorium 2: Od zmian danych do odbioru projektu – Projektowanie Relacyjnych Baz Danych</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-94ae530b1fc9924793afbc3bb7de9d3b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Brak wyników",
+    "search-matching-documents-text": "dopasowane dokumenty",
+    "search-copy-link-title": "Kopiuj link do wyszukiwania",
+    "search-hide-matches-text": "Ukryj dodatkowe dopasowania",
+    "search-more-match-text": "więcej dopasowań w tym dokumencie",
+    "search-more-matches-text": "więcej dopasowań w tym dokumencie",
+    "search-clear-button-title": "Wyczyść",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Anuluj",
+    "search-submit-button-title": "Zatwierdź",
+    "search-label": "Szukaj"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Przełącz pasek boczny" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">
+      Projektowanie Relacyjnych Baz Danych
+      </li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Przełącz pasek boczny" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Szukaj" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Projektowanie Relacyjnych Baz Danych</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Szukaj"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Informacje ogólne</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Wykłady</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Przełącz sekcję">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wprowadzenie do relacyjnych baz danych</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title"><strong>Sections</strong></h2>
+   
+  <ul class="collapse">
+  <li><a href="#organizacja" id="toc-organizacja" class="nav-link active" data-scroll-target="#organizacja">Organizacja</a></li>
+  <li><a href="#blok-7-zmiana-zapisu-bez-utraty-osoby" id="toc-blok-7-zmiana-zapisu-bez-utraty-osoby" class="nav-link" data-scroll-target="#blok-7-zmiana-zapisu-bez-utraty-osoby">Blok 7 — Zmiana zapisu bez utraty osoby</a></li>
+  <li><a href="#blok-8-ponowne-zgłoszenie-i-kontrola-miejsc" id="toc-blok-8-ponowne-zgłoszenie-i-kontrola-miejsc" class="nav-link" data-scroll-target="#blok-8-ponowne-zgłoszenie-i-kontrola-miejsc">Blok 8 — Ponowne zgłoszenie i kontrola miejsc</a></li>
+  <li><a href="#blok-9-podzapytania-i-widok-kierownika" id="toc-blok-9-podzapytania-i-widok-kierownika" class="nav-link" data-scroll-target="#blok-9-podzapytania-i-widok-kierownika">Blok 9 — Podzapytania i widok kierownika</a></li>
+  <li><a href="#blok-10-audyt-reguł-obejmujących-wiele-wierszy" id="toc-blok-10-audyt-reguł-obejmujących-wiele-wierszy" class="nav-link" data-scroll-target="#blok-10-audyt-reguł-obejmujących-wiele-wierszy">Blok 10 — Audyt reguł obejmujących wiele wierszy</a></li>
+  <li><a href="#blok-11-indeks-najpierw-plan-potem-wniosek" id="toc-blok-11-indeks-najpierw-plan-potem-wniosek" class="nav-link" data-scroll-target="#blok-11-indeks-najpierw-plan-potem-wniosek">Blok 11 — Indeks: najpierw plan, potem wniosek</a></li>
+  <li><a href="#blok-12-odbiór-przez-drugą-parę" id="toc-blok-12-odbiór-przez-drugą-parę" class="nav-link" data-scroll-target="#blok-12-odbiór-przez-drugą-parę">Blok 12 — Odbiór przez drugą parę</a></li>
+  <li><a href="#minimum-na-koniec-spotkania" id="toc-minimum-na-koniec-spotkania" class="nav-link" data-scroll-target="#minimum-na-koniec-spotkania">Minimum na koniec spotkania</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Laboratorium 2: Od zmian danych do odbioru projektu</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Termin: 25 stycznia 2027 · 6 × 45 minut.</strong></p>
+<section id="organizacja" class="level2">
+<h2 class="anchored" data-anchor-id="organizacja">Organizacja</h2>
+<p>Pracujecie w parach. Osoba pisząca SQL i osoba sprawdzająca zamieniają się po każdym bloku. Każdy blok trwa 45 minut: 5 min prognoza/powtórka, 8 min pokaz, 20 min zadania, 7 min próby i 5 min indywidualne wyjaśnienie. Przerwy są poza bilansem. Dwa zadania w bloku tworzą jeden etap projektu.</p>
+<p>Używajcie <a href="../cwiczenia/sqlite-start.html">instrukcji środowiska i kontraktu danych</a>. Wszystkie dane są fikcyjne. Po eksperymencie zmieniającym dane przywracajcie stan bazowy przez ROLLBACK albo pracę na osobnym pliku. Nie usuwajcie oryginalnej pracy, aby zacząć ponownie.</p>
+<p>Na start otrzymujecie działający punkt wznowienia: poprawny schemat i dane z pierwszego spotkania. Brak własnego ukończonego projektu nie blokuje udziału; prowadzący udostępnia kopię wzorcową. Pierwszy blok zawiera dwa pytania diagnostyczne — nie są jeszcze podłączone do formularza ocen na stronie.</p>
+</section>
+<section id="blok-7-zmiana-zapisu-bez-utraty-osoby" class="level2">
+<h2 class="anchored" data-anchor-id="blok-7-zmiana-zapisu-bez-utraty-osoby">Blok 7 — Zmiana zapisu bez utraty osoby</h2>
+<p><strong>Powiązanie z kursem:</strong> Wykłady 4 i 7: UPDATE i transakcja.</p>
+<p>Bartek rezygnuje teraz również z E1. Operacja ma dotyczyć jednego zapisu, a nie całej osoby.</p>
+<section id="zadanie-a" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-a">Zadanie A</h3>
+<p>Diagnoza na początek: dlaczego usunięcie osoby nie jest anulowaniem zapisu? Dlaczego COUNT(*) może zawyżyć wynik przy LEFT JOIN? Następnie sprawdź PRAGMA i stan początkowy 2,1,0.</p>
+</section>
+<section id="zadanie-b" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-b">Zadanie B</h3>
+<p>W BEGIN…ROLLBACK zmień status U2–E1 na cancelled. Sprawdź oba zapisy Bartka i jego rekord osoby; potem cofnij operację. Powtórz osobno z celowo zbyt szerokim WHERE participant_id=U2 i wyjaśnij różnicę.</p>
+<p><strong>Co oddajecie / pokazujecie:</strong> 04_changes.sql i porównanie stanu przed, w trakcie oraz po wycofaniu. Dwa pytania są diagnozą ustną/pisemną, nie podłączonym testem internetowym.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Wskazówka
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Nie wykonuj próby bez WHERE na roboczej bazie. Użyj kopii lub transakcji zakończonej ROLLBACK.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="blok-8-ponowne-zgłoszenie-i-kontrola-miejsc" class="level2">
+<h2 class="anchored" data-anchor-id="blok-8-ponowne-zgłoszenie-i-kontrola-miejsc">Blok 8 — Ponowne zgłoszenie i kontrola miejsc</h2>
+<p><strong>Powiązanie z kursem:</strong> Reguły biznesowe; krótki pokaz transakcji.</p>
+<p>Bartek chce wrócić na E2. Zachowujemy ten sam zapis, lecz przed potwierdzeniem trzeba sprawdzić limit.</p>
+<section id="zadanie-a-1" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-a-1">Zadanie A</h3>
+<p>W kontrolowanej transakcji zaktualizuj istniejący cancelled zapis U2–E2 tylko wtedy, gdy liczba confirmed jest mniejsza niż seat_limit. Sprawdź SELECT changes() bezpośrednio po UPDATE. Wycofaj próbę.</p>
+</section>
+<section id="zadanie-b-1" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-b-1">Zadanie B</h3>
+<p>Na kopii lub w transakcji ustaw limit E2 na 1, aby była pełna. Powtórz próbę powrotu Bartka: żadna zmiana nie powinna nastąpić. Wyjaśnij, dlaczego samo UNIQUE uczestnik–edycja nie chroni limitu.</p>
+<p><strong>Co oddajecie / pokazujecie:</strong> Warunkowe UPDATE oraz dwie próby: miejsce dostępne i brak miejsca. Stan bazowy przywrócony po eksperymencie.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Wskazówka
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Prowadzący daje szkielet BEGIN IMMEDIATE…ROLLBACK. Nie implementuj całego systemu rezerwacji. Ten przebieg obsługuje istniejący anulowany zapis; nowe osoby i zmiany limitu to odrębne operacje.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="blok-9-podzapytania-i-widok-kierownika" class="level2">
+<h2 class="anchored" data-anchor-id="blok-9-podzapytania-i-widok-kierownika">Blok 9 — Podzapytania i widok kierownika</h2>
+<p><strong>Powiązanie z kursem:</strong> Wykład 7: NOT EXISTS i widoki.</p>
+<p>Kierownik chce listy pustych edycji i jednolitego raportu wolnych miejsc.</p>
+<section id="zadanie-a-2" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-a-2">Zadanie A</h3>
+<p>Znajdź edycje bez potwierdzonych zapisów przez NOT EXISTS. W osobnej wycofywanej próbie dodaj do E3 tylko anulowany zapis. Czy E3 nadal ma się pojawiać?</p>
+</section>
+<section id="zadanie-b-2" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-b-2">Zadanie B</h3>
+<p>Utwórz widok edition_places: edition_id,seat_limit,confirmed_count,free_places. Sprawdź 0,3,4 wolnych miejsc; w transakcji anuluj jeden zapis E1 i odczytaj widok ponownie, potem wycofaj.</p>
+<p><strong>Co oddajecie / pokazujecie:</strong> 05_reports.sql, wynik NOT EXISTS i widoku oraz wyjaśnienie, dlaczego widok nie rezerwuje miejsca.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Wskazówka
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sprawdzaj brak confirmed, nie brak jakiegokolwiek rekordu. Nie zapisuj liczby wolnych miejsc jako ręcznie aktualizowanej kopii.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="blok-10-audyt-reguł-obejmujących-wiele-wierszy" class="level2">
+<h2 class="anchored" data-anchor-id="blok-10-audyt-reguł-obejmujących-wiele-wierszy">Blok 10 — Audyt reguł obejmujących wiele wierszy</h2>
+<p><strong>Powiązanie z kursem:</strong> Wykłady 3,5,7: granice prostych ograniczeń.</p>
+<p>Baza ma poprawne klucze obce, ale czy wszystkie decyzje organizacyjne są poprawne?</p>
+<section id="zadanie-a-3" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-a-3">Zadanie A</h3>
+<p>Napisz raport edycji z limitem większym niż pojemność sali oraz z nadmiarem confirmed. Na kopii podnieś limit E1 ponad pojemność i osobno dodaj Celinę do pełnej E1. Sprawdź, które operacje przyjmuje podstawowy schemat i które błędy wykrywa audyt.</p>
+</section>
+<section id="zadanie-b-3" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-b-3">Zadanie B</h3>
+<p>Napisz raport kolizji edycji dzielących salę lub prowadzącego. Porównuj pary tylko raz. Wypróbuj E4 09:00–11:00 w S1 oraz E4 14:00–15:00 w S2; pierwsza koliduje, druga styka się z E3 i nie koliduje. Próby odizoluj i wycofaj.</p>
+<p><strong>Co oddajecie / pokazujecie:</strong> Raporty kontrolne i tabelka: reguła chroniona przez schemat / wykrywana audytem / wymagająca dodatkowej ochrony zapisu.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Wskazówka
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Przedziały kolidują, gdy a.starts_at &lt; b.ends_at AND b.starts_at &lt; a.ends_at. Ustal jeden format tekstowy dat i tę samą strefę.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="blok-11-indeks-najpierw-plan-potem-wniosek" class="level2">
+<h2 class="anchored" data-anchor-id="blok-11-indeks-najpierw-plan-potem-wniosek">Blok 11 — Indeks: najpierw plan, potem wniosek</h2>
+<p><strong>Powiązanie z kursem:</strong> Wykład 6: EXPLAIN QUERY PLAN.</p>
+<p>Na trzech edycjach nie udowodnimy przydatności indeksu. Użyjemy osobnej większej tabeli testowej.</p>
+<section id="zadanie-a-4" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-a-4">Zadanie A</h3>
+<p>Na nowej performance.db uruchom data/03_performance_seed.sql. Przewidź wynik filtra edition_code=E042. Zapisz EXPLAIN QUERY PLAN dla SELECT * przed dodaniem indeksu.</p>
+</section>
+<section id="zadanie-b-4" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-b-4">Zadanie B</h3>
+<p>Dodaj indeks na edition_code, ponów to samo zapytanie i plan. Sprawdź niezmienność wyniku. Porównaj SCAN z SEARCH, jeśli występują. Wyjaśnij koszt utrzymania indeksu i dlaczego nie wynika stąd stały mnożnik przyspieszenia.</p>
+<p><strong>Co oddajecie / pokazujecie:</strong> Dwa plany, liczba wierszy i uzasadnienie. Pomiar czasu jest dodatkiem; plan nie jest pomiarem czasu.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Wskazówka
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>SQLite używa EXPLAIN QUERY PLAN, nie PostgreSQL EXPLAIN ANALYZE. Tabela testowa jest odrębna od danych organizacyjnych ośrodka.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="blok-12-odbiór-przez-drugą-parę" class="level2">
+<h2 class="anchored" data-anchor-id="blok-12-odbiór-przez-drugą-parę">Blok 12 — Odbiór przez drugą parę</h2>
+<p><strong>Powiązanie z kursem:</strong> Cały kurs: odtwarzalność i obrona projektu.</p>
+<p>Projekt przejmuje nowa zmiana. Musi umieć go uruchomić i rozpoznać ograniczenia bez ustnych podpowiedzi.</p>
+<section id="zadanie-a-5" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-a-5">Zadanie A</h3>
+<p>Przekaż drugiej parze diagram, 01_schema.sql, seed, zapytania i instrukcję. Odtwarzają bazę pod NOWĄ nazwą odbior.db. Weryfikują dane 2,1,0, wolne miejsca0,3,4 i jedną próbę naruszenia FK lub unikalności.</p>
+</section>
+<section id="zadanie-b-5" class="level3">
+<h3 class="anchored" data-anchor-id="zadanie-b-5">Zadanie B</h3>
+<p>Druga para wybiera przypadek anulowanego zapisu albo kolizji. Autorzy wskazują dowód wyniku, ograniczenia rozwiązania i proponują mechanizm dalszej ochrony. Każdy osobno wyjaśnia jedną decyzję modelu.</p>
+<p><strong>Co oddajecie / pokazujecie:</strong> Kompletny pakiet: diagram, słownik/reguły, skrypty, dab.db, protokół prób i znane ograniczenia. Sam plik .db bez odtwarzalnych skryptów nie wystarcza.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Wskazówka
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Nie nadpisuj bazy kolegów. Odbiór wykonuj na świeżym pliku; przy otwartych transakcjach nie kopiuj przypadkowo tylko części stanu.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="minimum-na-koniec-spotkania" class="level2">
+<h2 class="anchored" data-anchor-id="minimum-na-koniec-spotkania">Minimum na koniec spotkania</h2>
+<p>Kontrolowana zmiana zapisu, raport wolnych miejsc, wykrywanie naruszeń, odtwarzalny projekt i samodzielne wyjaśnienie. Zaawansowane automatyczne blokowanie kolizji i obsługa wszystkich równoczesnych zmian są rozszerzeniem.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Skopiowano!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Skopiowano!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/sebkaz-teaching\.github\.io\/prba2026");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright 2026, Sebastian Zając</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

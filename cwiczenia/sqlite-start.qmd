@@ -1,0 +1,101 @@
+---
+title: "SQLite — środowisko, dane i zasady pracy"
+lang: pl
+---
+
+## Co budujemy i czego nie budujemy?
+
+Projektujemy bazę ośrodka „Dąb”, znanego z wykładów. Nie tworzymy aplikacji internetowej ani integracji z bazą quizów. Każda para ma własny plik `dab.db` i komplet skryptów SQL — Structured Query Language, strukturalnego języka zapytań.
+
+Dwa potwierdzone spotkania mają po 6 × 45 min: 7 XII 2026 i 25 I 2027. Zajęcia zaplanowane pierwotnie na 17 XI będą przeniesione lub odrobione; wymiar i termin zastępczy nie zostały tu założone. Materiały obejmują 12 znanych godzin dydaktycznych, nie deklarują pełnego wymiaru wszystkich laboratoriów.
+
+## Start przez Docker Compose
+
+Pobierz cały katalog `sqlite` obok tej instrukcji. Otwórz terminal w tym katalogu. Docker musi być uruchomiony. Pierwsze pobranie obrazu wykonaj przed zajęciami; potem praca jest lokalna. Python pełni rolę klienta SQLite, nie jest tematem ćwiczeń; nie wymaga dodatkowych bibliotek ani instalacji pip.
+
+```bash
+docker compose run --rm sql work/dab.db data/00_check.sql
+```
+
+Program wyświetli wersję SQLite, położenie pliku i `foreign_keys=1`. Wymagamy SQLite 3.37 lub nowszego ze względu na tabele STRICT. `work/dab.db` jest zwykłym plikiem na komputerze hosta dzięki zamontowaniu katalogu. Usunięcie kontenera go nie usuwa.
+
+Po samodzielnym przygotowaniu schematu w bloku 3 uruchom:
+
+```bash
+docker compose run --rm sql work/dab.db work/01_schema.sql data/02_seed.sql
+```
+
+Plik `01_schema.sql` początkowo zawiera tylko wskazówki. **Seed wymaga gotowych tabel.** Import wykonuj raz na nowej bazie, inaczej ograniczenia wykryją istniejące identyfikatory. Aby odtworzyć projekt bez nadpisania pracy, użyj nowej nazwy, np. `work/odbior.db`.
+
+Zapytania z bloku 5 uruchom tak:
+
+```bash
+docker compose run --rm sql work/dab.db work/03_queries.sql
+```
+
+Jeśli masz już Python 3.11+ z odpowiednią wersją SQLite, ten sam klient działa lokalnie:
+
+```bash
+python3 sql.py work/dab.db data/00_check.sql
+```
+
+W dowolnym graficznym kliencie SQLite możesz otworzyć ten sam plik i wykonywać SQL. Zamknij inne aktywne transakcje przed zmianą narzędzia. Runner wyświetla do 50 wierszy wyniku, ale nie ogranicza działania zapytania; do kontroli liczby użyj COUNT.
+
+## Kontrola kluczy obcych i typów
+
+Po otwarciu każdego nowego połączenia, przed rozpoczęciem transakcji:
+
+```sql
+PRAGMA foreign_keys = ON;
+PRAGMA foreign_keys;
+```
+
+Druga instrukcja ma zwrócić 1. Ustawienie dotyczy połączenia, a nie raz na zawsze pliku. W dostarczonym kliencie jest włączane automatycznie. [Dokumentacja kluczy obcych SQLite](https://www.sqlite.org/foreignkeys.html).
+
+Tabele tworzymy ze słowem `STRICT`, aby przypadkowy napis nie zastąpił liczby całkowitej. Nadal potrzebne są reguły takie jak dodatni limit i dopuszczalne statusy. Samo typowanie nie sprawdza znaczenia danych. [Tabele STRICT](https://www.sqlite.org/stricttables.html).
+
+## Kontrakt tabel do wspólnego zestawu danych
+
+Nazwy i kolejność kolumn poniżej umożliwiają użycie dostarczonego `02_seed.sql`. To interfejs danych kontrolnych; ograniczenia dobieracie samodzielnie. Warianty modelu można obronić, ale wtedy trzeba dostosować import i raporty, a nie mieszać różne schematy.
+
+| Tabela | Kolumny w kolejności | Typy |
+|---|---|---|
+| participants | participant_id, name | TEXT, TEXT |
+| instructors | instructor_id, name | TEXT, TEXT |
+| rooms | room_id, name, capacity | TEXT, TEXT, INTEGER |
+| courses | course_id, name | TEXT, TEXT |
+| editions | edition_id, course_id, room_id, instructor_id, starts_at, ends_at, seat_limit | Sześć TEXT, następnie INTEGER |
+| enrollments | participant_id, edition_id, status | Trzy TEXT |
+
+Każdy identyfikator encji jest kluczem głównym i jest wymagany. Zapis identyfikujemy parą uczestnik–edycja. Wszystkie kolumny tego minimalnego kontraktu są obowiązkowe. `name` uczestnika i prowadzącego to skrócona nazwa wyświetlana w zestawie dydaktycznym, nie twierdzenie, że imię identyfikuje osobę.
+
+Wszystkie terminy zapisujemy jako `YYYY-MM-DD HH:MM`, z zerami wiodącymi, w jednej ustalonej lokalnej strefie Europe/Warsaw. Dzień scenariusza to **1 lutego 2027**, wybrany jako stała data dydaktyczna. Nie ma wymagania „termin musi być w przyszłości”, więc ten zestaw pozostaje przydatny także później. Porównanie tekstów w tym jednolitym formacie zachowuje porządek czasu; mieszanie formatów lub stref złamałoby to założenie. Podstawowe CHECK nie stanowi pełnej walidacji kalendarza.
+
+## Stan kontrolny
+
+- U1 Ada, U2 Bartek, U3 Celina; I1 Igor, I2 Ewa.
+- S1: pojemność 2; S2: pojemność 4.
+- K1: Obsługa wyposażenia; K2: Pierwsza pomoc.
+- E1: K1, S1, I1, 08:00–10:00, limit 2.
+- E2: K1, S2, I2, 10:00–12:00, limit 4.
+- E3: K2, S2, I2, 12:00–14:00, limit 4.
+- U1–E1 i U2–E1 confirmed; U3–E2 confirmed; U2–E2 cancelled.
+
+Potwierdzone zapisy: **2,1,0**. Wolne miejsca: **0,3,4**. E3 istnieje mimo braku zapisów. Anulowany zapis zachowujemy; ponowne zgłoszenie zmienia ten sam rekord po kontroli miejsc. Reguły pojemności oraz nakładania terminów są wymaganiami dziedziny, nawet gdy podstawowy schemat ich jeszcze automatycznie nie blokuje.
+
+## Co jest gotowe, a co robicie sami?
+
+| Dostarczone | Wasza praca |
+|---|---|
+| Klient SQL i Compose | Polecenia tworzące schemat |
+| CSV starej ewidencji oraz seed | Uzasadnienie modelu i normalizacji |
+| Puste pliki robocze z opisami etapów | Zapytania, kontrolowane zmiany i widoki |
+| Dane do próby indeksu | Audyt, próby błędów i opis wyników |
+
+Jeśli utkniecie, prowadzący może udostępnić punkt wznowienia. Korzystanie z niego pozwala kontynuować, ale nie zastępuje indywidualnego wyjaśnienia wcześniejszego etapu.
+
+## Bezpieczne próby
+
+Zmieniaj dane w kopii albo świadomej transakcji kończonej ROLLBACK. Runner kończy pracę na pierwszym błędzie i wycofuje otwartą transakcję; wcześniejsze zatwierdzone instrukcje nie są cofane. W narzędziu graficznym po błędzie upewnij się, czy transakcja nadal trwa. Nie licz, że każdy błąd sam cofa wszystko.
+
+Nie używamy tu składni PostgreSQL: `SERIAL`, `ILIKE`, `EXTRACT` ani `EXPLAIN ANALYZE`. Analiza planu SQLite to `EXPLAIN QUERY PLAN`. W obecnym SQLite istnieje `DROP COLUMN`, ale ma ograniczenia; nie zakładamy, że każde ALTER TABLE jest obsługiwane. [Plan zapytania](https://www.sqlite.org/eqp.html), [ALTER TABLE](https://www.sqlite.org/lang_altertable.html).

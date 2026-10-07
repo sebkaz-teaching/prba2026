@@ -1,0 +1,138 @@
+---
+title: "Laboratorium 2: Od zmian danych do odbioru projektu"
+lang: pl
+---
+
+**Termin: 25 stycznia 2027 · 6 × 45 minut.**
+
+## Organizacja
+
+Pracujecie w parach. Osoba pisząca SQL i osoba sprawdzająca zamieniają się po każdym bloku. Każdy blok trwa 45 minut: 5 min prognoza/powtórka, 8 min pokaz, 20 min zadania, 7 min próby i 5 min indywidualne wyjaśnienie. Przerwy są poza bilansem. Dwa zadania w bloku tworzą jeden etap projektu.
+
+Używajcie [instrukcji środowiska i kontraktu danych](sqlite-start.qmd). Wszystkie dane są fikcyjne. Po eksperymencie zmieniającym dane przywracajcie stan bazowy przez ROLLBACK albo pracę na osobnym pliku. Nie usuwajcie oryginalnej pracy, aby zacząć ponownie.
+
+Na start otrzymujecie działający punkt wznowienia: poprawny schemat i dane z pierwszego spotkania. Brak własnego ukończonego projektu nie blokuje udziału; prowadzący udostępnia kopię wzorcową. Pierwszy blok zawiera dwa pytania diagnostyczne — nie są jeszcze podłączone do formularza ocen na stronie.
+
+## Blok 7 — Zmiana zapisu bez utraty osoby
+
+**Powiązanie z kursem:** Wykłady 4 i 7: UPDATE i transakcja.
+
+Bartek rezygnuje teraz również z E1. Operacja ma dotyczyć jednego zapisu, a nie całej osoby.
+
+### Zadanie A
+
+Diagnoza na początek: dlaczego usunięcie osoby nie jest anulowaniem zapisu? Dlaczego COUNT(*) może zawyżyć wynik przy LEFT JOIN? Następnie sprawdź PRAGMA i stan początkowy 2,1,0.
+
+### Zadanie B
+
+W BEGIN…ROLLBACK zmień status U2–E1 na cancelled. Sprawdź oba zapisy Bartka i jego rekord osoby; potem cofnij operację. Powtórz osobno z celowo zbyt szerokim WHERE participant_id=U2 i wyjaśnij różnicę.
+
+**Co oddajecie / pokazujecie:** 04_changes.sql i porównanie stanu przed, w trakcie oraz po wycofaniu. Dwa pytania są diagnozą ustną/pisemną, nie podłączonym testem internetowym.
+
+::: {.callout-tip}
+Nie wykonuj próby bez WHERE na roboczej bazie. Użyj kopii lub transakcji zakończonej ROLLBACK.
+:::
+
+## Blok 8 — Ponowne zgłoszenie i kontrola miejsc
+
+**Powiązanie z kursem:** Reguły biznesowe; krótki pokaz transakcji.
+
+Bartek chce wrócić na E2. Zachowujemy ten sam zapis, lecz przed potwierdzeniem trzeba sprawdzić limit.
+
+### Zadanie A
+
+W kontrolowanej transakcji zaktualizuj istniejący cancelled zapis U2–E2 tylko wtedy, gdy liczba confirmed jest mniejsza niż seat_limit. Sprawdź SELECT changes() bezpośrednio po UPDATE. Wycofaj próbę.
+
+### Zadanie B
+
+Na kopii lub w transakcji ustaw limit E2 na 1, aby była pełna. Powtórz próbę powrotu Bartka: żadna zmiana nie powinna nastąpić. Wyjaśnij, dlaczego samo UNIQUE uczestnik–edycja nie chroni limitu.
+
+**Co oddajecie / pokazujecie:** Warunkowe UPDATE oraz dwie próby: miejsce dostępne i brak miejsca. Stan bazowy przywrócony po eksperymencie.
+
+::: {.callout-tip}
+Prowadzący daje szkielet BEGIN IMMEDIATE…ROLLBACK. Nie implementuj całego systemu rezerwacji. Ten przebieg obsługuje istniejący anulowany zapis; nowe osoby i zmiany limitu to odrębne operacje.
+:::
+
+## Blok 9 — Podzapytania i widok kierownika
+
+**Powiązanie z kursem:** Wykład 7: NOT EXISTS i widoki.
+
+Kierownik chce listy pustych edycji i jednolitego raportu wolnych miejsc.
+
+### Zadanie A
+
+Znajdź edycje bez potwierdzonych zapisów przez NOT EXISTS. W osobnej wycofywanej próbie dodaj do E3 tylko anulowany zapis. Czy E3 nadal ma się pojawiać?
+
+### Zadanie B
+
+Utwórz widok edition_places: edition_id,seat_limit,confirmed_count,free_places. Sprawdź 0,3,4 wolnych miejsc; w transakcji anuluj jeden zapis E1 i odczytaj widok ponownie, potem wycofaj.
+
+**Co oddajecie / pokazujecie:** 05_reports.sql, wynik NOT EXISTS i widoku oraz wyjaśnienie, dlaczego widok nie rezerwuje miejsca.
+
+::: {.callout-tip}
+Sprawdzaj brak confirmed, nie brak jakiegokolwiek rekordu. Nie zapisuj liczby wolnych miejsc jako ręcznie aktualizowanej kopii.
+:::
+
+## Blok 10 — Audyt reguł obejmujących wiele wierszy
+
+**Powiązanie z kursem:** Wykłady 3,5,7: granice prostych ograniczeń.
+
+Baza ma poprawne klucze obce, ale czy wszystkie decyzje organizacyjne są poprawne?
+
+### Zadanie A
+
+Napisz raport edycji z limitem większym niż pojemność sali oraz z nadmiarem confirmed. Na kopii podnieś limit E1 ponad pojemność i osobno dodaj Celinę do pełnej E1. Sprawdź, które operacje przyjmuje podstawowy schemat i które błędy wykrywa audyt.
+
+### Zadanie B
+
+Napisz raport kolizji edycji dzielących salę lub prowadzącego. Porównuj pary tylko raz. Wypróbuj E4 09:00–11:00 w S1 oraz E4 14:00–15:00 w S2; pierwsza koliduje, druga styka się z E3 i nie koliduje. Próby odizoluj i wycofaj.
+
+**Co oddajecie / pokazujecie:** Raporty kontrolne i tabelka: reguła chroniona przez schemat / wykrywana audytem / wymagająca dodatkowej ochrony zapisu.
+
+::: {.callout-tip}
+Przedziały kolidują, gdy a.starts_at < b.ends_at AND b.starts_at < a.ends_at. Ustal jeden format tekstowy dat i tę samą strefę.
+:::
+
+## Blok 11 — Indeks: najpierw plan, potem wniosek
+
+**Powiązanie z kursem:** Wykład 6: EXPLAIN QUERY PLAN.
+
+Na trzech edycjach nie udowodnimy przydatności indeksu. Użyjemy osobnej większej tabeli testowej.
+
+### Zadanie A
+
+Na nowej performance.db uruchom data/03_performance_seed.sql. Przewidź wynik filtra edition_code=E042. Zapisz EXPLAIN QUERY PLAN dla SELECT * przed dodaniem indeksu.
+
+### Zadanie B
+
+Dodaj indeks na edition_code, ponów to samo zapytanie i plan. Sprawdź niezmienność wyniku. Porównaj SCAN z SEARCH, jeśli występują. Wyjaśnij koszt utrzymania indeksu i dlaczego nie wynika stąd stały mnożnik przyspieszenia.
+
+**Co oddajecie / pokazujecie:** Dwa plany, liczba wierszy i uzasadnienie. Pomiar czasu jest dodatkiem; plan nie jest pomiarem czasu.
+
+::: {.callout-tip}
+SQLite używa EXPLAIN QUERY PLAN, nie PostgreSQL EXPLAIN ANALYZE. Tabela testowa jest odrębna od danych organizacyjnych ośrodka.
+:::
+
+## Blok 12 — Odbiór przez drugą parę
+
+**Powiązanie z kursem:** Cały kurs: odtwarzalność i obrona projektu.
+
+Projekt przejmuje nowa zmiana. Musi umieć go uruchomić i rozpoznać ograniczenia bez ustnych podpowiedzi.
+
+### Zadanie A
+
+Przekaż drugiej parze diagram, 01_schema.sql, seed, zapytania i instrukcję. Odtwarzają bazę pod NOWĄ nazwą odbior.db. Weryfikują dane 2,1,0, wolne miejsca0,3,4 i jedną próbę naruszenia FK lub unikalności.
+
+### Zadanie B
+
+Druga para wybiera przypadek anulowanego zapisu albo kolizji. Autorzy wskazują dowód wyniku, ograniczenia rozwiązania i proponują mechanizm dalszej ochrony. Każdy osobno wyjaśnia jedną decyzję modelu.
+
+**Co oddajecie / pokazujecie:** Kompletny pakiet: diagram, słownik/reguły, skrypty, dab.db, protokół prób i znane ograniczenia. Sam plik .db bez odtwarzalnych skryptów nie wystarcza.
+
+::: {.callout-tip}
+Nie nadpisuj bazy kolegów. Odbiór wykonuj na świeżym pliku; przy otwartych transakcjach nie kopiuj przypadkowo tylko części stanu.
+:::
+
+## Minimum na koniec spotkania
+
+Kontrolowana zmiana zapisu, raport wolnych miejsc, wykrywanie naruszeń, odtwarzalny projekt i samodzielne wyjaśnienie. Zaawansowane automatyczne blokowanie kolizji i obsługa wszystkich równoczesnych zmian są rozszerzeniem.

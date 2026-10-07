@@ -61,6 +61,188 @@
     ]
   },
   {
+    "objectID": "cwiczenia/lab2.html",
+    "href": "cwiczenia/lab2.html",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "",
+    "text": "Termin: 25 stycznia 2027 · 6 × 45 minut."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#organizacja",
+    "href": "cwiczenia/lab2.html#organizacja",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Organizacja",
+    "text": "Organizacja\nPracujecie w parach. Osoba pisząca SQL i osoba sprawdzająca zamieniają się po każdym bloku. Każdy blok trwa 45 minut: 5 min prognoza/powtórka, 8 min pokaz, 20 min zadania, 7 min próby i 5 min indywidualne wyjaśnienie. Przerwy są poza bilansem. Dwa zadania w bloku tworzą jeden etap projektu.\nUżywajcie instrukcji środowiska i kontraktu danych. Wszystkie dane są fikcyjne. Po eksperymencie zmieniającym dane przywracajcie stan bazowy przez ROLLBACK albo pracę na osobnym pliku. Nie usuwajcie oryginalnej pracy, aby zacząć ponownie.\nNa start otrzymujecie działający punkt wznowienia: poprawny schemat i dane z pierwszego spotkania. Brak własnego ukończonego projektu nie blokuje udziału; prowadzący udostępnia kopię wzorcową. Pierwszy blok zawiera dwa pytania diagnostyczne — nie są jeszcze podłączone do formularza ocen na stronie."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#blok-7-zmiana-zapisu-bez-utraty-osoby",
+    "href": "cwiczenia/lab2.html#blok-7-zmiana-zapisu-bez-utraty-osoby",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Blok 7 — Zmiana zapisu bez utraty osoby",
+    "text": "Blok 7 — Zmiana zapisu bez utraty osoby\nPowiązanie z kursem: Wykłady 4 i 7: UPDATE i transakcja.\nBartek rezygnuje teraz również z E1. Operacja ma dotyczyć jednego zapisu, a nie całej osoby.\n\nZadanie A\nDiagnoza na początek: dlaczego usunięcie osoby nie jest anulowaniem zapisu? Dlaczego COUNT(*) może zawyżyć wynik przy LEFT JOIN? Następnie sprawdź PRAGMA i stan początkowy 2,1,0.\n\n\nZadanie B\nW BEGIN…ROLLBACK zmień status U2–E1 na cancelled. Sprawdź oba zapisy Bartka i jego rekord osoby; potem cofnij operację. Powtórz osobno z celowo zbyt szerokim WHERE participant_id=U2 i wyjaśnij różnicę.\nCo oddajecie / pokazujecie: 04_changes.sql i porównanie stanu przed, w trakcie oraz po wycofaniu. Dwa pytania są diagnozą ustną/pisemną, nie podłączonym testem internetowym.\n\n\n\n\n\n\nWskazówka\n\n\n\nNie wykonuj próby bez WHERE na roboczej bazie. Użyj kopii lub transakcji zakończonej ROLLBACK."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#blok-8-ponowne-zgłoszenie-i-kontrola-miejsc",
+    "href": "cwiczenia/lab2.html#blok-8-ponowne-zgłoszenie-i-kontrola-miejsc",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Blok 8 — Ponowne zgłoszenie i kontrola miejsc",
+    "text": "Blok 8 — Ponowne zgłoszenie i kontrola miejsc\nPowiązanie z kursem: Reguły biznesowe; krótki pokaz transakcji.\nBartek chce wrócić na E2. Zachowujemy ten sam zapis, lecz przed potwierdzeniem trzeba sprawdzić limit.\n\nZadanie A\nW kontrolowanej transakcji zaktualizuj istniejący cancelled zapis U2–E2 tylko wtedy, gdy liczba confirmed jest mniejsza niż seat_limit. Sprawdź SELECT changes() bezpośrednio po UPDATE. Wycofaj próbę.\n\n\nZadanie B\nNa kopii lub w transakcji ustaw limit E2 na 1, aby była pełna. Powtórz próbę powrotu Bartka: żadna zmiana nie powinna nastąpić. Wyjaśnij, dlaczego samo UNIQUE uczestnik–edycja nie chroni limitu.\nCo oddajecie / pokazujecie: Warunkowe UPDATE oraz dwie próby: miejsce dostępne i brak miejsca. Stan bazowy przywrócony po eksperymencie.\n\n\n\n\n\n\nWskazówka\n\n\n\nProwadzący daje szkielet BEGIN IMMEDIATE…ROLLBACK. Nie implementuj całego systemu rezerwacji. Ten przebieg obsługuje istniejący anulowany zapis; nowe osoby i zmiany limitu to odrębne operacje."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#blok-9-podzapytania-i-widok-kierownika",
+    "href": "cwiczenia/lab2.html#blok-9-podzapytania-i-widok-kierownika",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Blok 9 — Podzapytania i widok kierownika",
+    "text": "Blok 9 — Podzapytania i widok kierownika\nPowiązanie z kursem: Wykład 7: NOT EXISTS i widoki.\nKierownik chce listy pustych edycji i jednolitego raportu wolnych miejsc.\n\nZadanie A\nZnajdź edycje bez potwierdzonych zapisów przez NOT EXISTS. W osobnej wycofywanej próbie dodaj do E3 tylko anulowany zapis. Czy E3 nadal ma się pojawiać?\n\n\nZadanie B\nUtwórz widok edition_places: edition_id,seat_limit,confirmed_count,free_places. Sprawdź 0,3,4 wolnych miejsc; w transakcji anuluj jeden zapis E1 i odczytaj widok ponownie, potem wycofaj.\nCo oddajecie / pokazujecie: 05_reports.sql, wynik NOT EXISTS i widoku oraz wyjaśnienie, dlaczego widok nie rezerwuje miejsca.\n\n\n\n\n\n\nWskazówka\n\n\n\nSprawdzaj brak confirmed, nie brak jakiegokolwiek rekordu. Nie zapisuj liczby wolnych miejsc jako ręcznie aktualizowanej kopii."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#blok-10-audyt-reguł-obejmujących-wiele-wierszy",
+    "href": "cwiczenia/lab2.html#blok-10-audyt-reguł-obejmujących-wiele-wierszy",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Blok 10 — Audyt reguł obejmujących wiele wierszy",
+    "text": "Blok 10 — Audyt reguł obejmujących wiele wierszy\nPowiązanie z kursem: Wykłady 3,5,7: granice prostych ograniczeń.\nBaza ma poprawne klucze obce, ale czy wszystkie decyzje organizacyjne są poprawne?\n\nZadanie A\nNapisz raport edycji z limitem większym niż pojemność sali oraz z nadmiarem confirmed. Na kopii podnieś limit E1 ponad pojemność i osobno dodaj Celinę do pełnej E1. Sprawdź, które operacje przyjmuje podstawowy schemat i które błędy wykrywa audyt.\n\n\nZadanie B\nNapisz raport kolizji edycji dzielących salę lub prowadzącego. Porównuj pary tylko raz. Wypróbuj E4 09:00–11:00 w S1 oraz E4 14:00–15:00 w S2; pierwsza koliduje, druga styka się z E3 i nie koliduje. Próby odizoluj i wycofaj.\nCo oddajecie / pokazujecie: Raporty kontrolne i tabelka: reguła chroniona przez schemat / wykrywana audytem / wymagająca dodatkowej ochrony zapisu.\n\n\n\n\n\n\nWskazówka\n\n\n\nPrzedziały kolidują, gdy a.starts_at &lt; b.ends_at AND b.starts_at &lt; a.ends_at. Ustal jeden format tekstowy dat i tę samą strefę."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#blok-11-indeks-najpierw-plan-potem-wniosek",
+    "href": "cwiczenia/lab2.html#blok-11-indeks-najpierw-plan-potem-wniosek",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Blok 11 — Indeks: najpierw plan, potem wniosek",
+    "text": "Blok 11 — Indeks: najpierw plan, potem wniosek\nPowiązanie z kursem: Wykład 6: EXPLAIN QUERY PLAN.\nNa trzech edycjach nie udowodnimy przydatności indeksu. Użyjemy osobnej większej tabeli testowej.\n\nZadanie A\nNa nowej performance.db uruchom data/03_performance_seed.sql. Przewidź wynik filtra edition_code=E042. Zapisz EXPLAIN QUERY PLAN dla SELECT * przed dodaniem indeksu.\n\n\nZadanie B\nDodaj indeks na edition_code, ponów to samo zapytanie i plan. Sprawdź niezmienność wyniku. Porównaj SCAN z SEARCH, jeśli występują. Wyjaśnij koszt utrzymania indeksu i dlaczego nie wynika stąd stały mnożnik przyspieszenia.\nCo oddajecie / pokazujecie: Dwa plany, liczba wierszy i uzasadnienie. Pomiar czasu jest dodatkiem; plan nie jest pomiarem czasu.\n\n\n\n\n\n\nWskazówka\n\n\n\nSQLite używa EXPLAIN QUERY PLAN, nie PostgreSQL EXPLAIN ANALYZE. Tabela testowa jest odrębna od danych organizacyjnych ośrodka."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#blok-12-odbiór-przez-drugą-parę",
+    "href": "cwiczenia/lab2.html#blok-12-odbiór-przez-drugą-parę",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Blok 12 — Odbiór przez drugą parę",
+    "text": "Blok 12 — Odbiór przez drugą parę\nPowiązanie z kursem: Cały kurs: odtwarzalność i obrona projektu.\nProjekt przejmuje nowa zmiana. Musi umieć go uruchomić i rozpoznać ograniczenia bez ustnych podpowiedzi.\n\nZadanie A\nPrzekaż drugiej parze diagram, 01_schema.sql, seed, zapytania i instrukcję. Odtwarzają bazę pod NOWĄ nazwą odbior.db. Weryfikują dane 2,1,0, wolne miejsca0,3,4 i jedną próbę naruszenia FK lub unikalności.\n\n\nZadanie B\nDruga para wybiera przypadek anulowanego zapisu albo kolizji. Autorzy wskazują dowód wyniku, ograniczenia rozwiązania i proponują mechanizm dalszej ochrony. Każdy osobno wyjaśnia jedną decyzję modelu.\nCo oddajecie / pokazujecie: Kompletny pakiet: diagram, słownik/reguły, skrypty, dab.db, protokół prób i znane ograniczenia. Sam plik .db bez odtwarzalnych skryptów nie wystarcza.\n\n\n\n\n\n\nWskazówka\n\n\n\nNie nadpisuj bazy kolegów. Odbiór wykonuj na świeżym pliku; przy otwartych transakcjach nie kopiuj przypadkowo tylko części stanu."
+  },
+  {
+    "objectID": "cwiczenia/lab2.html#minimum-na-koniec-spotkania",
+    "href": "cwiczenia/lab2.html#minimum-na-koniec-spotkania",
+    "title": "Laboratorium 2: Od zmian danych do odbioru projektu",
+    "section": "Minimum na koniec spotkania",
+    "text": "Minimum na koniec spotkania\nKontrolowana zmiana zapisu, raport wolnych miejsc, wykrywanie naruszeń, odtwarzalny projekt i samodzielne wyjaśnienie. Zaawansowane automatyczne blokowanie kolizji i obsługa wszystkich równoczesnych zmian są rozszerzeniem."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html",
+    "href": "cwiczenia/lab1.html",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "",
+    "text": "Termin: 7 grudnia 2026 · 6 × 45 minut."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#organizacja",
+    "href": "cwiczenia/lab1.html#organizacja",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Organizacja",
+    "text": "Organizacja\nPracujecie w parach. Osoba pisząca SQL i osoba sprawdzająca zamieniają się po każdym bloku. Każdy blok trwa 45 minut: 5 min prognoza/powtórka, 8 min pokaz, 20 min zadania, 7 min próby i 5 min indywidualne wyjaśnienie. Przerwy są poza bilansem. Dwa zadania w bloku tworzą jeden etap projektu.\nUżywajcie instrukcji środowiska i kontraktu danych. Wszystkie dane są fikcyjne. Po eksperymencie zmieniającym dane przywracajcie stan bazowy przez ROLLBACK albo pracę na osobnym pliku. Nie usuwajcie oryginalnej pracy, aby zacząć ponownie."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#blok-1-uruchomienie-i-rozpoznanie-danych",
+    "href": "cwiczenia/lab1.html#blok-1-uruchomienie-i-rozpoznanie-danych",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Blok 1 — Uruchomienie i rozpoznanie danych",
+    "text": "Blok 1 — Uruchomienie i rozpoznanie danych\nPowiązanie z kursem: Wykłady 1 i 4: baza, DBMS, schemat i stan.\nZespół przejmuje ewidencję ośrodka. Najpierw trzeba ustalić, jakie fakty zawiera i na którym pliku pracujemy.\n\nZadanie A\nOtwórz data/legacy_enrollments.csv. Wyjaśnij znaczenie jednego wiersza. Policz ręcznie potwierdzone zapisy na E1 i E2. Wskaż, dlaczego z tej listy nie dowiesz się o istnieniu pustej E3.\n\n\nZadanie B\nUruchom data/00_check.sql na work/dab.db. Zapisz wersję SQLite, pełną ścieżkę pliku i wartość foreign_keys. Wyjaśnij, czy pusty plik bazy zawiera już tabele projektu.\nCo oddajecie / pokazujecie: Notatka: znaczenie wiersza, dwa wyniki liczenia, brakująca informacja oraz wyniki kontroli środowiska.\n\n\n\n\n\n\nWskazówka\n\n\n\nJeśli foreign_keys wynosi 0, włącz kontrolę przed rozpoczęciem transakcji. W dostarczonym runnerze robi to każde połączenie."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#blok-2-od-ustaleń-do-diagramu-i-kontraktu-tabel",
+    "href": "cwiczenia/lab1.html#blok-2-od-ustaleń-do-diagramu-i-kontraktu-tabel",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Blok 2 — Od ustaleń do diagramu i kontraktu tabel",
+    "text": "Blok 2 — Od ustaleń do diagramu i kontraktu tabel\nPowiązanie z kursem: Wykłady 2–3: ER i model relacyjny.\nKierownik chce zachować rezygnacje i planować terminy bez uczestników. Projekt musi dopuszczać oba przypadki.\n\nZadanie A\nZweryfikuj własny diagram z wykładów: Uczestnik, Prowadzący, Sala, Kurs, Edycja, Zapis. Odczytaj każdy związek w obie strony; przy edycji sprawdź zero zapisów. Umieść status przy właściwym pojęciu.\n\n\nZadanie B\nPrzypisz pojęcia do kontraktu tabel z instrukcji. Wskaż klucze główne i obce oraz sposób wykluczenia powtórzonej pary uczestnik–edycja. Wypisz dwie reguły, których sam FK nie sprawdzi.\nCo oddajecie / pokazujecie: Diagram i tabela: reguła → miejsce danych → proponowany mechanizm albo świadomie odłożona kontrola.\n\n\n\n\n\n\nWskazówka\n\n\n\nNie twórz osobnego statusu uczestnika. Osoba może mieć dwa różne statusy w dwóch zapisach."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#blok-3-tworzenie-bazy-według-projektu",
+    "href": "cwiczenia/lab1.html#blok-3-tworzenie-bazy-według-projektu",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Blok 3 — Tworzenie bazy według projektu",
+    "text": "Blok 3 — Tworzenie bazy według projektu\nPowiązanie z kursem: Wykłady 3–4: DDL i ograniczenia.\nOpis staje się wykonywalnym schematem. Baza ma odrzucać proste błędy bez ręcznego sprawdzania każdego wiersza.\n\nZadanie A\nUzupełnij work/01_schema.sql. Utwórz sześć tabel w kolejności pozwalającej czytelnie wskazać zależności. Zastosuj PRIMARY KEY, FOREIGN KEY, NOT NULL i odpowiednie CHECK. Status ma przyjmować tylko confirmed/cancelled; pojemność i limit mają być dodatnie.\n\n\nZadanie B\nUruchom skrypt na nowym pliku i sprawdź PRAGMA table_info(enrollments), PRAGMA foreign_key_list(enrollments) oraz sqlite_schema. Wyjaśnij różnicę między deklaracją kolumny a ograniczeniem powiązania.\nCo oddajecie / pokazujecie: 01_schema.sql, działający pusty dab.db i opis ograniczeń. Skrypt ma działać od początku na nowym pliku, bez ręcznych poprawek w interfejsie.\n\n\n\n\n\n\nWskazówka\n\n\n\nUżywamy tabel STRICT oraz TEXT/INTEGER. Identyfikatory U1/E1 są tekstem. Nie próbuj dodać PRIMARY KEY przez ALTER TABLE ADD COLUMN."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#blok-4-dane-i-próby-naruszenia-ograniczeń",
+    "href": "cwiczenia/lab1.html#blok-4-dane-i-próby-naruszenia-ograniczeń",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Blok 4 — Dane i próby naruszenia ograniczeń",
+    "text": "Blok 4 — Dane i próby naruszenia ograniczeń\nPowiązanie z kursem: Wykład 4: INSERT i integralność.\nSukces importu nie wystarcza: projekt musi też reagować na błędne polecenia.\n\nZadanie A\nWczytaj data/02_seed.sql raz do pustego schematu. Policz wiersze każdej tabeli; porównaj z kontraktem. Zapisz, dlaczego uczestników i edycje wstawiamy przed zapisami.\n\n\nZadanie B\nPrzygotuj cztery osobne próby: nieistniejący uczestnik U99, ponowny zapis U1–E1, status unknown, limit 0. Każdą wykonaj osobno na kopii lub w kontrolowanej transakcji. Zapisz komunikat i potwierdź, że po odmowie poprawne dane pozostały.\nCo oddajecie / pokazujecie: Cztery polecenia testowe, przewidywany wynik, rzeczywisty komunikat i kontrola stanu po próbie.\n\n\n\n\n\n\nWskazówka\n\n\n\nRunner kończy plik na pierwszym błędzie. Nie wkładaj wszystkich negatywnych prób do jednego pliku, licząc na wykonanie każdej. W narzędziu graficznym po błędzie w transakcji wykonaj ROLLBACK."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#blok-5-raport-który-pokazuje-również-zero",
+    "href": "cwiczenia/lab1.html#blok-5-raport-który-pokazuje-również-zero",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Blok 5 — Raport, który pokazuje również zero",
+    "text": "Blok 5 — Raport, który pokazuje również zero\nPowiązanie z kursem: Wykład 4: JOIN, filtrowanie i agregacja.\nKierownik chce zobaczyć wszystkie edycje, również te bez zapisów. Anulowane zgłoszenie nie zajmuje miejsca.\n\nZadanie A\nW work/03_queries.sql napisz listę imion potwierdzonych uczestników E1. Dodaj jawne sortowanie. Potem zmień parametr na E2 i sprawdź rolę statusu Bartka.\n\n\nZadanie B\nNapisz raport wszystkich edycji i liczby potwierdzonych zapisów. Zachowaj E3. Porównaj COUNT(*) z liczeniem klucza zapisu po LEFT JOIN. Przeanalizuj filtr statusu w ON i w WHERE.\nCo oddajecie / pokazujecie: Dwa zapytania i porównanie wyników z przewidywaniem. Kontrola: liczby potwierdzonych E1=2, E2=1, E3=0.\n\n\n\n\n\n\nWskazówka\n\n\n\nNajpierw narysuj wiersz E3 po LEFT JOIN. Czy występuje w nim rzeczywisty zapis, który należy policzyć?"
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#blok-6-normalizacja-jako-obrona-projektu",
+    "href": "cwiczenia/lab1.html#blok-6-normalizacja-jako-obrona-projektu",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Blok 6 — Normalizacja jako obrona projektu",
+    "text": "Blok 6 — Normalizacja jako obrona projektu\nPowiązanie z kursem: Wykład 5: zależności i anomalie.\nKlient pyta, dlaczego zamiast jednego arkusza potrzebujemy kilku tabel. Trzeba to uzasadnić konkretną zmianą danych.\n\nZadanie A\nDla legacy_enrollments.csv przyjmij klucz (participant_id,edition_id). Wypisz zależności participant_id → participant_name; edition_id → course_id,room_id,instructor_id,czas,limit; room_id → nazwa,pojemność. Podaj anomalię aktualizacji i utraty informacji przy usuwaniu.\n\n\nZadanie B\nOdtwórz cztery wiersze starej ewidencji zapytaniem łączącym nowe tabele. Sprawdź liczbę zapisów i status Bartka. Wyjaśnij, dlaczego pojemność sali i limit edycji pozostają dwoma faktami oraz jak reprezentujesz pustą E3.\nCo oddajecie / pokazujecie: Lista zależności, uzasadnienie podziału w kierunku 2NF/3NF oraz raport odtwarzający informację. Oddaj pakiet pierwszego spotkania.\n\n\n\n\n\n\nWskazówka\n\n\n\nRozdzielenie adresu na tekstowe części samo nie dowodzi osiągnięcia 3NF. Nazwij klucz i zależność, której dotyczy zmiana."
+  },
+  {
+    "objectID": "cwiczenia/lab1.html#minimum-na-koniec-spotkania",
+    "href": "cwiczenia/lab1.html#minimum-na-koniec-spotkania",
+    "title": "Laboratorium 1: Od wymagań do sprawdzonego schematu",
+    "section": "Minimum na koniec spotkania",
+    "text": "Minimum na koniec spotkania\nOdtwarzalny schemat, dane kontrolne, cztery próby ograniczeń, raport wszystkich edycji i uzasadnienie normalizacji. Jeśli nie zdążycie z pełnym raportem odtwarzającym CSV, pokażcie co najmniej uczestnika, edycję i status; prowadzący udostępni punkt wznowienia przed kolejnym spotkaniem."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html",
+    "href": "cwiczenia/sqlite-start.html",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "",
+    "text": "Projektujemy bazę ośrodka „Dąb”, znanego z wykładów. Nie tworzymy aplikacji internetowej ani integracji z bazą quizów. Każda para ma własny plik dab.db i komplet skryptów SQL — Structured Query Language, strukturalnego języka zapytań.\nDwa potwierdzone spotkania mają po 6 × 45 min: 7 XII 2026 i 25 I 2027. Zajęcia zaplanowane pierwotnie na 17 XI będą przeniesione lub odrobione; wymiar i termin zastępczy nie zostały tu założone. Materiały obejmują 12 znanych godzin dydaktycznych, nie deklarują pełnego wymiaru wszystkich laboratoriów."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html#co-budujemy-i-czego-nie-budujemy",
+    "href": "cwiczenia/sqlite-start.html#co-budujemy-i-czego-nie-budujemy",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "",
+    "text": "Projektujemy bazę ośrodka „Dąb”, znanego z wykładów. Nie tworzymy aplikacji internetowej ani integracji z bazą quizów. Każda para ma własny plik dab.db i komplet skryptów SQL — Structured Query Language, strukturalnego języka zapytań.\nDwa potwierdzone spotkania mają po 6 × 45 min: 7 XII 2026 i 25 I 2027. Zajęcia zaplanowane pierwotnie na 17 XI będą przeniesione lub odrobione; wymiar i termin zastępczy nie zostały tu założone. Materiały obejmują 12 znanych godzin dydaktycznych, nie deklarują pełnego wymiaru wszystkich laboratoriów."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html#start-przez-docker-compose",
+    "href": "cwiczenia/sqlite-start.html#start-przez-docker-compose",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "Start przez Docker Compose",
+    "text": "Start przez Docker Compose\nPobierz cały katalog sqlite obok tej instrukcji. Otwórz terminal w tym katalogu. Docker musi być uruchomiony. Pierwsze pobranie obrazu wykonaj przed zajęciami; potem praca jest lokalna. Python pełni rolę klienta SQLite, nie jest tematem ćwiczeń; nie wymaga dodatkowych bibliotek ani instalacji pip.\ndocker compose run --rm sql work/dab.db data/00_check.sql\nProgram wyświetli wersję SQLite, położenie pliku i foreign_keys=1. Wymagamy SQLite 3.37 lub nowszego ze względu na tabele STRICT. work/dab.db jest zwykłym plikiem na komputerze hosta dzięki zamontowaniu katalogu. Usunięcie kontenera go nie usuwa.\nPo samodzielnym przygotowaniu schematu w bloku 3 uruchom:\ndocker compose run --rm sql work/dab.db work/01_schema.sql data/02_seed.sql\nPlik 01_schema.sql początkowo zawiera tylko wskazówki. Seed wymaga gotowych tabel. Import wykonuj raz na nowej bazie, inaczej ograniczenia wykryją istniejące identyfikatory. Aby odtworzyć projekt bez nadpisania pracy, użyj nowej nazwy, np. work/odbior.db.\nZapytania z bloku 5 uruchom tak:\ndocker compose run --rm sql work/dab.db work/03_queries.sql\nJeśli masz już Python 3.11+ z odpowiednią wersją SQLite, ten sam klient działa lokalnie:\npython3 sql.py work/dab.db data/00_check.sql\nW dowolnym graficznym kliencie SQLite możesz otworzyć ten sam plik i wykonywać SQL. Zamknij inne aktywne transakcje przed zmianą narzędzia. Runner wyświetla do 50 wierszy wyniku, ale nie ogranicza działania zapytania; do kontroli liczby użyj COUNT."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html#kontrola-kluczy-obcych-i-typów",
+    "href": "cwiczenia/sqlite-start.html#kontrola-kluczy-obcych-i-typów",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "Kontrola kluczy obcych i typów",
+    "text": "Kontrola kluczy obcych i typów\nPo otwarciu każdego nowego połączenia, przed rozpoczęciem transakcji:\nPRAGMA foreign_keys = ON;\nPRAGMA foreign_keys;\nDruga instrukcja ma zwrócić 1. Ustawienie dotyczy połączenia, a nie raz na zawsze pliku. W dostarczonym kliencie jest włączane automatycznie. Dokumentacja kluczy obcych SQLite.\nTabele tworzymy ze słowem STRICT, aby przypadkowy napis nie zastąpił liczby całkowitej. Nadal potrzebne są reguły takie jak dodatni limit i dopuszczalne statusy. Samo typowanie nie sprawdza znaczenia danych. Tabele STRICT."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html#kontrakt-tabel-do-wspólnego-zestawu-danych",
+    "href": "cwiczenia/sqlite-start.html#kontrakt-tabel-do-wspólnego-zestawu-danych",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "Kontrakt tabel do wspólnego zestawu danych",
+    "text": "Kontrakt tabel do wspólnego zestawu danych\nNazwy i kolejność kolumn poniżej umożliwiają użycie dostarczonego 02_seed.sql. To interfejs danych kontrolnych; ograniczenia dobieracie samodzielnie. Warianty modelu można obronić, ale wtedy trzeba dostosować import i raporty, a nie mieszać różne schematy.\n\n\n\n\n\n\n\n\nTabela\nKolumny w kolejności\nTypy\n\n\n\n\nparticipants\nparticipant_id, name\nTEXT, TEXT\n\n\ninstructors\ninstructor_id, name\nTEXT, TEXT\n\n\nrooms\nroom_id, name, capacity\nTEXT, TEXT, INTEGER\n\n\ncourses\ncourse_id, name\nTEXT, TEXT\n\n\neditions\nedition_id, course_id, room_id, instructor_id, starts_at, ends_at, seat_limit\nSześć TEXT, następnie INTEGER\n\n\nenrollments\nparticipant_id, edition_id, status\nTrzy TEXT\n\n\n\nKażdy identyfikator encji jest kluczem głównym i jest wymagany. Zapis identyfikujemy parą uczestnik–edycja. Wszystkie kolumny tego minimalnego kontraktu są obowiązkowe. name uczestnika i prowadzącego to skrócona nazwa wyświetlana w zestawie dydaktycznym, nie twierdzenie, że imię identyfikuje osobę.\nWszystkie terminy zapisujemy jako YYYY-MM-DD HH:MM, z zerami wiodącymi, w jednej ustalonej lokalnej strefie Europe/Warsaw. Dzień scenariusza to 1 lutego 2027, wybrany jako stała data dydaktyczna. Nie ma wymagania „termin musi być w przyszłości”, więc ten zestaw pozostaje przydatny także później. Porównanie tekstów w tym jednolitym formacie zachowuje porządek czasu; mieszanie formatów lub stref złamałoby to założenie. Podstawowe CHECK nie stanowi pełnej walidacji kalendarza."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html#stan-kontrolny",
+    "href": "cwiczenia/sqlite-start.html#stan-kontrolny",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "Stan kontrolny",
+    "text": "Stan kontrolny\n\nU1 Ada, U2 Bartek, U3 Celina; I1 Igor, I2 Ewa.\nS1: pojemność 2; S2: pojemność 4.\nK1: Obsługa wyposażenia; K2: Pierwsza pomoc.\nE1: K1, S1, I1, 08:00–10:00, limit 2.\nE2: K1, S2, I2, 10:00–12:00, limit 4.\nE3: K2, S2, I2, 12:00–14:00, limit 4.\nU1–E1 i U2–E1 confirmed; U3–E2 confirmed; U2–E2 cancelled.\n\nPotwierdzone zapisy: 2,1,0. Wolne miejsca: 0,3,4. E3 istnieje mimo braku zapisów. Anulowany zapis zachowujemy; ponowne zgłoszenie zmienia ten sam rekord po kontroli miejsc. Reguły pojemności oraz nakładania terminów są wymaganiami dziedziny, nawet gdy podstawowy schemat ich jeszcze automatycznie nie blokuje."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html#co-jest-gotowe-a-co-robicie-sami",
+    "href": "cwiczenia/sqlite-start.html#co-jest-gotowe-a-co-robicie-sami",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "Co jest gotowe, a co robicie sami?",
+    "text": "Co jest gotowe, a co robicie sami?\n\n\n\n\n\n\n\nDostarczone\nWasza praca\n\n\n\n\nKlient SQL i Compose\nPolecenia tworzące schemat\n\n\nCSV starej ewidencji oraz seed\nUzasadnienie modelu i normalizacji\n\n\nPuste pliki robocze z opisami etapów\nZapytania, kontrolowane zmiany i widoki\n\n\nDane do próby indeksu\nAudyt, próby błędów i opis wyników\n\n\n\nJeśli utkniecie, prowadzący może udostępnić punkt wznowienia. Korzystanie z niego pozwala kontynuować, ale nie zastępuje indywidualnego wyjaśnienia wcześniejszego etapu."
+  },
+  {
+    "objectID": "cwiczenia/sqlite-start.html#bezpieczne-próby",
+    "href": "cwiczenia/sqlite-start.html#bezpieczne-próby",
+    "title": "SQLite — środowisko, dane i zasady pracy",
+    "section": "Bezpieczne próby",
+    "text": "Bezpieczne próby\nZmieniaj dane w kopii albo świadomej transakcji kończonej ROLLBACK. Runner kończy pracę na pierwszym błędzie i wycofuje otwartą transakcję; wcześniejsze zatwierdzone instrukcje nie są cofane. W narzędziu graficznym po błędzie upewnij się, czy transakcja nadal trwa. Nie licz, że każdy błąd sam cofa wszystko.\nNie używamy tu składni PostgreSQL: SERIAL, ILIKE, EXTRACT ani EXPLAIN ANALYZE. Analiza planu SQLite to EXPLAIN QUERY PLAN. W obecnym SQLite istnieje DROP COLUMN, ale ma ograniczenia; nie zakładamy, że każde ALTER TABLE jest obsługiwane. Plan zapytania, ALTER TABLE."
+  },
+  {
     "objectID": "lectures/wyklad1.html",
     "href": "lectures/wyklad1.html",
     "title": "Wprowadzenie do relacyjnych baz danych",

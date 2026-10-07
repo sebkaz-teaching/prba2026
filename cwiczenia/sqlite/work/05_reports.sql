@@ -1,0 +1,2 @@
+-- Block 9: NOT EXISTS and a view of available places.
+-- Block 10: queries detecting cross-row rule violations.

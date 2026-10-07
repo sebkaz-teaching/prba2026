@@ -2,7 +2,7 @@
 title: "Projektowanie koncepcyjne – model ER (Entity-Relationship)"
 ---
 
-## ✅ Sprawdź się z wykładu 1
+## ✅ Sprawdź się. Test z wykładu 1
 
 <div id="rsod-quiz"></div>
 <script src="../assets/js/quiz-engine.js"></script>

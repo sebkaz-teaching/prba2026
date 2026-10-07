@@ -1,0 +1,7 @@
+services:
+  sql:
+    image: python:3.12-slim
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    entrypoint: ["python", "sql.py"]

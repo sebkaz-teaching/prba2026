@@ -1,0 +1,5 @@
+participant_id,participant_name,edition_id,course_id,course_name,room_id,room_name,room_capacity,instructor_id,instructor_name,starts_at,ends_at,seat_limit,status
+U1,Ada,E1,K1,Obsługa wyposażenia,S1,Sala 1,2,I1,Igor,2027-02-01 08:00,2027-02-01 10:00,2,confirmed
+U2,Bartek,E1,K1,Obsługa wyposażenia,S1,Sala 1,2,I1,Igor,2027-02-01 08:00,2027-02-01 10:00,2,confirmed
+U3,Celina,E2,K1,Obsługa wyposażenia,S2,Sala 2,4,I2,Ewa,2027-02-01 10:00,2027-02-01 12:00,4,confirmed
+U2,Bartek,E2,K1,Obsługa wyposażenia,S2,Sala 2,4,I2,Ewa,2027-02-01 10:00,2027-02-01 12:00,4,cancelled

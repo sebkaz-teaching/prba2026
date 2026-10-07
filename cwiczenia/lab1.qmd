@@ -1,0 +1,136 @@
+---
+title: "Laboratorium 1: Od wymagań do sprawdzonego schematu"
+lang: pl
+---
+
+**Termin: 7 grudnia 2026 · 6 × 45 minut.**
+
+## Organizacja
+
+Pracujecie w parach. Osoba pisząca SQL i osoba sprawdzająca zamieniają się po każdym bloku. Każdy blok trwa 45 minut: 5 min prognoza/powtórka, 8 min pokaz, 20 min zadania, 7 min próby i 5 min indywidualne wyjaśnienie. Przerwy są poza bilansem. Dwa zadania w bloku tworzą jeden etap projektu.
+
+Używajcie [instrukcji środowiska i kontraktu danych](sqlite-start.qmd). Wszystkie dane są fikcyjne. Po eksperymencie zmieniającym dane przywracajcie stan bazowy przez ROLLBACK albo pracę na osobnym pliku. Nie usuwajcie oryginalnej pracy, aby zacząć ponownie.
+
+## Blok 1 — Uruchomienie i rozpoznanie danych
+
+**Powiązanie z kursem:** Wykłady 1 i 4: baza, DBMS, schemat i stan.
+
+Zespół przejmuje ewidencję ośrodka. Najpierw trzeba ustalić, jakie fakty zawiera i na którym pliku pracujemy.
+
+### Zadanie A
+
+Otwórz data/legacy_enrollments.csv. Wyjaśnij znaczenie jednego wiersza. Policz ręcznie potwierdzone zapisy na E1 i E2. Wskaż, dlaczego z tej listy nie dowiesz się o istnieniu pustej E3.
+
+### Zadanie B
+
+Uruchom data/00_check.sql na work/dab.db. Zapisz wersję SQLite, pełną ścieżkę pliku i wartość foreign_keys. Wyjaśnij, czy pusty plik bazy zawiera już tabele projektu.
+
+**Co oddajecie / pokazujecie:** Notatka: znaczenie wiersza, dwa wyniki liczenia, brakująca informacja oraz wyniki kontroli środowiska.
+
+::: {.callout-tip}
+Jeśli foreign_keys wynosi 0, włącz kontrolę przed rozpoczęciem transakcji. W dostarczonym runnerze robi to każde połączenie.
+:::
+
+## Blok 2 — Od ustaleń do diagramu i kontraktu tabel
+
+**Powiązanie z kursem:** Wykłady 2–3: ER i model relacyjny.
+
+Kierownik chce zachować rezygnacje i planować terminy bez uczestników. Projekt musi dopuszczać oba przypadki.
+
+### Zadanie A
+
+Zweryfikuj własny diagram z wykładów: Uczestnik, Prowadzący, Sala, Kurs, Edycja, Zapis. Odczytaj każdy związek w obie strony; przy edycji sprawdź zero zapisów. Umieść status przy właściwym pojęciu.
+
+### Zadanie B
+
+Przypisz pojęcia do kontraktu tabel z instrukcji. Wskaż klucze główne i obce oraz sposób wykluczenia powtórzonej pary uczestnik–edycja. Wypisz dwie reguły, których sam FK nie sprawdzi.
+
+**Co oddajecie / pokazujecie:** Diagram i tabela: reguła → miejsce danych → proponowany mechanizm albo świadomie odłożona kontrola.
+
+::: {.callout-tip}
+Nie twórz osobnego statusu uczestnika. Osoba może mieć dwa różne statusy w dwóch zapisach.
+:::
+
+## Blok 3 — Tworzenie bazy według projektu
+
+**Powiązanie z kursem:** Wykłady 3–4: DDL i ograniczenia.
+
+Opis staje się wykonywalnym schematem. Baza ma odrzucać proste błędy bez ręcznego sprawdzania każdego wiersza.
+
+### Zadanie A
+
+Uzupełnij work/01_schema.sql. Utwórz sześć tabel w kolejności pozwalającej czytelnie wskazać zależności. Zastosuj PRIMARY KEY, FOREIGN KEY, NOT NULL i odpowiednie CHECK. Status ma przyjmować tylko confirmed/cancelled; pojemność i limit mają być dodatnie.
+
+### Zadanie B
+
+Uruchom skrypt na nowym pliku i sprawdź PRAGMA table_info(enrollments), PRAGMA foreign_key_list(enrollments) oraz sqlite_schema. Wyjaśnij różnicę między deklaracją kolumny a ograniczeniem powiązania.
+
+**Co oddajecie / pokazujecie:** 01_schema.sql, działający pusty dab.db i opis ograniczeń. Skrypt ma działać od początku na nowym pliku, bez ręcznych poprawek w interfejsie.
+
+::: {.callout-tip}
+Używamy tabel STRICT oraz TEXT/INTEGER. Identyfikatory U1/E1 są tekstem. Nie próbuj dodać PRIMARY KEY przez ALTER TABLE ADD COLUMN.
+:::
+
+## Blok 4 — Dane i próby naruszenia ograniczeń
+
+**Powiązanie z kursem:** Wykład 4: INSERT i integralność.
+
+Sukces importu nie wystarcza: projekt musi też reagować na błędne polecenia.
+
+### Zadanie A
+
+Wczytaj data/02_seed.sql raz do pustego schematu. Policz wiersze każdej tabeli; porównaj z kontraktem. Zapisz, dlaczego uczestników i edycje wstawiamy przed zapisami.
+
+### Zadanie B
+
+Przygotuj cztery osobne próby: nieistniejący uczestnik U99, ponowny zapis U1–E1, status unknown, limit 0. Każdą wykonaj osobno na kopii lub w kontrolowanej transakcji. Zapisz komunikat i potwierdź, że po odmowie poprawne dane pozostały.
+
+**Co oddajecie / pokazujecie:** Cztery polecenia testowe, przewidywany wynik, rzeczywisty komunikat i kontrola stanu po próbie.
+
+::: {.callout-tip}
+Runner kończy plik na pierwszym błędzie. Nie wkładaj wszystkich negatywnych prób do jednego pliku, licząc na wykonanie każdej. W narzędziu graficznym po błędzie w transakcji wykonaj ROLLBACK.
+:::
+
+## Blok 5 — Raport, który pokazuje również zero
+
+**Powiązanie z kursem:** Wykład 4: JOIN, filtrowanie i agregacja.
+
+Kierownik chce zobaczyć wszystkie edycje, również te bez zapisów. Anulowane zgłoszenie nie zajmuje miejsca.
+
+### Zadanie A
+
+W work/03_queries.sql napisz listę imion potwierdzonych uczestników E1. Dodaj jawne sortowanie. Potem zmień parametr na E2 i sprawdź rolę statusu Bartka.
+
+### Zadanie B
+
+Napisz raport wszystkich edycji i liczby potwierdzonych zapisów. Zachowaj E3. Porównaj COUNT(*) z liczeniem klucza zapisu po LEFT JOIN. Przeanalizuj filtr statusu w ON i w WHERE.
+
+**Co oddajecie / pokazujecie:** Dwa zapytania i porównanie wyników z przewidywaniem. Kontrola: liczby potwierdzonych E1=2, E2=1, E3=0.
+
+::: {.callout-tip}
+Najpierw narysuj wiersz E3 po LEFT JOIN. Czy występuje w nim rzeczywisty zapis, który należy policzyć?
+:::
+
+## Blok 6 — Normalizacja jako obrona projektu
+
+**Powiązanie z kursem:** Wykład 5: zależności i anomalie.
+
+Klient pyta, dlaczego zamiast jednego arkusza potrzebujemy kilku tabel. Trzeba to uzasadnić konkretną zmianą danych.
+
+### Zadanie A
+
+Dla legacy_enrollments.csv przyjmij klucz (participant_id,edition_id). Wypisz zależności participant_id → participant_name; edition_id → course_id,room_id,instructor_id,czas,limit; room_id → nazwa,pojemność. Podaj anomalię aktualizacji i utraty informacji przy usuwaniu.
+
+### Zadanie B
+
+Odtwórz cztery wiersze starej ewidencji zapytaniem łączącym nowe tabele. Sprawdź liczbę zapisów i status Bartka. Wyjaśnij, dlaczego pojemność sali i limit edycji pozostają dwoma faktami oraz jak reprezentujesz pustą E3.
+
+**Co oddajecie / pokazujecie:** Lista zależności, uzasadnienie podziału w kierunku 2NF/3NF oraz raport odtwarzający informację. Oddaj pakiet pierwszego spotkania.
+
+::: {.callout-tip}
+Rozdzielenie adresu na tekstowe części samo nie dowodzi osiągnięcia 3NF. Nazwij klucz i zależność, której dotyczy zmiana.
+:::
+
+## Minimum na koniec spotkania
+
+Odtwarzalny schemat, dane kontrolne, cztery próby ograniczeń, raport wszystkich edycji i uzasadnienie normalizacji. Jeśli nie zdążycie z pełnym raportem odtwarzającym CSV, pokażcie co najmniej uczestnika, edycję i status; prowadzący udostępni punkt wznowienia przed kolejnym spotkaniem.
