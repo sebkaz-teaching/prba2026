@@ -134,6 +134,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Wprowadzenie do relacyjnych baz danych</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lectures/wyklad2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Projektowanie koncepcyjne – model ER (Entity-Relationship)</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -148,6 +154,7 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#dla-kogo-jest-to-zadanie" id="toc-dla-kogo-jest-to-zadanie" class="nav-link active" data-scroll-target="#dla-kogo-jest-to-zadanie">Dla kogo jest to zadanie?</a></li>
   <li><a href="#wykład-1-ustalcie-co-ma-pamiętać-baza" id="toc-wykład-1-ustalcie-co-ma-pamiętać-baza" class="nav-link" data-scroll-target="#wykład-1-ustalcie-co-ma-pamiętać-baza">Wykład 1 — Ustalcie, co ma pamiętać baza</a></li>
+  <li><a href="#wyklad-2" id="toc-wyklad-2" class="nav-link" data-scroll-target="#wyklad-2">Wykład 2 — Od wymagań do diagramu</a></li>
   </ul>
 </nav>
     </div>
@@ -302,6 +309,56 @@ ul.task-list li input[type="checkbox"] {
 </form>
 <noscript>Włącz JavaScript, aby wysłać pracę z tej strony.</noscript>
 <script src="assets/js/assignment-form.js"></script>
+</section>
+</section>
+<section id="wyklad-2" class="level2">
+<h2 class="anchored" data-anchor-id="wyklad-2">Wykład 2 — Od wymagań do diagramu</h2>
+<p><a href="./lectures/wyklad2.html">Materiał do zajęć i indywidualny test z wykładu 1</a>.</p>
+<p>Kontynuujecie w parach projekt ośrodka „Dąb”. Na pierwszym spotkaniu zbieraliście wymagania. Teraz przygotujecie <strong>diagram encja–związek (ERD, Entity–Relationship Diagram)</strong>: obiekty, ich cechy i powiązania. Nie trzeba jeszcze pisać SQL ani uruchamiać bazy danych.</p>
+<section id="wspólne-ustalenia-klienta" class="level3">
+<h3 class="anchored" data-anchor-id="wspólne-ustalenia-klienta">Wspólne ustalenia klienta</h3>
+<ul>
+<li>Kurs jest tematem, a edycja konkretnym przeprowadzeniem kursu.</li>
+<li>Każda edycja dotyczy jednego kursu, ma jednego prowadzącego i jedną salę.</li>
+<li>Uczestnik może zapisać się na wiele edycji. Dla jednej pary uczestnik–edycja przechowujemy najwyżej jeden zapis.</li>
+<li>Zapis ma status <code>confirmed</code> albo <code>cancelled</code>. Anulowanego zapisu nie usuwamy. Ponowne zgłoszenie aktualizuje ten sam zapis po sprawdzeniu dostępności miejsca.</li>
+<li>Limit edycji jest dodatni i nie przekracza pojemności sali. Liczba zapisów <code>confirmed</code> nie może przekroczyć limitu; <code>cancelled</code> nie zajmuje miejsca.</li>
+<li>Edycja może istnieć bez zapisanych uczestników.</li>
+<li>Nakładające się edycje nie mogą korzystać z tej samej sali ani prowadzącego. Koniec jednej edycji może być początkiem następnej.</li>
+<li>Przechowujemy aktualny status zapisu, bez pełnej historii jego zmian. Lista oczekujących, obecność, ukończenie i odwoływanie całych edycji pozostają poza bieżącym zakresem. PESEL nie jest wymagany.</li>
+</ul>
+</section>
+<section id="krok-1-uzupełnijcie-wymagania-podczas-wspólnego-omówienia" class="level3">
+<h3 class="anchored" data-anchor-id="krok-1-uzupełnijcie-wymagania-podczas-wspólnego-omówienia">Krok 1 — Uzupełnijcie wymagania (podczas wspólnego omówienia)</h3>
+<p>Porównajcie notatkę z pierwszego spotkania z ustaleniami klienta. Dopiszcie odpowiedzi na Wasze pytania. Zaznaczcie, które wcześniejsze założenia trzeba zmienić. Nie przepisujcie całej pracy.</p>
+</section>
+<section id="krok-2-narysujcie-model-25-minut" class="level3">
+<h3 class="anchored" data-anchor-id="krok-2-narysujcie-model-25-minut">Krok 2 — Narysujcie model (25 minut)</h3>
+<p>Na kartce lub w wybranym edytorze diagramów:</p>
+<ol type="1">
+<li>Uwzględnijcie: uczestnika, kurs, edycję, zapis, prowadzącego i salę.</li>
+<li>Przy każdym obiekcie wpiszcie identyfikator i najważniejsze cechy potrzebne do spełnienia wymagań. Odróżnijcie limit edycji od pojemności sali.</li>
+<li>Połączcie obiekty i odczytajcie każde powiązanie w obie strony. Oznaczcie minimalną i maksymalną liczbę powiązań, np. zero do wielu albo dokładnie jeden.</li>
+<li>Zdecydujcie, gdzie należy umieścić status zapisu. Uzasadnijcie wybór przykładem osoby uczestniczącej w dwóch różnych edycjach.</li>
+<li>Obok diagramu zapiszcie dwie reguły, których same liczności połączeń nie zapewniają.</li>
+</ol>
+<p>Stosujcie jedną notację konsekwentnie. Przy zapisie jako osobnym obiekcie łączącym uczestnika i edycję nie dublujcie tego samego faktu dodatkowym, niezależnym powiązaniem między nimi.</p>
+</section>
+<section id="krok-3-sprawdźcie-diagram-i-obrońcie-decyzje-15-minut" class="level3">
+<h3 class="anchored" data-anchor-id="krok-3-sprawdźcie-diagram-i-obrońcie-decyzje-15-minut">Krok 3 — Sprawdźcie diagram i obrońcie decyzje (15 minut)</h3>
+<p>Przeanalizujcie:</p>
+<ul>
+<li>E3 istnieje, ale nie ma jeszcze żadnego zapisu.</li>
+<li>Bartek ma <code>confirmed</code> na E1 oraz <code>cancelled</code> na E2.</li>
+<li>Bartek ponownie zgłasza się na E2. Co trzeba sprawdzić i co zmienić?</li>
+<li>Ta sama sala jest potrzebna dwóm edycjom w nakładających się godzinach.</li>
+</ul>
+<p>Dla każdego przypadku wskażcie obiekty, powiązania i reguły, które mają znaczenie. Zamieńcie się diagramem z sąsiednią parą i sprawdźcie, czy da się go odczytać bez zgadywania. Każda osoba wyjaśnia przynajmniej jedną decyzję projektową.</p>
+</section>
+<section id="co-przygotować-na-koniec" class="level3">
+<h3 class="anchored" data-anchor-id="co-przygotować-na-koniec">Co przygotować na koniec?</h3>
+<p><strong>Jeden diagram pary</strong>, podpisany imionami autorów, z atrybutami, licznościami, dwiema dodatkowymi regułami i krótką notatką ze sprawdzenia przypadków. Pokażcie go prowadzącemu podczas zajęć i zachowajcie plik albo zdjęcie na kolejne spotkanie.</p>
+<p>Formularz powyżej służy do notatki z wykładu 1 i nie przyjmuje załączników z diagramami. Test na początku wykładu 2 wypełniacie indywidualnie; jest oddzielny od pracy projektowej w parach.</p>
 <p>Kolejne karty będą udostępniane wraz z następnymi zajęciami.</p>
 
 

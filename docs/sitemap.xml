@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://sebkaz-teaching.github.io/prba2026/scenariusze.html</loc>
-    <lastmod>2026-10-01T19:27:01.123Z</lastmod>
+    <lastmod>2026-10-07T18:36:10.743Z</lastmod>
   </url>
   <url>
-    <loc>https://sebkaz-teaching.github.io/prba2026/index.html</loc>
-    <lastmod>2026-09-30T07:44:23.618Z</lastmod>
+    <loc>https://sebkaz-teaching.github.io/prba2026/lectures/wyklad1.html</loc>
+    <lastmod>2026-10-01T19:24:38.369Z</lastmod>
   </url>
   <url>
-    <loc>https://sebkaz-teaching.github.io/prba2026/cwiczenia/lab2.html</loc>
+    <loc>https://sebkaz-teaching.github.io/prba2026/cwiczenia/sqlite-start.html</loc>
     <lastmod>2026-10-02T09:37:38.764Z</lastmod>
   </url>
   <url>
@@ -17,11 +17,15 @@
     <lastmod>2026-10-02T09:37:38.764Z</lastmod>
   </url>
   <url>
-    <loc>https://sebkaz-teaching.github.io/prba2026/cwiczenia/sqlite-start.html</loc>
+    <loc>https://sebkaz-teaching.github.io/prba2026/cwiczenia/lab2.html</loc>
     <lastmod>2026-10-02T09:37:38.764Z</lastmod>
   </url>
   <url>
-    <loc>https://sebkaz-teaching.github.io/prba2026/lectures/wyklad1.html</loc>
-    <lastmod>2026-10-01T19:24:38.369Z</lastmod>
+    <loc>https://sebkaz-teaching.github.io/prba2026/index.html</loc>
+    <lastmod>2026-09-30T07:44:23.618Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sebkaz-teaching.github.io/prba2026/lectures/wyklad2.html</loc>
+    <lastmod>2026-10-07T18:36:10.742Z</lastmod>
   </url>
 </urlset>

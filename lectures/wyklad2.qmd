@@ -67,123 +67,340 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 });
 </script>
 
-## Analiza wymagań użytkownika
+## Od wymagań do modelu — po co jest ten wykład?
 
-Każdy projekt bazy danych zaczyna się od zrozumienia czego oczekuje użytkownik.
-Bez tego łatwo stworzyć system, który jest poprawny technicznie, ale bezużyteczny w praktyce.
+Na pierwszym spotkaniu ustalaliśmy, jakie informacje są potrzebne ośrodkowi szkoleniowemu i jakie zasady powinny obowiązywać. Mamy już zdania takie jak „uczestnik zapisuje się na edycję” albo „jedna edycja ma jednego prowadzącego”. Teraz musimy sprawdzić, czy tworzą one spójny opis.
 
-Przykład 1 – biblioteka
+Sama lista wymagań nie zawsze ujawnia nieporozumienia. Jedna osoba może rozumieć „kurs” jako temat szkolenia, druga jako konkretny termin. Ktoś zapisze status przy uczestniku, chociaż ta sama osoba może mieć jeden zapis potwierdzony, a drugi anulowany. **Model koncepcyjny pomaga uporządkować pojęcia i wykryć takie różnice przed tworzeniem bazy.**
 
-Biblioteka chce mieć system, który przechowuje dane o:
+Po tym wykładzie powinniście umieć:
 
-- książkach (tytuł, autor, rok wydania, ISBN),
-- czytelnikach (imię, nazwisko, numer karty bibliotecznej),
-- wypożyczeniach (jaka książka, który czytelnik, kiedy wypożyczona i kiedy oddana).
+1. Odróżnić typ encji od konkretnego obiektu oraz atrybut od związku.
+2. Wyjaśnić, dlaczego kurs, edycja i zapis oznaczają różne rzeczy.
+3. Odczytać związek w obie strony i określić jego liczności.
+4. Rozróżnić „co najwyżej jeden” od „dokładnie jeden” oraz „może” od „musi”.
+5. Narysować diagram i uzasadnić go przykładami poprawnych oraz błędnych sytuacji.
 
-Przykład 2 – sklep internetowy
+Nie wybieramy jeszcze indeksów ani nie piszemy poleceń tworzących tabele. Najpierw uzgadniamy **znaczenie modelu**.
 
-Sklep potrzebuje informacji o:
+### Gdzie jesteśmy w całym procesie projektowania?
 
-- klientach (imię, adres, e-mail),
-- produktach (nazwa, cena, kategoria),
-- zamówieniach (który klient, jakie produkty, kiedy złożono, status zamówienia).
+| Etap | Główne pytanie | Wynik pracy |
+|---|---|---|
+| Analiza wymagań | Czego potrzebuje użytkownik i jakie zasady obowiązują? | Słownik pojęć, pytania, reguły i przykłady |
+| Projektowanie koncepcyjne — dziś | Jakie obiekty i związki opisują ten obszar? | Model encja–związek i opis ograniczeń |
+| Projektowanie logiczne — kolejny etap | Jak wyrazić ten model w strukturach relacyjnych? | Tabele, kolumny, klucze i ograniczenia |
+| Projektowanie fizyczne — później | Jak przechowywać dane i zapewnić sprawne działanie? | Decyzje dotyczące indeksów i organizacji przechowywania |
 
-👉 Zwróć uwagę:
+Z poprzedniego wykładu pamiętamy rozdzielenie perspektywy użytkownika, wspólnego opisu danych i sposobu ich przechowywania. Dzisiejsza praca rozwija **wspólny opis znaczenia danych**. Etapy projektowania nie są jednak dokładnie tym samym co trzy poziomy architektury ANSI/SPARC: to kolejność pracy projektanta, a nie trzy widoki istniejącego systemu.
 
-- w bibliotece najważniejszy jest związek wypożyczeń,
-- w sklepie – związek zamówień.
+## ER i ERD — model oraz jego rysunek
 
-Już na tym etapie widać, że kluczowe są powiązania, a nie tylko same dane.
+**ER — Entity–Relationship** oznacza **encja–związek**. Jest to sposób opisywania dziedziny przez obiekty, ich właściwości i powiązania. **ERD — Entity–Relationship Diagram** oznacza **diagram encja–związek**, czyli graficzną reprezentację takiego modelu.
+
+Model obejmuje znaczenie pojęć i przyjęte reguły. Diagram pokazuje znaczną część tych ustaleń, ale nie każde wymaganie zmieści się w samych prostokątach i liniach. Dlatego rysunkowi powinien towarzyszyć krótki opis reguł.
+
+Przykładowo diagram może wskazywać, że edycja korzysta z jednej sali. Samo takie połączenie nie zabroni dwóch edycji w tej sali o tej samej godzinie. Zakaz nakładania się terminów trzeba dodatkowo opisać.
+
+### Czy diagram jest już bazą danych?
+
+Nie. Możemy narysować poprawny diagram na kartce, nie uruchamiając żadnego programu bazodanowego. Jest to narzędzie rozmowy z klientem i sprawdzania projektu. Później przełożymy go na model relacyjny i zaimplementujemy w **DBMS — Database Management System**, czyli systemie zarządzania bazą danych.
+
+**Dobra próba jakości diagramu:** czy osoba znająca działalność ośrodka potrafi na jego podstawie powiedzieć, co jest dozwolone, a co wymaga doprecyzowania?
+
+## Encje — o czym chcemy przechowywać informacje?
+
+**Encja — entity** to rozpoznawalny obiekt opisywanej rzeczywistości. Może oznaczać osobę, rzecz, zdarzenie albo pojęcie istotne dla systemu. **Typ encji — entity type** opisuje wspólne właściwości takich obiektów.
+
+- „Uczestnik” to typ encji.
+- Ada oznaczona U1 to konkretny uczestnik, czyli instancja tego typu.
+- „Edycja” to typ encji.
+- E1, odbywająca się w określonym terminie, to konkretna edycja.
+
+Na diagramie prostokąt podpisany „Uczestnik” zazwyczaj oznacza typ, a nie jedną osobę. Nie rysujemy osobnego prostokąta dla Ady, Bartka i Celiny.
+
+### Encja czy tylko słowo w opisie?
+
+Rzeczowniki w wymaganiach podpowiadają kandydatów na encje, ale nie są automatyczną receptą. Zanim dodamy encję, zapytajmy:
+
+1. Czy chcemy rozróżniać konkretne obiekty tego rodzaju?
+2. Jakie informacje o nich są potrzebne?
+3. Czy uczestniczą w powiązaniach istotnych dla systemu?
+
+„Sala” jest dobrym kandydatem, ponieważ rozróżniamy sale, znamy ich pojemność i przypisujemy im edycje. Sam „kolor nagłówka raportu” nie staje się przez to encją w modelu zapisów.
+
+### Kurs i edycja — pozornie podobne, ale różne obiekty
+
+**Kurs** opisuje temat, np. „Obsługa wyposażenia”. **Edycja** opisuje konkretne przeprowadzenie tego kursu: termin, salę, prowadzącego i limit uczestników.
+
+| Obiekt | Przykład | Co go opisuje? |
+|---|---|---|
+| Kurs K1 | Obsługa wyposażenia | Nazwa i opis tematu |
+| Edycja E1 kursu K1 | Dzień 1, 08:00–10:00 | Sala S1, prowadzący I1, limit 2 |
+| Edycja E2 kursu K1 | Dzień 1, 10:00–12:00 | Sala S2, prowadzący I2, limit 4 |
+
+Zapis „Ada uczestniczy w K1” nie wystarcza do ustalenia, kiedy ma przyjść i czy zajmuje miejsce na E1 czy E2. Dlatego w naszym projekcie zapis dotyczy **edycji**, a nie wyłącznie tematu kursu.
+
+**Pytanie:** czy zmiana sali E2 powinna automatycznie zmienić salę E1? Jeśli nie, do którego pojęcia należy przypisanie sali?
+
+## Atrybuty — jakie informacje opisują obiekt?
+
+**Atrybut — attribute** jest nazwaną właściwością encji lub związku. Przykłady: nazwa kursu, pojemność sali, początek edycji, status zapisu.
+
+Atrybut umieszczamy tam, gdzie ma właściwe znaczenie. Pojemność należy do sali, ale limit uczestników należy do edycji. Sala na 20 osób może gościć szkolenie z limitem 12. To dwa różne fakty połączone regułą: limit nie może przekroczyć pojemności.
+
+### Atrybut prosty — simple attribute
+
+Traktujemy go jako jedną wartość, której nie rozbijamy na składniki w danym modelu, np. nazwę kursu lub pojemność sali. „Prosty” nie oznacza, że wartości nie można analizować żadnymi metodami. Datę można rozłożyć na rok, miesiąc i dzień, ale model może nadal traktować ją jako pojedynczą wartość daty.
+
+### Atrybut złożony — composite attribute
+
+Składa się z części, których znaczenie chcemy zachować, np. adres: ulica, numer budynku, kod pocztowy i miasto. Taki podział ma sens, jeśli potrzebujemy operować na składnikach — choćby wyszukiwać osoby według miasta.
+
+To decyzja wynikająca z potrzeb. Nie rozbijamy każdego tekstu na fragmenty tylko dlatego, że technicznie jest to możliwe.
+
+### Atrybut wielowartościowy — multivalued attribute
+
+Dla jednego obiektu może przyjmować kilka wartości, np. kilka numerów telefonu uczestnika, **jeżeli wymagania dopuszczają ich przechowywanie**.
+
+Nie należy mylić tego ze złożonością:
+
+- jeden adres podzielony na składniki jest atrybutem złożonym;
+- kilka numerów telefonu jest atrybutem wielowartościowym;
+- kilka adresów, każdy z własnymi składnikami, łączy oba te aspekty.
+
+Na etapie relacyjnym wiele telefonów zwykle opiszemy osobnymi wierszami w powiązanej tabeli. Dziś ważne jest rozpoznanie potrzeby wielu wartości, a nie wybór technicznego rozwiązania. Nie dodajemy obsługi wielu telefonów do obowiązkowego zakresu ośrodka tylko po to, żeby wykorzystać symbol z diagramu.
+
+### Identyfikator — identifier
+
+Obiekty musimy umieć odróżniać. Skrót **ID** pochodzi od angielskiego **identifier**, czyli identyfikator. U1 i U2 identyfikują dwóch uczestników, nawet jeśli mieliby identyczne imię i nazwisko.
+
+Już w modelu koncepcyjnym warto określić tożsamość obiektu. Nie musimy jeszcze rozstrzygać, jaki typ liczbowy będzie miała kolumna w konkretnej bazie. Identyfikator kursu, edycji i zapisu odnosi się do różnych rzeczy.
+
+## Związki — jak obiekty są ze sobą powiązane?
+
+**Związek — relationship** opisuje powiązanie między encjami. Najlepiej nadać mu nazwę, którą można przeczytać jako zdanie:
+
+- kurs **ma edycje**;
+- prowadzący **prowadzi edycję**;
+- edycja **odbywa się w sali**;
+- uczestnik **zapisuje się na edycję**.
+
+Nie wystarczy połączyć dwóch prostokątów kreską. Trzeba ustalić, co ona oznacza oraz ile obiektów może połączyć po każdej stronie.
+
+Warto również odróżniać **związek w modelu ER** od **relacji w modelu relacyjnym**. Pierwsze słowo oznacza powiązanie obiektów; drugie jest terminem matematycznym, którego praktycznym przedstawieniem jest tabela. Podobieństwo nazw nie oznacza identycznych pojęć.
+
+### Czy związek może mieć atrybuty?
+
+Tak. Status zgłoszenia dotyczy konkretnego powiązania uczestnika z edycją:
+
+| Uczestnik | Edycja | Status zapisu |
+|---|---|---|
+| Ada U1 | E1 | confirmed — potwierdzony |
+| Bartek U2 | E1 | confirmed — potwierdzony |
+| Celina U3 | E2 | confirmed — potwierdzony |
+| Bartek U2 | E2 | cancelled — anulowany |
+
+Gdybyśmy umieścili jeden status przy Bartku, nie umielibyśmy jednocześnie wyrazić obu jego sytuacji. Gdybyśmy umieścili status przy E2, nie odróżnilibyśmy Celiny od Bartka.
+
+**Status należy do zapisu uczestnika na konkretną edycję.** Możemy początkowo opisać go jako atrybut związku „zapisuje się na”. Możemy też wyodrębnić **encję asocjacyjną — associative entity**, nazwaną „Zapis”, która reprezentuje to powiązanie i jego właściwości.
+
+Wyodrębnienie Zapisu nie oznacza jeszcze napisania tabeli w SQL — **Structured Query Language**, czyli strukturalnym języku zapytań. Nadal porządkujemy pojęcia i ich znaczenie.
+
+## Liczności — jak czytać 1:1, 1:N i N:M?
+
+**Liczność związku — cardinality** opisuje, ile obiektów może uczestniczyć w danym powiązaniu. Oznaczenia 1:1, 1:N i N:M opisują przede wszystkim maksymalną liczność po obu stronach. Litery N i M oznaczają „wiele”, nie konkretne liczby uczestników ani limit miejsc.
+
+Każdy związek czytamy w dwóch kierunkach. Nie wyznaczamy jego typu wyłącznie na podstawie trzech aktualnych rekordów — uwzględniamy wszystkie sytuacje dopuszczone regułami.
+
+### Jeden do jednego — one-to-one, 1:1
+
+Jeden obiekt pierwszego typu może być powiązany z najwyżej jednym obiektem drugiego typu i odwrotnie.
+
+Przykład poza projektem: organizacja przyjmuje regułę, że pracownik ma najwyżej jeden aktywny identyfikator wejściowy, a aktywny identyfikator jest przypisany najwyżej jednemu pracownikowi. Dla **aktualnego przypisania** otrzymujemy 1:1. Gdybyśmy chcieli przechowywać wszystkie wydania identyfikatorów w historii, potrzebny byłby bogatszy model.
+
+Nie musimy na siłę szukać związku 1:1 w każdym projekcie. Sam fakt, że osoba ma numer identyfikacyjny, nie wymaga tworzenia osobnej encji „Numer”; często wystarczy atrybut.
+
+### Jeden do wielu — one-to-many, 1:N
+
+Jeden obiekt pierwszego typu może być powiązany z wieloma obiektami drugiego typu, ale każdy z tych drugich jest powiązany z najwyżej jednym obiektem pierwszego typu.
+
+W naszym kontrakcie:
+
+- jeden **kurs** może mieć wiele **edycji**;
+- każda **edycja** dotyczy dokładnie jednego **kursu**.
+
+Podobnie prowadzący może prowadzić wiele edycji, natomiast jedna edycja ma jednego prowadzącego. Nie jest to uniwersalna prawda o wszystkich szkoleniach: gdyby klient dopuścił kilku prowadzących jedną edycję, model musiałby się zmienić.
+
+### Wiele do wielu — many-to-many, N:M
+
+Jeden uczestnik może zapisać się na wiele edycji. Na jedną edycję może zapisać się wielu uczestników. Związek uczestnik–edycja jest więc N:M.
+
+Nie oznacza to, że każdy uczestnik musi mieć wiele zapisów, ani że każda edycja już jest pełna. Oznacza możliwość wielu powiązań po każdej stronie. Limit liczby potwierdzonych zapisów jest dodatkową regułą.
+
+W klasycznej notacji ER taki związek można przedstawić jednym rombem między dwoma typami encji. Nie rysujemy osobnego związku dla każdego kierunku odczytu. Po wyodrębnieniu Zapisu otrzymujemy dwa związki 1:N: uczestnik–zapis oraz edycja–zapis.
+
+### Czy udział jest obowiązkowy? Minimum też ma znaczenie
+
+Samo 1:N nie wyjaśnia, czy obiekt może istnieć bez powiązania. Wprowadzamy więc zakresy minimalnej i maksymalnej liczności:
+
+| Zapis | Jak czytać? | Przykład |
+|---|---|---|
+| 0..1 | Zero lub jeden | Pracownik może jeszcze nie mieć aktywnego identyfikatora |
+| 1..1 | Dokładnie jeden | Zapis musi dotyczyć dokładnie jednej edycji |
+| 0..N | Zero lub wiele | Edycja może jeszcze nie mieć zapisów |
+| 1..N | Co najmniej jeden | Tylko jeśli odpowiednia reguła wymaga istnienia przynajmniej jednego powiązania |
+
+W projekcie ośrodka edycję planujemy przed pierwszym zapisem. Dlatego dopuszczamy **zero zapisów**. Każdy istniejący zapis musi natomiast wskazywać jednego uczestnika i jedną edycję.
+
+**Test rozumienia:** czy pusta E3 narusza model? Nie, jeśli po stronie zapisów edycji dopuszczono 0..N. Diagram wymagający co najmniej jednego zapisu nie pasowałby do naszych ustaleń.
+
+## Jak narysować diagram i nie mieszać notacji?
+
+### Notacja Chena
+
+W klasycznej notacji Chena:
+
+- **prostokąt** oznacza typ encji;
+- **elipsa** oznacza atrybut;
+- **romb** oznacza związek;
+- **podwójna elipsa** oznacza atrybut wielowartościowy;
+- oznaczenia przy połączeniach opisują liczności; przy pracy z zakresem minimum–maksimum zawsze dodajemy legendę przyjętej konwencji.
+
+Przykład do narysowania: dwa prostokąty „Uczestnik” i „Edycja”, między nimi romb „Zapisuje się na”. Do rombu dołączamy elipsę „Status”. Przy encjach pokazujemy ich atrybuty. W ten sposób podkreślamy, że status opisuje **powiązanie**, a nie osobę lub edycję.
+
+### Notacja „kurzej stopki” — Crow’s Foot
+
+Inna popularna notacja zapisuje encje w prostokątach, często z atrybutami wewnątrz. Zamiast rombów używa linii zakończonych symbolami liczności:
+
+- kółko oznacza dopuszczenie zera;
+- kreska oznacza jeden;
+- rozwidlenie, czyli „kurza stopka”, oznacza wiele;
+- zestawienie symboli wyraża minimum i maksimum.
+
+Obie notacje opisują podobne ustalenia, ale używają innych znaków. **Brak rombu w notacji Crow’s Foot nie oznacza braku związku.** Na jednej pracy stosujcie konsekwentnie wybraną konwencję i czytajcie związki pełnymi zdaniami.
+
+## Model ośrodka „Dąb” — przykład całościowy
+
+Przyjmujemy reguły uzgodnione na pierwszych zajęciach: kurs ma edycje; każda edycja ma jedną salę i jednego prowadzącego; uczestnik może mieć najwyżej jeden zapis do tej samej edycji. Status zapisu to `confirmed` lub `cancelled`.
+
+### Krok 1 — ustalamy znaczenie pojęć i atrybutów
+
+| Typ encji | Co reprezentuje jeden obiekt? | Przykładowe atrybuty |
+|---|---|---|
+| Uczestnik | Jedną osobę korzystającą ze szkoleń | Identyfikator, imię, nazwisko |
+| Kurs | Jeden temat szkolenia | Identyfikator, nazwa, opis |
+| Edycja | Jedno przeprowadzenie kursu | Identyfikator, początek, koniec, limit |
+| Prowadzący | Osobę prowadzącą zajęcia | Identyfikator, imię, nazwisko |
+| Sala | Jedno pomieszczenie | Identyfikator, oznaczenie, pojemność |
+| Zapis | Powiązanie uczestnika z konkretną edycją | Status; tożsamość określona parą uczestnik–edycja |
+
+To przykładowy model koncepcyjny, nie lista gotowych kolumn do bezrefleksyjnego przepisania. Na następnym etapie zdecydujemy, jak przedstawić odwołania i klucze w tabelach.
+
+### Krok 2 — czytamy powiązania w obie strony
+
+| Związek | Pierwszy kierunek | Drugi kierunek |
+|---|---|---|
+| Kurs–Edycja | Kurs może mieć 0..N edycji | Edycja dotyczy dokładnie jednego kursu |
+| Prowadzący–Edycja | Prowadzący może prowadzić 0..N edycji | Edycja ma dokładnie jednego prowadzącego |
+| Sala–Edycja | Sala może gościć 0..N edycji w różnych terminach | Edycja ma dokładnie jedną salę |
+| Uczestnik–Zapis | Uczestnik może mieć 0..N zapisów | Zapis należy do dokładnie jednego uczestnika |
+| Edycja–Zapis | Edycja może mieć 0..N zapisów | Zapis dotyczy dokładnie jednej edycji |
+
+Dla kursu bez edycji i prowadzącego bez przydziału przyjmujemy możliwość wcześniejszego utworzenia wpisu w katalogu. To jawne założenie tego przykładu. Nie wynika ono z samej nazwy „kurs” czy „prowadzący”.
+
+### Krok 3 — przedstawiamy diagram
+
+Poniżej używamy notacji Crow’s Foot i wyodrębniamy Zapis jako encję asocjacyjną. Prostokąty opisują pojęcia, nie zobowiązują jeszcze do konkretnej składni SQL.
+
+```{mermaid}
+erDiagram
+    KURS ||--o{ EDYCJA : "ma"
+    PROWADZACY ||--o{ EDYCJA : "prowadzi"
+    SALA ||--o{ EDYCJA : "gosci"
+    UCZESTNIK ||--o{ ZAPIS : "ma"
+    EDYCJA ||--o{ ZAPIS : "obejmuje"
+```
+
+Odczyt ostatniej linii: każda edycja może obejmować zero lub wiele zapisów, a każdy zapis dotyczy dokładnie jednej edycji. Odczyt połączenia z salą nie oznacza zgody na kilka zajęć jednocześnie — diagram nie pokazuje jeszcze ograniczeń czasowych.
+
+### Krok 4 — dopisujemy reguły, których nie wyraża sama linia
+
+1. Para uczestnik–edycja nie może wystąpić jako dwa różne zapisy.
+2. Limit edycji jest dodatni i nie większy od pojemności jej sali.
+3. Liczba potwierdzonych zapisów nie może przekroczyć limitu.
+4. Nakładające się edycje nie mogą korzystać z tej samej sali ani prowadzącego. Koniec jednych zajęć może być początkiem następnych.
+5. Anulowanie zmienia status konkretnego zapisu; nie usuwa uczestnika ani jego innych zapisów.
+6. Ponowne zgłoszenie do tej samej edycji aktualizuje istniejący zapis po sprawdzeniu miejsc. Przechowujemy aktualny status, nie pełny dziennik jego zmian.
+
+**Dwa związki 1:N nie gwarantują jeszcze unikalności pary uczestnik–edycja.** Dlatego tę regułę zapisujemy osobno. Na etapie implementacji trzeba będzie dobrać dla niej odpowiedni mechanizm.
+
+### Krok 5 — sprawdzamy model na zdarzeniach
+
+- **Planowanie pustej E3:** musi być możliwe bez dopisywania fikcyjnego uczestnika.
+- **Rezygnacja Bartka z E2:** zmienia się jego zapis do E2; potwierdzony zapis do E1 pozostaje.
+- **Powrót Bartka do E2:** sprawdzamy wolne miejsce i zmieniamy istniejący zapis. Nie tworzymy drugiej kopii tej samej pary.
+- **Dodanie kolejnej edycji K1:** nie wymaga kopiowania całego opisu kursu jako nowego tematu.
+- **Przydzielenie jednej sali do dwóch nakładających się edycji:** liczności same tego nie wykryją; potrzebna jest dodatkowa reguła czasowa.
+
+Model oceniamy przez takie sytuacje, a nie przez estetykę prostokątów.
+
+## Dodatkowy przykład — film, seans i widz
+
+W kinie **film** odpowiada tematowi kursu, a **seans** konkretnej edycji. Ten sam film może być wyświetlany wielokrotnie, w różnych godzinach i salach.
+
+Jeśli interesuje nas wyłącznie fakt „widz obejrzał dany film”, możemy opisać związek Widz–Film jako N:M. W notacji Chena wystarczy **jeden romb „Ogląda”** między tymi typami encji. Dwa kierunki odczytu nie wymagają dwóch rombów; tabela pośrednicząca jest kwestią późniejszego modelu relacyjnego.
+
+Jeśli jednak projektujemy sprzedaż biletów, taka informacja jest za mało dokładna. Musimy wiedzieć, na **który seans** dotyczy zakupu, a być może także na jakie miejsce. Film sam nie określa terminu. To przykład, dlaczego poziom szczegółowości modelu zależy od pytania, na które ma odpowiadać system.
+
+Podobnie w bibliotece opis tytułu książki i konkretny egzemplarz nie są tym samym. Jeśli korzystamy z **ISBN — International Standard Book Number**, czyli międzynarodowego znormalizowanego numeru książki, identyfikuje on określone wydanie i format, a nie każdy fizyczny egzemplarz. Dwa egzemplarze o tym samym ISBN trzeba nadal rozróżnić w ewidencji wypożyczeń.
+
+## Zadanie na zajęcia — obrona własnego modelu
+
+Pracujcie w parach, korzystając z ustaleń ośrodka „Dąb”.
+
+1. Zapiszcie po jednym zdaniu definiującym Uczestnika, Kurs, Edycję, Prowadzącego, Salę i Zapis.
+2. Dobierzcie do tych pojęć potrzebne atrybuty. Przy statusie i limicie uzasadnijcie, dlaczego umieszczacie je właśnie tam.
+3. Narysujcie związki w jednej wybranej notacji i dopiszcie legendę. Odczytajcie każdy związek w obu kierunkach.
+4. Określcie minimalne i maksymalne liczności. Sprawdźcie, czy model pozwala utworzyć edycję bez zapisów.
+5. Wypiszcie co najmniej trzy reguły, których nie da się odczytać z samych liczności.
+6. Prześledźcie rezygnację Bartka i próbę ponownego zapisu. Wskażcie zmieniany obiekt oraz dane, które pozostają bez zmian.
+
+**Efekt pracy:** jeden diagram, krótki słownik i lista dodatkowych reguł. Jedna osoba z pary wyjaśnia wybrany związek, druga podaje przykład poprawnej sytuacji i próby naruszenia reguły. Nie oddajecie jeszcze skryptu tworzącego bazę.
+
+## Słownik i podsumowanie
+
+| Skrót lub termin | Pełna nazwa angielska | Znaczenie |
+|---|---|---|
+| ER | Entity–Relationship | Model encja–związek |
+| ERD | Entity–Relationship Diagram | Diagram modelu encja–związek |
+| DBMS | Database Management System | System zarządzania bazą danych |
+| SQL | Structured Query Language | Strukturalny język zapytań |
+| ID | Identifier | Identyfikator obiektu |
+| ANSI | American National Standards Institute | Amerykański Narodowy Instytut Normalizacyjny |
+| SPARC | Standards Planning and Requirements Committee | Komitet planowania standardów i wymagań |
+| ISBN | International Standard Book Number | Międzynarodowy znormalizowany numer książki |
+| 1:1 | One-to-one | Jeden do jednego |
+| 1:N | One-to-many | Jeden do wielu |
+| N:M | Many-to-many | Wiele do wielu |
+| Encja asocjacyjna | Associative entity | Obiekt reprezentujący powiązanie i jego właściwości |
+
+Model koncepcyjny jest uzasadnionym opisem dziedziny. Powinien pokazać, **co identyfikujemy, co o tym wiemy, jak obiekty się wiążą i jakie sytuacje dopuszczamy**. Następny wykład będzie dotyczył przełożenia tych ustaleń na tabele i klucze.
+
+### Pytania do samodzielnej powtórki
+
+1. Czym różni się ER od ERD oraz typ encji od konkretnej encji?
+2. Dlaczego jedna edycja nie jest tym samym co kurs?
+3. Kiedy właściwość należy do związku, a nie do jednej z encji? Wyjaśnij na przykładzie statusu.
+4. Podaj różnicę między atrybutem złożonym i wielowartościowym.
+5. Czy związek 1:N wymaga, żeby po stronie „wiele” istniał choć jeden obiekt?
+6. Czy jeden wiersz przykładowych danych wystarcza, żeby uznać związek za 1:1?
+7. Jak w notacji Chena przedstawisz N:M? Co zmienia wyodrębnienie encji asocjacyjnej?
+8. Dlaczego diagram ośrodka nie wystarcza do sprawdzenia konfliktu terminów sali?
+9. Czy anulowanie jednego zapisu powinno usuwać uczestnika? Uzasadnij na modelu.
+10. Dlaczego system biletowy potrzebuje pojęcia seansu, a nie tylko filmu?
 
 
+## Zadanie na zajęcia
 
-##  Diagramy encja–związek 
-
-Model ERD (Entity–Relationship Diagram) pozwala w przejrzysty sposób przedstawić jakie obiekty istnieją w systemie i jak są ze sobą powiązane.
-
-- Encje rysujemy jako prostokąty.
-- Przykład: „Student”, „Książka”, „Zamówienie”.
-- Atrybuty zapisujemy jako elipsy i łączymy z encją.
-- „Student” → Imię, Nazwisko, NrIndeksu.
-- Związki przedstawiamy jako romby.
-- „Student” $\to$ „Wypożycza” $\to$ „Książka”.
-
-Przykład wizualny do opowiedzenia:
-
-- Wyobraźcie sobie trzy prostokąty: „Student”, „Książka” i „Bibliotekarz”.
-- Łączymy je rombem „Wypożycza”.
-- Dodajemy atrybuty: do studenta „NrIndeksu”, do książki „ISBN”, a do związku „Data wypożyczenia”.
-
-👉 Dzięki temu widzimy nie tylko obiekty, ale i relacje między nimi.
-
-⸻
-
-## Typy związków 
-
-Związek 1:1 (jeden do jednego)
-
-- Każdy obiekt jednej encji odpowiada najwyżej jednemu obiektowi drugiej encji.
-- Przykład: każdy człowiek ma jedno unikalne PESEL.
-
-Związek 1:N (jeden do wielu)
-
-- Jeden obiekt encji A może być powiązany z wieloma obiektami encji B, ale nie odwrotnie.
-- Przykład: jeden wykładowca prowadzi wiele kursów, ale każdy kurs ma dokładnie jednego prowadzącego.
-
-Związek N:M (wiele do wielu)
-
-- Jeden obiekt encji A może być powiązany z wieloma obiektami encji B i odwrotnie.
-- Przykład: studenci zapisują się na wiele kursów, a każdy kurs realizowany jest przez wielu studentów.
-
-Mini-case: kino
-
-- Encje: „Film”, „Widz”, „Seans”.
-- Widzowie mogą oglądać wiele filmów, a każdy film może być oglądany przez wielu widzów. To klasyczne N:M.
-
-
-
-##  Atrybuty proste, złożone, wielowartościowe
-
-- Atrybut prosty – nie da się go podzielić: „Data urodzenia”, „PESEL”.
-- Atrybut złożony – składa się z mniejszych: „Adres” → „Ulica”, „Kod pocztowy”, „Miasto”.
-- Atrybut wielowartościowy – może mieć wiele wartości dla jednej encji: „Numery telefonów” dla jednego studenta.
-
-👉 To ważne, bo w późniejszym projektowaniu relacyjnym atrybut wielowartościowy często trzeba przekształcić w oddzielną tabelę.
-
-Przykład:
-
-- Student może mieć wiele adresów e-mail.
-- W modelu ER narysujemy atrybut „Email” jako elipsę podwójną.
-- W modelu relacyjnym – stworzymy tabelę „AdresyEmail” powiązaną z tabelą „Studenci”.
-
-
-## Przykłady całościowe
-
-Na koniec możemy omówić kilka kompletnych mini-systemów, żeby pokazać różne rodzaje encji, związków i atrybutów.
-
-Przykład A – System rezerwacji hotelu
-
-- Encje: „Pokój”, „Gość”, „Rezerwacja”.
-- Związki: Gość „rezerwuje” Pokój.
-- Atrybuty: Rezerwacja ma datę początku, datę końca i status.
-
-Przykład B – Uczelnia
-
-- Encje: „Student”, „Kurs”, „Wykładowca”.
-- Związki: Student „zapisuje się na” Kurs, Wykładowca „prowadzi” Kurs.
-- Atrybuty: Student – imię, nazwisko, nr indeksu. Kurs – nazwa, punktacja ECTS.
-
-Przykład C – Sklep internetowy
-
-- Encje: „Klient”, „Produkt”, „Zamówienie”.
-- Związki: Klient „składa” Zamówienie, Zamówienie „zawiera” Produkt.
-- Atrybuty: Produkt – cena, opis; Zamówienie – data, status.
-
-⸻
-
-## Podsumowanie 
-
-- Projektowanie bazy danych zaczynamy od analizy wymagań użytkownika.
-- Model ER pozwala uporządkować wiedzę w postaci encje–atrybuty–związki.
-- Wyróżniamy związki 1:1, 1:N, N:M oraz atrybuty proste, złożone i wielowartościowe.
-- Diagram ERD to narzędzie komunikacji – łączy świat użytkownika ze światem projektanta i programisty.
+[Przejdź do scenariusza wykładu 2 — od wymagań do diagramu](../scenariusze.qmd#wyklad-2).

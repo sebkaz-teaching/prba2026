@@ -161,4 +161,76 @@ Formularz nie zachowuje szkicu po zamknięciu lub odświeżeniu strony — użyj
 <script src="assets/js/assignment-form.js"></script>
 ```
 
+## Wykład 2 — Od wymagań do diagramu {#wyklad-2}
+
+[Materiał do zajęć i indywidualny test z wykładu 1](lectures/wyklad2.qmd).
+
+Kontynuujecie w parach projekt ośrodka „Dąb”. Na pierwszym spotkaniu zbieraliście
+wymagania. Teraz przygotujecie **diagram encja–związek (ERD, Entity–Relationship
+Diagram)**: obiekty, ich cechy i powiązania. Nie trzeba jeszcze pisać SQL ani
+uruchamiać bazy danych.
+
+### Wspólne ustalenia klienta
+
+- Kurs jest tematem, a edycja konkretnym przeprowadzeniem kursu.
+- Każda edycja dotyczy jednego kursu, ma jednego prowadzącego i jedną salę.
+- Uczestnik może zapisać się na wiele edycji. Dla jednej pary uczestnik–edycja
+  przechowujemy najwyżej jeden zapis.
+- Zapis ma status `confirmed` albo `cancelled`. Anulowanego zapisu nie usuwamy.
+  Ponowne zgłoszenie aktualizuje ten sam zapis po sprawdzeniu dostępności miejsca.
+- Limit edycji jest dodatni i nie przekracza pojemności sali. Liczba zapisów
+  `confirmed` nie może przekroczyć limitu; `cancelled` nie zajmuje miejsca.
+- Edycja może istnieć bez zapisanych uczestników.
+- Nakładające się edycje nie mogą korzystać z tej samej sali ani prowadzącego.
+  Koniec jednej edycji może być początkiem następnej.
+- Przechowujemy aktualny status zapisu, bez pełnej historii jego zmian.
+  Lista oczekujących, obecność, ukończenie i odwoływanie całych edycji pozostają
+  poza bieżącym zakresem. PESEL nie jest wymagany.
+
+### Krok 1 — Uzupełnijcie wymagania (podczas wspólnego omówienia)
+
+Porównajcie notatkę z pierwszego spotkania z ustaleniami klienta.
+Dopiszcie odpowiedzi na Wasze pytania. Zaznaczcie, które wcześniejsze założenia
+trzeba zmienić. Nie przepisujcie całej pracy.
+
+### Krok 2 — Narysujcie model (25 minut)
+
+Na kartce lub w wybranym edytorze diagramów:
+
+1. Uwzględnijcie: uczestnika, kurs, edycję, zapis, prowadzącego i salę.
+2. Przy każdym obiekcie wpiszcie identyfikator i najważniejsze cechy potrzebne
+   do spełnienia wymagań. Odróżnijcie limit edycji od pojemności sali.
+3. Połączcie obiekty i odczytajcie każde powiązanie w obie strony.
+   Oznaczcie minimalną i maksymalną liczbę powiązań, np. zero do wielu albo dokładnie jeden.
+4. Zdecydujcie, gdzie należy umieścić status zapisu. Uzasadnijcie wybór przykładem
+   osoby uczestniczącej w dwóch różnych edycjach.
+5. Obok diagramu zapiszcie dwie reguły, których same liczności połączeń nie zapewniają.
+
+Stosujcie jedną notację konsekwentnie. Przy zapisie jako osobnym obiekcie
+łączącym uczestnika i edycję nie dublujcie tego samego faktu dodatkowym,
+niezależnym powiązaniem między nimi.
+
+### Krok 3 — Sprawdźcie diagram i obrońcie decyzje (15 minut)
+
+Przeanalizujcie:
+
+- E3 istnieje, ale nie ma jeszcze żadnego zapisu.
+- Bartek ma `confirmed` na E1 oraz `cancelled` na E2.
+- Bartek ponownie zgłasza się na E2. Co trzeba sprawdzić i co zmienić?
+- Ta sama sala jest potrzebna dwóm edycjom w nakładających się godzinach.
+
+Dla każdego przypadku wskażcie obiekty, powiązania i reguły, które mają znaczenie.
+Zamieńcie się diagramem z sąsiednią parą i sprawdźcie, czy da się go odczytać bez
+zgadywania. Każda osoba wyjaśnia przynajmniej jedną decyzję projektową.
+
+### Co przygotować na koniec?
+
+**Jeden diagram pary**, podpisany imionami autorów, z atrybutami, licznościami,
+dwiema dodatkowymi regułami i krótką notatką ze sprawdzenia przypadków.
+Pokażcie go prowadzącemu podczas zajęć i zachowajcie plik albo zdjęcie na kolejne spotkanie.
+
+Formularz powyżej służy do notatki z wykładu 1 i nie przyjmuje załączników
+z diagramami. Test na początku wykładu 2 wypełniacie indywidualnie; jest oddzielny
+od pracy projektowej w parach.
+
 Kolejne karty będą udostępniane wraz z następnymi zajęciami.
