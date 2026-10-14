@@ -68,222 +68,221 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 </script>
 
 
-## 🎯 Cel wykładu
+## Od diagramu do działającej bazy
 
-Celem dzisiejszego wykładu jest pokazanie, jak przejść od koncepcyjnego modelu ERD (Entity–Relationship Diagram), który opisuje co chcemy przechowywać,
-do modelu relacyjnego, który mówi jak te dane będą fizycznie zorganizowane w tabelach.
+Na poprzednim spotkaniu ustaliliśmy, jakie obiekty opisuje ośrodek „Dąb”. Teraz
+sprawdzimy, czy potrafimy zapisać te ustalenia w bazie i rozpoznać niepoprawne operacje.
+**Model relacyjny opisuje logiczną strukturę danych**: relacje, atrybuty, klucze
+i ograniczenia. Nie opisuje fizycznego rozmieszczenia bajtów na dysku.
 
-👉 Innymi słowy — dziś „przekładamy” logikę świata rzeczywistego na język tabel, kolumn i kluczy.
+Przez cały pokaz budujemy jeden przykład. Prowadzący uruchamia polecenia w SQLite;
+Waszym zadaniem jest przewidywać wyniki i proponować próby naruszenia reguł.
+Nie trzeba jeszcze samodzielnie odtwarzać całej składni SQL.
 
+## Cztery obiekty, które zamienimy w tabele
 
+| Pojęcie | Tabela | Co opisuje jeden wiersz? |
+|---|---|---|
+| Uczestnik | `participants` | Jedną osobę, np. U2 Bartek |
+| Kurs | `courses` | Temat szkolenia, np. K1 |
+| Edycja | `editions` | Konkretne przeprowadzenie kursu, np. E1 |
+| Zapis | `enrollments` | Udział jednej osoby w jednej edycji |
 
-## 1. Wprowadzenie
+W tym prostym modelu typy encji odwzorowujemy na tabele, a ich proste atrybuty
+na kolumny. Konkretny obiekt odpowiada wierszowi. Nie każdy model ER daje jednak
+mechanicznie jedną tabelę na każdy prostokąt: znaczenie mają również związki,
+atrybuty wielowartościowe i sposób modelowania specjalizacji.
 
-Zacznijmy od prostego pytania do grupy:
+Sale i prowadzący nadal należą do pełnego projektu. Dzisiejszy pokaz jest jego
+wycinkiem; nie implementujemy jeszcze reguł kolizji terminów.
 
-„Czy narysowany diagram ERD to już baza danych?”
+## Pusta baza i pierwsze reguły
 
-Większość studentów odpowie, że nie — i mają rację.
-ERD to tylko opis pojęć i powiązań między nimi, coś w rodzaju mapy koncepcyjnej.
-Dopiero model relacyjny pozwala tę mapę zaimplementować w systemie DBMS – czyli stworzyć konkretne tabele, relacje i klucze.
-
-### Przykład porównawczy:
-
-ERD to jak plan architektoniczny domu.
-
-Model relacyjny to już projekt budowlany z wymiarami i materiałami.
-
-
-## Przypomnienie podstawowych pojęć
-
-Zanim przejdziemy do reguł, powtórzmy szybko:
-
-- Encja – obiekt, o którym przechowujemy dane (np. Student, Kurs, Produkt).
-- Atrybut – właściwość tego obiektu (np. imię, nazwisko, cena).
-- Związek (relationship) – powiązanie między encjami (np. Student zapisuje się na Kurs).
-- Krotka (tuple) – pojedynczy wiersz tabeli (np. dane jednego studenta).
-- Domena – dopuszczalne wartości dla atrybutu (np. liczby od 1 do 5 dla oceny).
-
-👉 Wszystkie te pojęcia znajdą swoje odpowiedniki w modelu relacyjnym.
-
-## Proces mapowania (transformacji)
-
-Teraz przechodzimy do sedna: jak zamienić ERD w zestaw tabel.
-
-Można to potraktować jak przepis: krok po kroku.
-
-
-### 🔹 1. Encje $\to$ Tabele
-
-Każda encja z modelu ER staje się tabelą w modelu relacyjnym.
-
-Każdy atrybut encji staje się kolumną.
-
-Wyobraźmy sobie, że prostokąty z diagramu ER zamieniamy w tabele SQL. 
-
-Wszystkie elipsy (atrybuty) stają się kolumnami.
-
-Przykład:
-```sql
-
-Encja: STUDENT (NrIndeksu, Imię, Nazwisko, RokStudiow)
-
-Relacja: STUDENT(NrIndeksu, Imię, Nazwisko, RokStudiow)
-
-```
-
-### 🔹 2. Atrybuty złożone
-
-Atrybut złożony to taki, który sam składa się z kilku części.
-
-W modelu relacyjnym nie ma takiej konstrukcji, więc trzeba go rozbić.
-
-Przykład:
-```sql
-Adres = (Ulica, KodPocztowy, Miasto)
-```
-
-„Zauważmy, że dzięki temu możemy np. wyszukiwać po samym mieście, co nie byłoby możliwe, gdyby cały adres był jednym polem tekstowym.”
-
-
-
-### 🔹 3. Atrybuty wielowartościowe
-
-Atrybut wielowartościowy to taki, który może mieć więcej niż jedną wartość dla jednej encji.
-
-Przykład:
-Student może mieć wiele adresów e-mail.
-
-W modelu relacyjnym nie możemy trzymać wielu wartości w jednej kolumnie, więc:
-➡️ Tworzymy osobną tabelę.
+W SQLite sprawdzamy ustawienia używanego połączenia:
 
 ```sql
-EMAIL(NrIndeksu, Email)
+PRAGMA foreign_keys = ON;
+PRAGMA foreign_keys;
+SELECT sqlite_version();
 ```
 
-- Klucz główny: (NrIndeksu, Email)
-- NrIndeksu to klucz obcy do tabeli STUDENT.
+Wynik `foreign_keys` powinien wynosić 1. Ustawienie włączamy poza transakcją;
+po ponownym połączeniu sprawdzamy je ponownie. Przykłady korzystają z tabel
+`STRICT`, wymagających SQLite co najmniej 3.37.0.
 
-
-„To moment, w którym ERD zaczyna się rozrastać — z jednej encji robią się dwie tabele.
-
-Ale dzięki temu baza pozostaje spójna i czytelna.”
-
-### 🔹 4. Związki 1:1
-
-Związek „jeden do jednego” oznacza, że każdemu rekordowi z jednej tabeli odpowiada najwyżej jeden rekord z drugiej.
-
-Przykład:
-
-- Każda osoba ma dokładnie jeden paszport.
-```sql
-CREATE TABLE OSOBA (
-    PESEL     CHAR(11) PRIMARY KEY,
-    Imie      TEXT NOT NULL,
-    Nazwisko  TEXT NOT NULL
-);
-
-CREATE TABLE PASZPORT (
-    NrPaszportu   TEXT PRIMARY KEY,
-    DataWaznosci  DATE,
-    PESEL         CHAR(11) NOT NULL UNIQUE REFERENCES OSOBA(PESEL)
-);
-```
-
-Dodajemy PESEL jako klucz obcy w tabeli PASZPORT — ale samo `FOREIGN KEY` (bez
-dodatkowych więzów) wymusza tylko, że wartość PESEL istnieje w OSOBA, **nie** że
-występuje tam co najwyżej raz. Bez `UNIQUE` nic nie stoi na przeszkodzie, żeby ta
-sama osoba miała **dwa** wiersze w PASZPORT — czyli w bazie realnie mielibyśmy
-związek 1:N, nie 1:1. Dopiero `PESEL ... UNIQUE` w PASZPORT naprawdę wymusza "co
-najwyżej jeden paszport na osobę".
-
-::: {.callout-note}
-## A co z "dokładnie jeden", nie "co najwyżej jeden"?
-`NOT NULL UNIQUE` w PASZPORT gwarantuje, że **jeśli** paszport istnieje, to
-przypisany do dokładnie jednej osoby, i że osoba ma co najwyżej jeden. Nie
-gwarantuje jednak, że **każda** OSOBA ma jakikolwiek paszport (to tzw. *obowiązkowy
-udział* — *mandatory participation* — po stronie OSOBA). Sam schemat relacyjny nie
-ma wygodnego sposobu, by wymusić "musi istnieć dokładnie jeden wiersz powiązany" —
-w praktyce robi się to na poziomie aplikacji albo triggerem, nie samymi
-`PRIMARY KEY`/`FOREIGN KEY`/`UNIQUE`. Warto rozróżniać "związek jest 1:1" (o
-*krotności*) od "udział jest obowiązkowy" (o tym, czy strona może nie mieć
-odpowiednika) — to dwa osobne pytania o ten sam związek.
-:::
-
-„Jeśli obie strony są naprawdę w relacji 1:1, można też rozważyć połączenie tych tabel — ale zwykle zostawia się je osobno, gdy przechowują różne grupy informacji
-
-### 🔹 5. Związki 1:N
-
-To najczęstszy przypadek w praktyce.
-
-Przykład: Jeden wykładowca prowadzi wiele kursów.
+### Uczestnik i jego tożsamość
 
 ```sql
-WYKŁADOWCA(IDWykładowcy, Imię, Nazwisko)
-KURS(IDKursu, Nazwa, IDWykładowcy)
+CREATE TABLE participants (
+    participant_id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL
+) STRICT;
+INSERT INTO participants VALUES
+    ('U1', 'Ada'), ('U2', 'Bartek'), ('U3', 'Celina');
+SELECT * FROM participants ORDER BY participant_id;
 ```
 
-IDWykładowcy w tabeli KURS jest kluczem obcym.
+`PRIMARY KEY` (klucz główny) identyfikuje wiersz. `NOT NULL` zabrania braku
+wartości; `TEXT` określa jej typ. Imię nie jest identyfikatorem: wiele osób
+może mieć to samo imię. W tym projekcie nie potrzebujemy PESEL-u.
 
-„Pamiętajcie: klucz obcy zawsze dodajemy po stronie N, czyli po tej, gdzie może być więcej rekordów.”
+**Przewidźcie:** co się stanie, gdy dodamy Daniela jako U1? Czy wynik zależy od
+tego, że ma inne imię? Sprawdźcie też różnicę między `NULL` i pustym tekstem:
+`NOT NULL` nie zakazuje automatycznie pustego napisu.
 
-### 🔹 6. Związki N:M
-
-To przypadek „wiele do wielu” — np. student może uczestniczyć w wielu kursach, a każdy kurs ma wielu studentów.
-
-W tym wypadku nie da się dodać klucza obcego do jednej z tabel, więc tworzymy tabelę pośredniczącą.
+## Kurs i edycja: odwzorowanie 1:N
 
 ```sql
-STUDENT(NrIndeksu, Imię, Nazwisko)
-KURS(IDKursu, Nazwa)
-ZAPIS(NrIndeksu, IDKursu, DataZapisu)
+CREATE TABLE courses (
+    course_id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL
+) STRICT;
+INSERT INTO courses VALUES
+    ('K1', 'Obsluga wyposazenia'),
+    ('K2', 'Pierwsza pomoc');
+CREATE TABLE editions (
+    edition_id TEXT NOT NULL PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(course_id),
+    starts_at TEXT NOT NULL,
+    seat_limit INTEGER NOT NULL CHECK (seat_limit > 0)
+) STRICT;
+INSERT INTO editions VALUES
+    ('E1', 'K1', '2027-02-01 08:00', 2),
+    ('E2', 'K1', '2027-02-01 10:00', 4),
+    ('E3', 'K2', '2027-02-01 12:00', 4);
 ```
-„Ta trzecia tabela to tak naprawdę odwzorowanie związku.
-Dzięki niej możemy np. zapisać dodatkowe informacje o relacji — np. datę zapisania się na kurs.”
 
+`FOREIGN KEY` (klucz obcy), tutaj zapisany przez `REFERENCES`, wymaga poprawnego
+odwołania do kursu. Dla tego związku 1:N umieszczamy je po stronie wielu, czyli
+w edycji. E1 i E2 wskazują K1, lecz pozostają różnymi edycjami.
 
-### 5. Jak projektować dobre tabele?
+`NOT NULL` wymaga przypisania kursu każdej edycji. Nie wynika z tego, że każdy
+kurs musi już mieć edycję. To różnica między maksymalną licznością a obowiązkowym udziałem.
 
-Kiedy masz już relacje, czas je zdefiniować w SQL.
+**Przewidźcie:** czy baza przyjmie edycję nieistniejącego K99? Czy przyjmie limit 0?
+Zwróćcie uwagę, że są to dwie różne reguły: klucz obcy i `CHECK`.
 
-Tu warto podkreślić kilka zasad:
+## Zapis: odwzorowanie N:M
 
-- Czytelne nazwy (jednolite, najlepiej w liczbie pojedynczej).
-- Typy danych dopasowane do zawartości.
-- Ograniczenia (constraints):
-- PRIMARY KEY – jednoznaczna identyfikacja,
-- FOREIGN KEY – zapewnia spójność,
-- NOT NULL, UNIQUE, CHECK – wymuszają poprawność danych.
+Jedna osoba może uczestniczyć w wielu edycjach, a edycja przyjmuje wiele osób.
+Jedna kolumna `edition_id` w uczestniku nie opisze tego bez utraty informacji.
+Tworzymy tabelę łączącą, która przechowuje również cechy związku.
 
-Przykład SQL:
 ```sql
-CREATE TABLE STUDENT (
-  NrIndeksu CHAR(6) PRIMARY KEY,
-  Imie VARCHAR(30) NOT NULL,
-  Nazwisko VARCHAR(40) NOT NULL
-);
+CREATE TABLE enrollments (
+    participant_id TEXT NOT NULL
+        REFERENCES participants(participant_id),
+    edition_id TEXT NOT NULL REFERENCES editions(edition_id),
+    status TEXT NOT NULL
+        CHECK (status IN ('confirmed', 'cancelled')),
+    PRIMARY KEY (participant_id, edition_id)
+) STRICT;
+INSERT INTO enrollments VALUES
+    ('U1', 'E1', 'confirmed'),
+    ('U2', 'E1', 'confirmed'),
+    ('U3', 'E2', 'confirmed'),
+    ('U2', 'E2', 'cancelled');
 ```
 
-„To dopiero teraz jest konkretna implementacja — coś, co można utworzyć w PostgreSQL, MySQL czy Oracle.
+Klucz złożony obejmuje **parę** identyfikatorów. U2 może wystąpić w wielu
+wierszach; E2 również. Nie wolno jednak powtórzyć tej samej pary U2–E2.
+Dwa klucze obce same nie zapewniają unikalności pary.
 
-Ale zanim napiszemy SQL, zawsze powinniśmy mieć dobrze przemyślany model relacyjny.”
+Status opisuje zapis, nie całego uczestnika ani całą edycję. Bartek może mieć
+`confirmed` na E1 i `cancelled` na E2, podczas gdy Celina ma `confirmed` na E2.
+Ponowne zgłoszenie Bartka aktualizuje istniejący zapis po kontroli miejsc.
 
-### 6. Ćwiczenie praktyczne
+```{mermaid}
+erDiagram
+    courses ||--o{ editions : ma
+    participants ||--o{ enrollments : posiada
+    editions ||--o{ enrollments : obejmuje
+```
 
-> Zadanie:
-> Zaprojektuj schemat relacyjny dla firmy, w której pracownicy realizują projekty.
-> Każdy projekt ma wielu pracowników, a każdy pracownik może uczestniczyć w wielu projektach.
-> Dodatkowo pamiętamy od kiedy pracownik uczestniczy w projekcie.
+Diagram przedstawia powiązania czterech tabel. Nie pokazuje wszystkich ograniczeń,
+np. limitu liczby potwierdzonych zapisów. W DB Browser strukturę oglądamy w
+**Database Structure**, dane w **Browse Data**, a polecenia wykonujemy w
+**Execute SQL**. Ten rysunek jest ilustracją modelu, nie automatycznym widokiem programu.
 
-## Podsumowanie:
+## Próby naruszenia reguł
 
-„Dziś nauczyliśmy się tłumaczyć język analityków (ERD) na język baz danych (model relacyjny).”
+Przed każdą operacją odpowiedzcie: przyjęta czy odrzucona, i dlaczego?
 
-- Encje → tabele
-- Atrybuty → kolumny
-- Związki → klucze obce lub tabele pośrednie
-- Atrybuty złożone → rozbijamy
-- Atrybuty wielowartościowe → osobne tabele
+1. Nowa osoba z istniejącym identyfikatorem U1.
+2. Edycja wskazująca nieistniejący kurs.
+3. Drugi zapis tej samej osoby do tej samej edycji.
+4. Zapis nieistniejącego uczestnika.
+5. Status `banana` zamiast jednej z dozwolonych wartości.
+6. Usunięcie Bartka, kiedy istnieją jego zapisy.
 
-👉 Zanim dojdziemy do normalizacji (porządkowania tabel, by unikać błędów i redundancji — wykład 5), kolejny wykład to SQL: nauczymy się faktycznie tworzyć i wypełniać tabele, które dziś zaprojektowaliśmy na papierze.
+Powiązania mają tu domyślne zachowanie przy usuwaniu. Nie deklarujemy
+`ON DELETE CASCADE`. Baza z włączoną kontrolą kluczy obcych odrzuci usunięcie
+uczestnika, które pozostawiłoby zapisy bez poprawnego odwołania.
 
+## Zmiana jednego zapisu
+
+```sql
+UPDATE enrollments SET status = 'cancelled'
+WHERE participant_id = 'U2' AND edition_id = 'E1';
+```
+
+Dlaczego potrzebujemy obu warunków? Ograniczenie tylko do U2 zmieniłoby
+wszystkie zapisy Bartka. Brak `WHERE` zmieniłby wszystkie wiersze.
+Sam uczestnik i jego zapis na E2 pozostają bez zmian.
+
+Jedno pole statusu przechowuje aktualny stan. Po sekwencji potwierdzenie,
+rezygnacja, ponowne potwierdzenie nie odtworzymy dat i liczby zmian bez
+osobnego rejestru zdarzeń. Pełna historia nie jest obecnie wymaganiem.
+
+## Czy można przekroczyć limit mimo poprawnych kluczy?
+
+Przywracamy podstawowy stan: na E1 są Ada i Bartek, limit wynosi 2.
+Następnie próbujemy dopisać Celinę:
+
+```sql
+INSERT INTO enrollments VALUES ('U3', 'E1', 'confirmed');
+```
+
+Ta operacja zostanie przyjęta przez pokazany schemat. Wszystkie odwołania są
+poprawne, para jest nowa, status dozwolony. `CHECK (seat_limit > 0)` sprawdza
+wartość limitu, a nie liczbę zapisów w innej tabeli.
+
+To nie jest kompletny system przyjmowania zgłoszeń. Ochrona limitu wymaga
+dodatkowego mechanizmu, który obejmie sprawdzenie i modyfikację również przy
+równoczesnych operacjach. W SQLite nie umieścimy podzapytania w zwykłym `CHECK`.
+Dzisiaj rozpoznajemy brakującą ochronę, zamiast udawać, że sam diagram ją zapewnia.
+
+## Uzupełnienie reguł mapowania
+
+### Atrybut złożony i wielowartościowy
+
+Adres może zostać rozbity na ulicę, kod pocztowy i miasto, jeżeli te części
+mają samodzielne znaczenie w wymaganiach. Nie twierdzimy, że z tekstowego adresu
+nie da się nic wyszukać; oddzielne kolumny dają bardziej jednoznaczną strukturę.
+
+Wiele telefonów uczestnika odwzorowujemy w osobnej tabeli, np.
+`participant_phones(participant_id, phone)`, z kluczem pary i odwołaniem do osoby.
+Nie dodajemy kolumn `phone1`, `phone2`, `phone3`, gdy liczba telefonów nie jest
+stałym wymaganiem. Obsługa JSON w niektórych bazach nie zastępuje automatycznie
+tego sposobu modelowania.
+
+### Związek 1:1
+
+Jeżeli w uproszczonym systemie jedna osoba ma najwyżej jedną aktualną kartę
+wstępu, tabela kart może mieć `participant_id NOT NULL UNIQUE` oraz klucz obcy
+do uczestnika. Klucz obcy chroni istnienie osoby; `UNIQUE` ogranicza liczbę kart
+na osobę. Nie wymusza to, aby każda osoba miała kartę. Obowiązkowy udział po obu
+stronach jest dodatkowym wymaganiem.
+
+## Co zabieramy na następne zajęcia?
+
+Potrafimy wyjaśnić, dlaczego istnieje każda tabela, gdzie znajdują się klucze
+oraz jaki błąd blokuje dane ograniczenie. Na wykładzie 4 rozwiniemy SQL:
+odczytywanie, filtrowanie, łączenie i zmienianie danych. Dzisiejszy pokaz służy
+sprawdzeniu projektu; nie wymaga zapamiętania całej składni.
+
+[Zadanie towarzyszące pokazowi](../scenariusze.qmd#wyklad-3).
+
+Źródła techniczne: [SQLite: klucze obce](https://www.sqlite.org/foreignkeys.html),
+[tabele STRICT](https://www.sqlite.org/stricttables.html),
+[ograniczenia CHECK](https://www.sqlite.org/lang_createtable.html).

@@ -233,4 +233,17 @@ Formularz powyżej służy do notatki z wykładu 1 i nie przyjmuje załącznikó
 z diagramami. Test na początku wykładu 2 wypełniacie indywidualnie; jest oddzielny
 od pracy projektowej w parach.
 
+## Wykład 3 — Sprawdźcie, czy baza chroni projekt {#wyklad-3}
+
+[Test i materiał](lectures/wyklad3.qmd). Test wykonujecie indywidualnie, a podczas
+pokazu rozmawiacie w parach. Nie trzeba instalować SQLite ani oddawać kolejnego diagramu.
+
+Przez cały pokaz zapisujcie krótką tabelę: **operacja / przewidywany wynik /
+zaobserwowany wynik / reguła**. Uwzględnijcie duplikat identyfikatora, niepoprawne
+odwołanie, duplikat zapisu oraz próbę przekroczenia limitu.
+
+Na koniec wskażcie jedną odrzuconą operację i jedną błędną biznesowo operację,
+którą baza przyjęła. Wyjaśnijcie różnicę. Pokażcie notatkę prowadzącemu i zachowajcie
+ją na kolejne zajęcia. Formularz z wykładu 1 nie jest formularzem tego zadania.
+
 Kolejne karty będą udostępniane wraz z następnymi zajęciami.

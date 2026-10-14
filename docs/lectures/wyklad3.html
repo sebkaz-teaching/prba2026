@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Od modelu ER do modelu relacyjnego – Projektowanie Relacyjnych Baz Danych</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-94ae530b1fc9924793afbc3bb7de9d3b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wykłady</a></li><li class="breadcrumb-item"><a href="../lectures/wyklad3.html">Od modelu ER do modelu relacyjnego</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Projektowanie Relacyjnych Baz Danych</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Informacje ogólne</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Wykłady</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wprowadzenie do relacyjnych baz danych</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Projektowanie koncepcyjne – model ER (Entity-Relationship)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad3.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Od modelu ER do modelu relacyjnego</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title"><strong>Sections</strong></h2>
+   
+  <ul class="collapse">
+  <li><a href="#sprawdź-się-z-wykładu-2" id="toc-sprawdź-się-z-wykładu-2" class="nav-link active" data-scroll-target="#sprawdź-się-z-wykładu-2">✅ Sprawdź się z wykładu 2</a></li>
+  <li><a href="#od-diagramu-do-działającej-bazy" id="toc-od-diagramu-do-działającej-bazy" class="nav-link" data-scroll-target="#od-diagramu-do-działającej-bazy">Od diagramu do działającej bazy</a></li>
+  <li><a href="#cztery-obiekty-które-zamienimy-w-tabele" id="toc-cztery-obiekty-które-zamienimy-w-tabele" class="nav-link" data-scroll-target="#cztery-obiekty-które-zamienimy-w-tabele">Cztery obiekty, które zamienimy w tabele</a></li>
+  <li><a href="#pusta-baza-i-pierwsze-reguły" id="toc-pusta-baza-i-pierwsze-reguły" class="nav-link" data-scroll-target="#pusta-baza-i-pierwsze-reguły">Pusta baza i pierwsze reguły</a></li>
+  <li><a href="#kurs-i-edycja-odwzorowanie-1n" id="toc-kurs-i-edycja-odwzorowanie-1n" class="nav-link" data-scroll-target="#kurs-i-edycja-odwzorowanie-1n">Kurs i edycja: odwzorowanie 1:N</a></li>
+  <li><a href="#zapis-odwzorowanie-nm" id="toc-zapis-odwzorowanie-nm" class="nav-link" data-scroll-target="#zapis-odwzorowanie-nm">Zapis: odwzorowanie N:M</a></li>
+  <li><a href="#próby-naruszenia-reguł" id="toc-próby-naruszenia-reguł" class="nav-link" data-scroll-target="#próby-naruszenia-reguł">Próby naruszenia reguł</a></li>
+  <li><a href="#zmiana-jednego-zapisu" id="toc-zmiana-jednego-zapisu" class="nav-link" data-scroll-target="#zmiana-jednego-zapisu">Zmiana jednego zapisu</a></li>
+  <li><a href="#czy-można-przekroczyć-limit-mimo-poprawnych-kluczy" id="toc-czy-można-przekroczyć-limit-mimo-poprawnych-kluczy" class="nav-link" data-scroll-target="#czy-można-przekroczyć-limit-mimo-poprawnych-kluczy">Czy można przekroczyć limit mimo poprawnych kluczy?</a></li>
+  <li><a href="#uzupełnienie-reguł-mapowania" id="toc-uzupełnienie-reguł-mapowania" class="nav-link" data-scroll-target="#uzupełnienie-reguł-mapowania">Uzupełnienie reguł mapowania</a></li>
+  <li><a href="#co-zabieramy-na-następne-zajęcia" id="toc-co-zabieramy-na-następne-zajęcia" class="nav-link" data-scroll-target="#co-zabieramy-na-następne-zajęcia">Co zabieramy na następne zajęcia?</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wykłady</a></li><li class="breadcrumb-item"><a href="../lectures/wyklad3.html">Od modelu ER do modelu relacyjnego</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Od modelu ER do modelu relacyjnego</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sprawdź-się-z-wykładu-2" class="level2">
+<h2 class="anchored" data-anchor-id="sprawdź-się-z-wykładu-2">✅ Sprawdź się z wykładu 2</h2>
+<div id="rsod-quiz">
+
+</div>
+<script src="../assets/js/quiz-engine.js"></script>
+<script>
+CourseQuiz.mount(document.getElementById('rsod-quiz'), {
+  course: "prba2026",
+  lecture: "wyklad3",
+  title: "Wykład 2: Projektowanie koncepcyjne – model ER",
+  submitUrl: "https://sebastianzajac.pl/rsod-quiz/submit.php",
+  questions: [
+    {
+      id: "q1", points: 1, diff: "bardzo łatwe",
+      text: "Jak na diagramie ERD rysujemy encje?",
+      options: [
+        {v:"A", t:"Jako romby"},
+        {v:"B", t:"Jako prostokąty"},
+        {v:"C", t:"Jako elipsy"},
+        {v:"D", t:"Jako strzałki"}
+      ]
+    },
+    {
+      id: "q2", points: 1, diff: "łatwe",
+      text: "Związek 1:N oznacza, że:",
+      options: [
+        {v:"A", t:"Każdy obiekt A odpowiada najwyżej jednemu obiektowi B"},
+        {v:"B", t:"Jeden obiekt A może być powiązany z wieloma obiektami B, ale nie odwrotnie"},
+        {v:"C", t:"Wiele obiektów A może być powiązanych z wieloma obiektami B"},
+        {v:"D", t:"To to samo co N:M"}
+      ]
+    },
+    {
+      id: "q3", points: 2, diff: "średnie",
+      text: "Atrybut „Adres” rozbity na Ulicę, Kod pocztowy i Miasto to przykład atrybutu:",
+      options: [
+        {v:"A", t:"Prostego"},
+        {v:"B", t:"Złożonego"},
+        {v:"C", t:"Wielowartościowego"},
+        {v:"D", t:"Kluczowego"}
+      ]
+    },
+    {
+      id: "q4", points: 2, diff: "trudne",
+      text: "„Numery telefonów”, których student może mieć kilka, to atrybut:",
+      options: [
+        {v:"A", t:"Prosty"},
+        {v:"B", t:"Złożony"},
+        {v:"C", t:"Wielowartościowy"},
+        {v:"D", t:"Domenowy"}
+      ]
+    },
+    {
+      id: "q5", points: 3, diff: "wnioskowanie",
+      text: "W przykładzie „kino” (Film, Widz, Seans) widz ogląda wiele filmów, a film jest oglądany przez wielu widzów. Do jakiego typu związku to należy, i ile rombów potrzeba, by opisać to na samym diagramie ERD?",
+      options: [
+        {v:"A", t:"1:1 — wystarczy jeden romb „Ogląda”"},
+        {v:"B", t:"1:N — wystarczy jeden romb, bo film „ma” widzów"},
+        {v:"C", t:"N:M — jeden romb „Ogląda” nadal wystarczy na poziomie ERD; tabela pośrednicząca to dopiero etap modelu relacyjnego"},
+        {v:"D", t:"N:M — trzeba narysować dwa oddzielne romby, po jednym na każdy kierunek"}
+      ]
+    }
+  ]
+});
+</script>
+</section>
+<section id="od-diagramu-do-działającej-bazy" class="level2">
+<h2 class="anchored" data-anchor-id="od-diagramu-do-działającej-bazy">Od diagramu do działającej bazy</h2>
+<p>Na poprzednim spotkaniu ustaliliśmy, jakie obiekty opisuje ośrodek „Dąb”. Teraz sprawdzimy, czy potrafimy zapisać te ustalenia w bazie i rozpoznać niepoprawne operacje. <strong>Model relacyjny opisuje logiczną strukturę danych</strong>: relacje, atrybuty, klucze i ograniczenia. Nie opisuje fizycznego rozmieszczenia bajtów na dysku.</p>
+<p>Przez cały pokaz budujemy jeden przykład. Prowadzący uruchamia polecenia w SQLite; Waszym zadaniem jest przewidywać wyniki i proponować próby naruszenia reguł. Nie trzeba jeszcze samodzielnie odtwarzać całej składni SQL.</p>
+</section>
+<section id="cztery-obiekty-które-zamienimy-w-tabele" class="level2">
+<h2 class="anchored" data-anchor-id="cztery-obiekty-które-zamienimy-w-tabele">Cztery obiekty, które zamienimy w tabele</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Pojęcie</th>
+<th>Tabela</th>
+<th>Co opisuje jeden wiersz?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Uczestnik</td>
+<td><code>participants</code></td>
+<td>Jedną osobę, np. U2 Bartek</td>
+</tr>
+<tr class="even">
+<td>Kurs</td>
+<td><code>courses</code></td>
+<td>Temat szkolenia, np. K1</td>
+</tr>
+<tr class="odd">
+<td>Edycja</td>
+<td><code>editions</code></td>
+<td>Konkretne przeprowadzenie kursu, np. E1</td>
+</tr>
+<tr class="even">
+<td>Zapis</td>
+<td><code>enrollments</code></td>
+<td>Udział jednej osoby w jednej edycji</td>
+</tr>
+</tbody>
+</table>
+<p>W tym prostym modelu typy encji odwzorowujemy na tabele, a ich proste atrybuty na kolumny. Konkretny obiekt odpowiada wierszowi. Nie każdy model ER daje jednak mechanicznie jedną tabelę na każdy prostokąt: znaczenie mają również związki, atrybuty wielowartościowe i sposób modelowania specjalizacji.</p>
+<p>Sale i prowadzący nadal należą do pełnego projektu. Dzisiejszy pokaz jest jego wycinkiem; nie implementujemy jeszcze reguł kolizji terminów.</p>
+</section>
+<section id="pusta-baza-i-pierwsze-reguły" class="level2">
+<h2 class="anchored" data-anchor-id="pusta-baza-i-pierwsze-reguły">Pusta baza i pierwsze reguły</h2>
+<p>W SQLite sprawdzamy ustawienia używanego połączenia:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>PRAGMA foreign_keys <span class="op">=</span> <span class="kw">ON</span>;</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>PRAGMA foreign_keys;</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> sqlite_version();</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Wynik <code>foreign_keys</code> powinien wynosić 1. Ustawienie włączamy poza transakcją; po ponownym połączeniu sprawdzamy je ponownie. Przykłady korzystają z tabel <code>STRICT</code>, wymagających SQLite co najmniej 3.37.0.</p>
+<section id="uczestnik-i-jego-tożsamość" class="level3">
+<h3 class="anchored" data-anchor-id="uczestnik-i-jego-tożsamość">Uczestnik i jego tożsamość</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> participants (</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    participant_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    name TEXT <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> participants <span class="kw">VALUES</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U1'</span>, <span class="st">'Ada'</span>), (<span class="st">'U2'</span>, <span class="st">'Bartek'</span>), (<span class="st">'U3'</span>, <span class="st">'Celina'</span>);</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> participants <span class="kw">ORDER</span> <span class="kw">BY</span> participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>PRIMARY KEY</code> (klucz główny) identyfikuje wiersz. <code>NOT NULL</code> zabrania braku wartości; <code>TEXT</code> określa jej typ. Imię nie jest identyfikatorem: wiele osób może mieć to samo imię. W tym projekcie nie potrzebujemy PESEL-u.</p>
+<p><strong>Przewidźcie:</strong> co się stanie, gdy dodamy Daniela jako U1? Czy wynik zależy od tego, że ma inne imię? Sprawdźcie też różnicę między <code>NULL</code> i pustym tekstem: <code>NOT NULL</code> nie zakazuje automatycznie pustego napisu.</p>
+</section>
+</section>
+<section id="kurs-i-edycja-odwzorowanie-1n" class="level2">
+<h2 class="anchored" data-anchor-id="kurs-i-edycja-odwzorowanie-1n">Kurs i edycja: odwzorowanie 1:N</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> courses (</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    course_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    name TEXT <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> courses <span class="kw">VALUES</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'K1'</span>, <span class="st">'Obsluga wyposazenia'</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'K2'</span>, <span class="st">'Pierwsza pomoc'</span>);</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> editions (</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    edition_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    course_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">REFERENCES</span> courses(course_id),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    starts_at TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    seat_limit <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (seat_limit <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> editions <span class="kw">VALUES</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'E1'</span>, <span class="st">'K1'</span>, <span class="st">'2027-02-01 08:00'</span>, <span class="dv">2</span>),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'E2'</span>, <span class="st">'K1'</span>, <span class="st">'2027-02-01 10:00'</span>, <span class="dv">4</span>),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'E3'</span>, <span class="st">'K2'</span>, <span class="st">'2027-02-01 12:00'</span>, <span class="dv">4</span>);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>FOREIGN KEY</code> (klucz obcy), tutaj zapisany przez <code>REFERENCES</code>, wymaga poprawnego odwołania do kursu. Dla tego związku 1:N umieszczamy je po stronie wielu, czyli w edycji. E1 i E2 wskazują K1, lecz pozostają różnymi edycjami.</p>
+<p><code>NOT NULL</code> wymaga przypisania kursu każdej edycji. Nie wynika z tego, że każdy kurs musi już mieć edycję. To różnica między maksymalną licznością a obowiązkowym udziałem.</p>
+<p><strong>Przewidźcie:</strong> czy baza przyjmie edycję nieistniejącego K99? Czy przyjmie limit 0? Zwróćcie uwagę, że są to dwie różne reguły: klucz obcy i <code>CHECK</code>.</p>
+</section>
+<section id="zapis-odwzorowanie-nm" class="level2">
+<h2 class="anchored" data-anchor-id="zapis-odwzorowanie-nm">Zapis: odwzorowanie N:M</h2>
+<p>Jedna osoba może uczestniczyć w wielu edycjach, a edycja przyjmuje wiele osób. Jedna kolumna <code>edition_id</code> w uczestniku nie opisze tego bez utraty informacji. Tworzymy tabelę łączącą, która przechowuje również cechy związku.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> enrollments (</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    participant_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">REFERENCES</span> participants(participant_id),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    edition_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">REFERENCES</span> editions(edition_id),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    status TEXT <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">CHECK</span> (status <span class="kw">IN</span> (<span class="st">'confirmed'</span>, <span class="st">'cancelled'</span>)),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (participant_id, edition_id)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> enrollments <span class="kw">VALUES</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U1'</span>, <span class="st">'E1'</span>, <span class="st">'confirmed'</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U2'</span>, <span class="st">'E1'</span>, <span class="st">'confirmed'</span>),</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U3'</span>, <span class="st">'E2'</span>, <span class="st">'confirmed'</span>),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U2'</span>, <span class="st">'E2'</span>, <span class="st">'cancelled'</span>);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Klucz złożony obejmuje <strong>parę</strong> identyfikatorów. U2 może wystąpić w wielu wierszach; E2 również. Nie wolno jednak powtórzyć tej samej pary U2–E2. Dwa klucze obce same nie zapewniają unikalności pary.</p>
+<p>Status opisuje zapis, nie całego uczestnika ani całą edycję. Bartek może mieć <code>confirmed</code> na E1 i <code>cancelled</code> na E2, podczas gdy Celina ma <code>confirmed</code> na E2. Ponowne zgłoszenie Bartka aktualizuje istniejący zapis po kontroli miejsc.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">erDiagram
+    courses ||--o{ editions : ma
+    participants ||--o{ enrollments : posiada
+    editions ||--o{ enrollments : obejmuje
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Diagram przedstawia powiązania czterech tabel. Nie pokazuje wszystkich ograniczeń, np. limitu liczby potwierdzonych zapisów. W DB Browser strukturę oglądamy w <strong>Database Structure</strong>, dane w <strong>Browse Data</strong>, a polecenia wykonujemy w <strong>Execute SQL</strong>. Ten rysunek jest ilustracją modelu, nie automatycznym widokiem programu.</p>
+</section>
+<section id="próby-naruszenia-reguł" class="level2">
+<h2 class="anchored" data-anchor-id="próby-naruszenia-reguł">Próby naruszenia reguł</h2>
+<p>Przed każdą operacją odpowiedzcie: przyjęta czy odrzucona, i dlaczego?</p>
+<ol type="1">
+<li>Nowa osoba z istniejącym identyfikatorem U1.</li>
+<li>Edycja wskazująca nieistniejący kurs.</li>
+<li>Drugi zapis tej samej osoby do tej samej edycji.</li>
+<li>Zapis nieistniejącego uczestnika.</li>
+<li>Status <code>banana</code> zamiast jednej z dozwolonych wartości.</li>
+<li>Usunięcie Bartka, kiedy istnieją jego zapisy.</li>
+</ol>
+<p>Powiązania mają tu domyślne zachowanie przy usuwaniu. Nie deklarujemy <code>ON DELETE CASCADE</code>. Baza z włączoną kontrolą kluczy obcych odrzuci usunięcie uczestnika, które pozostawiłoby zapisy bez poprawnego odwołania.</p>
+</section>
+<section id="zmiana-jednego-zapisu" class="level2">
+<h2 class="anchored" data-anchor-id="zmiana-jednego-zapisu">Zmiana jednego zapisu</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> enrollments <span class="kw">SET</span> status <span class="op">=</span> <span class="st">'cancelled'</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> participant_id <span class="op">=</span> <span class="st">'U2'</span> <span class="kw">AND</span> edition_id <span class="op">=</span> <span class="st">'E1'</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Dlaczego potrzebujemy obu warunków? Ograniczenie tylko do U2 zmieniłoby wszystkie zapisy Bartka. Brak <code>WHERE</code> zmieniłby wszystkie wiersze. Sam uczestnik i jego zapis na E2 pozostają bez zmian.</p>
+<p>Jedno pole statusu przechowuje aktualny stan. Po sekwencji potwierdzenie, rezygnacja, ponowne potwierdzenie nie odtworzymy dat i liczby zmian bez osobnego rejestru zdarzeń. Pełna historia nie jest obecnie wymaganiem.</p>
+</section>
+<section id="czy-można-przekroczyć-limit-mimo-poprawnych-kluczy" class="level2">
+<h2 class="anchored" data-anchor-id="czy-można-przekroczyć-limit-mimo-poprawnych-kluczy">Czy można przekroczyć limit mimo poprawnych kluczy?</h2>
+<p>Przywracamy podstawowy stan: na E1 są Ada i Bartek, limit wynosi 2. Następnie próbujemy dopisać Celinę:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> enrollments <span class="kw">VALUES</span> (<span class="st">'U3'</span>, <span class="st">'E1'</span>, <span class="st">'confirmed'</span>);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ta operacja zostanie przyjęta przez pokazany schemat. Wszystkie odwołania są poprawne, para jest nowa, status dozwolony. <code>CHECK (seat_limit &gt; 0)</code> sprawdza wartość limitu, a nie liczbę zapisów w innej tabeli.</p>
+<p>To nie jest kompletny system przyjmowania zgłoszeń. Ochrona limitu wymaga dodatkowego mechanizmu, który obejmie sprawdzenie i modyfikację również przy równoczesnych operacjach. W SQLite nie umieścimy podzapytania w zwykłym <code>CHECK</code>. Dzisiaj rozpoznajemy brakującą ochronę, zamiast udawać, że sam diagram ją zapewnia.</p>
+</section>
+<section id="uzupełnienie-reguł-mapowania" class="level2">
+<h2 class="anchored" data-anchor-id="uzupełnienie-reguł-mapowania">Uzupełnienie reguł mapowania</h2>
+<section id="atrybut-złożony-i-wielowartościowy" class="level3">
+<h3 class="anchored" data-anchor-id="atrybut-złożony-i-wielowartościowy">Atrybut złożony i wielowartościowy</h3>
+<p>Adres może zostać rozbity na ulicę, kod pocztowy i miasto, jeżeli te części mają samodzielne znaczenie w wymaganiach. Nie twierdzimy, że z tekstowego adresu nie da się nic wyszukać; oddzielne kolumny dają bardziej jednoznaczną strukturę.</p>
+<p>Wiele telefonów uczestnika odwzorowujemy w osobnej tabeli, np. <code>participant_phones(participant_id, phone)</code>, z kluczem pary i odwołaniem do osoby. Nie dodajemy kolumn <code>phone1</code>, <code>phone2</code>, <code>phone3</code>, gdy liczba telefonów nie jest stałym wymaganiem. Obsługa JSON w niektórych bazach nie zastępuje automatycznie tego sposobu modelowania.</p>
+</section>
+<section id="związek-11" class="level3">
+<h3 class="anchored" data-anchor-id="związek-11">Związek 1:1</h3>
+<p>Jeżeli w uproszczonym systemie jedna osoba ma najwyżej jedną aktualną kartę wstępu, tabela kart może mieć <code>participant_id NOT NULL UNIQUE</code> oraz klucz obcy do uczestnika. Klucz obcy chroni istnienie osoby; <code>UNIQUE</code> ogranicza liczbę kart na osobę. Nie wymusza to, aby każda osoba miała kartę. Obowiązkowy udział po obu stronach jest dodatkowym wymaganiem.</p>
+</section>
+</section>
+<section id="co-zabieramy-na-następne-zajęcia" class="level2">
+<h2 class="anchored" data-anchor-id="co-zabieramy-na-następne-zajęcia">Co zabieramy na następne zajęcia?</h2>
+<p>Potrafimy wyjaśnić, dlaczego istnieje każda tabela, gdzie znajdują się klucze oraz jaki błąd blokuje dane ograniczenie. Na wykładzie 4 rozwiniemy SQL: odczytywanie, filtrowanie, łączenie i zmienianie danych. Dzisiejszy pokaz służy sprawdzeniu projektu; nie wymaga zapamiętania całej składni.</p>
+<p><a href="../scenariusze.html#wyklad-3">Zadanie towarzyszące pokazowi</a>.</p>
+<p>Źródła techniczne: <a href="https://www.sqlite.org/foreignkeys.html">SQLite: klucze obce</a>, <a href="https://www.sqlite.org/stricttables.html">tabele STRICT</a>, <a href="https://www.sqlite.org/lang_createtable.html">ograniczenia CHECK</a>.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/sebkaz-teaching\.github\.io\/prba2026");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright 2026, Sebastian Zając</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
