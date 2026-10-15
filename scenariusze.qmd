@@ -246,4 +246,20 @@ Na koniec wskażcie jedną odrzuconą operację i jedną błędną biznesowo ope
 którą baza przyjęła. Wyjaśnijcie różnicę. Pokażcie notatkę prowadzącemu i zachowajcie
 ją na kolejne zajęcia. Formularz z wykładu 1 nie jest formularzem tego zadania.
 
+## Wykład 4 — Czy raport mówi prawdę? {#wyklad-4}
+
+[Materiał i zapytania](lectures/wyklad4.qmd). Na tym spotkaniu nie ma testu.
+Obserwujecie jeden pokaz na bazie ośrodka „Dąb”; nie tworzycie kolejnego projektu.
+
+1. Porównajcie raport liczący wszystkie zapisy, raport potwierdzonych zapisów
+   i raport wszystkich edycji. Wyjaśnijcie, skąd bierze się brak E3 i dlaczego
+   `COUNT(*)` po lewym złączeniu może dać 1 dla pustej edycji.
+2. Przewidźcie wolne miejsca po rezygnacji Bartka z E1. Następnie wyjaśnijcie,
+   dlaczego dodanie Ady do drugiej edycji zwiększa liczbę zapisów na kurs,
+   ale nie liczbę różnych osób.
+
+Efekt: jedna krótka notatka pary z dwoma przykładami raportu, który ma poprawną
+składnię, ale nie odpowiada na pytanie klienta. Każda osoba uzasadnia jeden
+przypadek. Notatkę omawiamy na zajęciach; nie wysyłamy jej formularzem wykładu 1.
+
 Kolejne karty będą udostępniane wraz z następnymi zajęciami.

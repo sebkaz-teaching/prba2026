@@ -146,6 +146,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Od modelu ER do modelu relacyjnego</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lectures/wyklad4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SQL w praktyce — czy raport mówi prawdę?</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -162,6 +168,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#wykład-1-ustalcie-co-ma-pamiętać-baza" id="toc-wykład-1-ustalcie-co-ma-pamiętać-baza" class="nav-link" data-scroll-target="#wykład-1-ustalcie-co-ma-pamiętać-baza">Wykład 1 — Ustalcie, co ma pamiętać baza</a></li>
   <li><a href="#wyklad-2" id="toc-wyklad-2" class="nav-link" data-scroll-target="#wyklad-2">Wykład 2 — Od wymagań do diagramu</a></li>
   <li><a href="#wyklad-3" id="toc-wyklad-3" class="nav-link" data-scroll-target="#wyklad-3">Wykład 3 — Sprawdźcie, czy baza chroni projekt</a></li>
+  <li><a href="#wyklad-4" id="toc-wyklad-4" class="nav-link" data-scroll-target="#wyklad-4">Wykład 4 — Czy raport mówi prawdę?</a></li>
   </ul>
 </nav>
     </div>
@@ -373,6 +380,15 @@ ul.task-list li input[type="checkbox"] {
 <p><a href="./lectures/wyklad3.html">Test i materiał</a>. Test wykonujecie indywidualnie, a podczas pokazu rozmawiacie w parach. Nie trzeba instalować SQLite ani oddawać kolejnego diagramu.</p>
 <p>Przez cały pokaz zapisujcie krótką tabelę: <strong>operacja / przewidywany wynik / zaobserwowany wynik / reguła</strong>. Uwzględnijcie duplikat identyfikatora, niepoprawne odwołanie, duplikat zapisu oraz próbę przekroczenia limitu.</p>
 <p>Na koniec wskażcie jedną odrzuconą operację i jedną błędną biznesowo operację, którą baza przyjęła. Wyjaśnijcie różnicę. Pokażcie notatkę prowadzącemu i zachowajcie ją na kolejne zajęcia. Formularz z wykładu 1 nie jest formularzem tego zadania.</p>
+</section>
+<section id="wyklad-4" class="level2">
+<h2 class="anchored" data-anchor-id="wyklad-4">Wykład 4 — Czy raport mówi prawdę?</h2>
+<p><a href="./lectures/wyklad4.html">Materiał i zapytania</a>. Na tym spotkaniu nie ma testu. Obserwujecie jeden pokaz na bazie ośrodka „Dąb”; nie tworzycie kolejnego projektu.</p>
+<ol type="1">
+<li>Porównajcie raport liczący wszystkie zapisy, raport potwierdzonych zapisów i raport wszystkich edycji. Wyjaśnijcie, skąd bierze się brak E3 i dlaczego <code>COUNT(*)</code> po lewym złączeniu może dać 1 dla pustej edycji.</li>
+<li>Przewidźcie wolne miejsca po rezygnacji Bartka z E1. Następnie wyjaśnijcie, dlaczego dodanie Ady do drugiej edycji zwiększa liczbę zapisów na kurs, ale nie liczbę różnych osób.</li>
+</ol>
+<p>Efekt: jedna krótka notatka pary z dwoma przykładami raportu, który ma poprawną składnię, ale nie odpowiada na pytanie klienta. Każda osoba uzasadnia jeden przypadek. Notatkę omawiamy na zajęciach; nie wysyłamy jej formularzem wykładu 1.</p>
 <p>Kolejne karty będą udostępniane wraz z następnymi zajęciami.</p>
 
 

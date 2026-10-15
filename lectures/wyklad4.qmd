@@ -1,365 +1,232 @@
 ---
-title: "Model Relacyjny i podstawy SQL"
+title: "SQL w praktyce — czy raport mówi prawdę?"
 ---
 
-## ✅ Sprawdź się z wykładu 3
+## Z gotowego projektu do odpowiedzi dla użytkownika
 
-<div id="rsod-quiz"></div>
-<script src="../assets/js/quiz-engine.js"></script>
-<script>
-CourseQuiz.mount(document.getElementById('rsod-quiz'), {
-  course: "prba2026",
-  lecture: "wyklad4",
-  title: "Wykład 3: Od modelu ER do modelu relacyjnego",
-  submitUrl: "https://sebastianzajac.pl/rsod-quiz/submit.php",
-  questions: [
-    {
-      id: "q1", points: 1, diff: "bardzo łatwe",
-      text: "Każda encja z modelu ER staje się w modelu relacyjnym:",
-      options: [
-        {v:"A", t:"Kolumną"},
-        {v:"B", t:"Tabelą"},
-        {v:"C", t:"Kluczem obcym"},
-        {v:"D", t:"Widokiem"}
-      ]
-    },
-    {
-      id: "q2", points: 1, diff: "łatwe",
-      text: "Jak przekształcamy atrybut złożony (np. Adres) do modelu relacyjnego?",
-      options: [
-        {v:"A", t:"Zostawiamy jako jedną kolumnę tekstową"},
-        {v:"B", t:"Rozbijamy na osobne kolumny (Ulica, KodPocztowy, Miasto)"},
-        {v:"C", t:"Tworzymy osobną tabelę połączoną 1:1"},
-        {v:"D", t:"Usuwamy go — model relacyjny nie obsługuje adresów"}
-      ]
-    },
-    {
-      id: "q3", points: 2, diff: "średnie",
-      text: "Po której stronie związku 1:N umieszczamy klucz obcy?",
-      options: [
-        {v:"A", t:"Po stronie „1”"},
-        {v:"B", t:"Po stronie „N”"},
-        {v:"C", t:"W obu tabelach"},
-        {v:"D", t:"W osobnej tabeli pośredniczącej"}
-      ]
-    },
-    {
-      id: "q4", points: 2, diff: "trudne",
-      text: "Jak realizuje się związek N:M w modelu relacyjnym?",
-      options: [
-        {v:"A", t:"Kluczem obcym w jednej z tabel"},
-        {v:"B", t:"Kluczem obcym w obu tabelach jednocześnie, bez dodatkowej tabeli"},
-        {v:"C", t:"Przez tabelę pośredniczącą zawierającą klucze obce obu encji"},
-        {v:"D", t:"N:M nie da się zrealizować relacyjnie"}
-      ]
-    },
-    {
-      id: "q5", points: 3, diff: "wnioskowanie",
-      text: "Atrybut wielowartościowy „Email” zamieniamy w tabelę EMAIL(NrIndeksu, Email). Jaki to związek między STUDENT a EMAIL, i czy zgadza się to z regułą „klucz obcy dodajemy po stronie N”?",
-      options: [
-        {v:"A", t:"1:1 — NrIndeksu jest kluczem obcym po obu stronach"},
-        {v:"B", t:"1:N (jeden student, wiele emaili) — NrIndeksu jako klucz obcy w EMAIL zgadza się z regułą klucza po stronie N"},
-        {v:"C", t:"N:M — potrzebna byłaby trzecia tabela pośrednicząca"},
-        {v:"D", t:"Nie da się tego sklasyfikować"}
-      ]
-    }
-  ]
-});
-</script>
+**Ten wykład nie ma testu.** Zaczynamy od działającej bazy ośrodka „Dąb” z poprzedniego
+spotkania. Nie tworzymy jeszcze raz tabel i nie zmieniamy przykładu na bibliotekę.
+Kierownik chce wiedzieć: kto przyjdzie, ile miejsc zostało i które szkolenia
+można jeszcze zaproponować uczestnikom.
 
+SQL, czyli **Structured Query Language** (strukturalny język zapytań), pozwala
+wyrazić takie pytania. Jest deklaratywny: opisujemy oczekiwany wynik, a silnik
+dobiera sposób wykonania. Poprawna składnia nie gwarantuje jednak poprawnej
+odpowiedzi biznesowej. Zapytanie może wykonać się bez błędu i policzyć coś innego,
+niż potrzebuje użytkownik. To główny problem dzisiejszego pokazu.
 
-## 1️⃣ Model relacyjny – przypomnienie i pojęcia podstawowe
+Prowadzący wykonuje zapytania w DB Browser for SQLite. Przed każdym wykonaniem
+przewidujemy wynik, a po nim porównujemy go z małym zbiorem kontrolnym.
+Samodzielne pisanie zapytań rozwiniemy na laboratoriach.
 
-### 🔹 Relacja = tabela
+## Stan, na którym sprawdzamy raport
 
-- Dane przechowywane w **tabelach** (relations)
-- Każdy **wiersz (row)** = rekord / krotka  
-- Każda **kolumna (column)** = atrybut  
-- **Dziedzina (domain)** = zbiór dopuszczalnych wartości w kolumnie
+| Edycja | Limit | Zapisy | Potwierdzone | Wolne miejsca |
+|---|---:|---|---:|---:|
+| E1, kurs K1 | 2 | Ada i Bartek confirmed | 2 | 0 |
+| E2, kurs K1 | 4 | Celina confirmed, Bartek cancelled | 1 | 3 |
+| E3, kurs K2 | 4 | Brak zapisów | 0 | 4 |
 
-| id | imie | nazwisko | rok_urodzenia |
-|----|-------|------------|----------------|
-| 1  | Adam  | Mickiewicz | 1798 |
-| 2  | Henryk | Sienkiewicz | 1846 |
+To stan początkowy. Jeśli podczas poprzedniego pokazu zmieniono dane, trzeba
+najpierw je porównać z tą tabelą albo otworzyć świeżą kopię bazy demonstracyjnej.
+Inny wynik nie zawsze oznacza błędny SQL: może wynikać z innego stanu danych.
 
+## 1. Kto przyjdzie na E1?
 
-## 2️⃣ Klucze i więzy integralności
-
-### 🔸 Klucz główny (PRIMARY KEY)
-- Unikalnie identyfikuje każdy wiersz w tabeli.
-- Nie może być `NULL`.
-
-### 🔸 Klucz obcy (FOREIGN KEY)
-- Odwołuje się do innej tabeli (relacja między tabelami).
-
-### 🔸 Inne więzy:
-- `UNIQUE` – unikalność wartości w kolumnie.
-- `NOT NULL` – kolumna nie może mieć wartości pustej.
-- `CHECK` – warunek logiczny na wartość kolumny.
-
-
-## 3️⃣ Schemat bazy danych – przykład „Biblioteka”
-
-### Tabele:
-- **Autorzy** (`autor_id`, `imie`, `nazwisko`)
-- **Ksiazki** (`ksiazka_id`, `tytul`, `rok`, `autor_id`)
-
-### Relacja:
-- `Ksiazki.autor_id` $\to$ `Autorzy.autor_id` (klucz obcy)
-
-
-## 4️⃣ Tworzenie tabel (DDL – Data Definition Language)
-
-Polecenie `CREATE TABLE` służy do utworzenia nowej tabeli w bazie danych.  
-W tym poleceniu definiujemy nazwy kolumn, ich typy danych oraz różne więzy integralności, takie jak `PRIMARY KEY`, `NOT NULL` czy `FOREIGN KEY`.  
-Każda tabela powinna mieć kolumnę, która jednoznacznie identyfikuje każdy wiersz – to właśnie klucz główny.  
-W przykładzie poniżej tworzymy dwie tabele: **Autorzy** i **Ksiazki**, które będą ze sobą powiązane relacją klucz główny–klucz obcy.
-
-
-
-### Ten sam schemat w dwóch dialektach — celowo osobno
-
-SQL nie jest jednym, uniwersalnym językiem — `CREATE TABLE` różni się między
-silnikami akurat w tym miejscu, gdzie boli najbardziej: jak nadać kluczowi głównemu
-automatyczną numerację. Poniżej dwie **osobne, w pełni poprawne** wersje tego samego
-schematu — nie mieszajcie składni między nimi, żadna baza nie zrozumie takiej
-mieszanki.
-
-**Wariant SQLite:**
+W zapisie mamy identyfikator osoby, a nazwę w tabeli uczestników. Łączymy oba
+źródła po identyfikatorze. Nie dopasowujemy po imieniu, które nie musi być unikalne.
 
 ```sql
-CREATE TABLE Autorzy (
-    autor_id     INTEGER PRIMARY KEY,   -- patrz uwaga ponizej: to NIE to samo co AUTOINCREMENT
-    imie         TEXT NOT NULL,
-    nazwisko     TEXT NOT NULL
-);
-
-CREATE TABLE Ksiazki (
-    ksiazka_id   INTEGER PRIMARY KEY,
-    tytul        TEXT NOT NULL,
-    rok          INTEGER CHECK (rok > 0),
-    autor_id     INTEGER,
-    FOREIGN KEY (autor_id) REFERENCES Autorzy(autor_id)
-);
+SELECT p.participant_id, p.name, z.edition_id
+FROM enrollments AS z
+JOIN participants AS p ON p.participant_id = z.participant_id
+WHERE z.edition_id = 'E1' AND z.status = 'confirmed'
+ORDER BY p.name, p.participant_id;
 ```
 
-**Wariant PostgreSQL:**
+Wynik zawiera Adę i Bartka. `JOIN` łączy pasujące wiersze, `WHERE` wybiera edycję
+i potwierdzone zapisy, `SELECT` określa kolumny odpowiedzi. `ORDER BY` zapewnia
+kolejność; bez niego nie zakładamy, że będzie zgodna z kolejnością dodawania.
+Drugi klucz sortowania rozstrzyga przypadek osób o tej samej nazwie.
+
+`p` i `z` to aliasy, krótkie nazwy tabel używane w tym zapytaniu.
+Nie tworzą kopii danych ani nowych tabel. Najpierw zmieńcie warunek na E2
+w myślach: czy Bartek powinien pojawić się na liście? Dlaczego?
+
+## 2. Raport, który wygląda rozsądnie, ale liczy zły zbiór
+
+Kierownik pyta o zajęte miejsca. Pierwsza propozycja:
 
 ```sql
-CREATE TABLE Autorzy (
-    autor_id     SERIAL PRIMARY KEY,
-    imie         TEXT NOT NULL,
-    nazwisko     TEXT NOT NULL
-);
-
-CREATE TABLE Ksiazki (
-    ksiazka_id   SERIAL PRIMARY KEY,
-    tytul        VARCHAR(200) NOT NULL,
-    rok          INTEGER CHECK (rok > 0),
-    autor_id     INTEGER,
-    FOREIGN KEY (autor_id) REFERENCES Autorzy(autor_id)
-);
+SELECT edition_id, COUNT(*) AS registrations
+FROM enrollments GROUP BY edition_id ORDER BY edition_id;
 ```
 
-::: {.callout-important}
-## `INTEGER PRIMARY KEY` w SQLite to NIE alias dla `AUTOINCREMENT`
+Dostajemy E1 = 2 i E2 = 2. SQL jest poprawny, ale liczy wszystkie zapisy,
+łącznie z rezygnacjami. W efekcie raport zaniża dostępność E2. Ponadto E3
+nie występuje, bo w tabeli zapisów nie ma żadnego jej wiersza.
 
-To częsty błąd (nawet w niejednym tutorialu w internecie). W SQLite `INTEGER PRIMARY
-KEY` to alias dla wewnętrznego identyfikatora wiersza (`ROWID`) — baza **owszem**
-sama nada mu kolejną wolną liczbę przy `INSERT` bez podania wartości, ale ta liczba
-**może zostać ponownie użyta** po usunięciu wiersza. Żeby zagwarantować, że ID
-**nigdy** się nie powtórzy, trzeba dopisać dosłowne słowo kluczowe: `INTEGER PRIMARY
-KEY AUTOINCREMENT` — osobna, ściślejsza gwarancja, kosztem odrobinę wolniejszych
-insertów. PostgreSQL nie ma tego rozróżnienia — `SERIAL` zawsze daje rosnącą
-sekwencję, która (poza rzadkimi przypadkami jawnego resetu) nie powtarza wartości.
-:::
-
-W powyższym przykładzie tabela Autorzy przechowuje dane o autorach, a tabela Ksiazki – dane o książkach.
-Kolumna autor_id w tabeli Ksiazki jest kluczem obcym i wskazuje, który autor napisał daną książkę.
-Dzięki więzom integralności baza pilnuje, aby każda książka miała poprawnego autora.
-Takie powiązania są podstawą modelu relacyjnego.
-
-## 5️⃣ Modyfikacja i usuwanie tabel
+Dodajemy warunek statusu:
 
 ```sql
-ALTER TABLE Ksiazki ADD COLUMN gatunek TEXT;
-
-DROP TABLE Ksiazki;
-
+SELECT edition_id, COUNT(*) AS confirmed
+FROM enrollments WHERE status = 'confirmed'
+GROUP BY edition_id ORDER BY edition_id;
 ```
 
-## 6️⃣ Wstawianie danych (DML – Data Manipulation Language)
+Teraz liczby są poprawne dla E1 i E2, lecz nadal brakuje E3. Samo filtrowanie
+istniejących zapisów nie stworzy wiersza dla edycji bez zapisów.
+**Najpierw ustalamy, jakie obiekty mają wystąpić w raporcie, dopiero potem co liczyć.**
 
-Polecenie INSERT INTO służy do wprowadzania nowych wierszy (rekordów) do tabeli.
-Wartości muszą być zgodne z typami kolumn oraz ograniczeniami (NOT NULL, CHECK, itp.).
-Można dodać jeden lub wiele rekordów w jednym poleceniu.
-Poniżej wstawiamy kilku autorów oraz ich książki do utworzonych wcześniej tabel.
+## 3. Wszystkie edycje, również puste
+
+Zaczynamy od `editions`. `LEFT JOIN` (lewe złączenie zewnętrzne) zachowuje wiersz
+tej tabeli także wtedy, gdy brak dopasowania w zapisach. Kolumny niedopasowanej
+strony mają wtedy `NULL`.
+
+Łatwo jednak utracić tę właściwość przez niewłaściwe miejsce warunku:
 
 ```sql
-INSERT INTO Autorzy (imie, nazwisko) VALUES
-('Adam', 'Mickiewicz'),
-('Henryk', 'Sienkiewicz'),
-('Bolesław', 'Prus');
-
-INSERT INTO Ksiazki (tytul, rok, autor_id) VALUES
-('Pan Tadeusz', 1834, 1),
-('Quo Vadis', 1896, 2),
-('Lalka', 1890, 3);
+SELECT e.edition_id, COUNT(z.participant_id) AS confirmed
+FROM editions AS e
+LEFT JOIN enrollments AS z ON z.edition_id = e.edition_id
+WHERE z.status = 'confirmed'
+GROUP BY e.edition_id ORDER BY e.edition_id;
 ```
 
-Każdy rekord reprezentuje jedną pozycję w tabeli.
-Polecenie INSERT wymaga podania wartości w tej samej kolejności, w jakiej wymieniono kolumny.
-Jeśli nie podamy jakiejś kolumny, a ma ona zdefiniowaną wartość domyślną (DEFAULT), baza wstawi ją automatycznie.
-Dzięki temu możemy stopniowo budować zawartość naszej bazy danych.
+Dla pustej edycji status jest `NULL`. Warunek `WHERE z.status = 'confirmed'`
+nie daje TRUE, więc usuwa taki wiersz z wyniku. Dla raportu wszystkich edycji
+warunek statusu umieszczamy w `ON`: dopasowujemy tylko potwierdzone zapisy,
+ale zachowujemy każdą edycję.
 
-## 7️⃣ Wybieranie danych – SELECT
-
-### 🧩 Podstawowy SELECT
-
-Polecenie SELECT jest najczęściej używanym poleceniem SQL i służy do pobierania danych z tabel.
-Pozwala określić, które kolumny chcemy zobaczyć i z których tabel dane mają pochodzić.
-Jeśli użyjemy gwiazdki *, oznacza to, że wybieramy wszystkie kolumny.
-Poniższe zapytanie zwraca wszystkich autorów z tabeli Autorzy.
+Pozostaje druga pułapka:
 
 ```sql
-SELECT * FROM Autorzy;
+SELECT e.edition_id, COUNT(*) AS confirmed
+FROM editions AS e
+LEFT JOIN enrollments AS z
+ ON z.edition_id = e.edition_id AND z.status = 'confirmed'
+GROUP BY e.edition_id ORDER BY e.edition_id;
 ```
-### 🧩 Wybór konkretnych kolumn
+
+E3 otrzymuje wynik 1. `COUNT(*)` liczy wiersze wyniku złączenia, a LEFT JOIN
+pozostawił jeden wiersz dla E3. `COUNT(z.participant_id)` liczy tylko niepuste
+identyfikatory dopasowanych zapisów, dzięki czemu zwróci zero.
+
+`NULL` nie jest liczbą zero ani pustym tekstem. Oznacza brak wartości.
+Sprawdzamy go przez `IS NULL`, nie `= NULL`. Przy złączeniu może wynikać z braku
+pasującego wiersza, nawet jeśli źródłowa kolumna ma ograniczenie `NOT NULL`.
+
+## 4. Pełny raport wolnych miejsc
 
 ```sql
-SELECT imie, nazwisko FROM Autorzy;
+SELECT e.edition_id, c.name AS course, e.seat_limit,
+ COUNT(z.participant_id) AS confirmed,
+ e.seat_limit - COUNT(z.participant_id) AS free_places
+FROM editions AS e
+JOIN courses AS c ON c.course_id = e.course_id
+LEFT JOIN enrollments AS z
+ ON z.edition_id = e.edition_id AND z.status = 'confirmed'
+GROUP BY e.edition_id, c.name, e.seat_limit
+ORDER BY e.edition_id;
 ```
 
-Wynik to pełna tabela z kolumnami autor_id, imie i nazwisko.
-Często jednak potrzebujemy tylko części danych, np. imienia i nazwiska – wtedy podajemy konkretne kolumny:
+Otrzymujemy wszystkie trzy edycje i wolne miejsca **0, 3, 4**.
+`GROUP BY` wyznacza grupy, w których liczymy zapisy. Nie grupujemy tylko po nazwie
+kursu, bo jeden kurs może mieć wiele edycji z różnymi limitami i uczestnikami.
 
-### 🧩 Nadawanie aliasów
+Wolne miejsca wyliczamy, zamiast dopisywać ręcznie kolejną kopię tej informacji.
+Po zmianie statusu ponowne wykonanie zapytania obliczy wynik ze stanu bazy.
+Nie zakrywamy wartości ujemnej przez zamianę na zero: gdy pojawi się przekroczenie
+limitu, raport powinien ujawnić problem.
+
+## 5. Co możemy zaproponować nowemu uczestnikowi?
 
 ```sql
-SELECT imie AS "Imię", nazwisko AS "Nazwisko" FROM Autorzy;
+SELECT e.edition_id,
+ e.seat_limit - COUNT(z.participant_id) AS free_places
+FROM editions AS e
+LEFT JOIN enrollments AS z
+ ON z.edition_id = e.edition_id AND z.status = 'confirmed'
+GROUP BY e.edition_id, e.seat_limit
+HAVING e.seat_limit - COUNT(z.participant_id) > 0
+ORDER BY free_places DESC, e.edition_id;
 ```
 
-Takie zapytania pomagają ograniczyć ilość danych i zwiększyć czytelność wyników.
-Warto też nadawać aliasy (AS), które pozwalają zmienić nazwę kolumn w wynikach i nadać im bardziej opisowy wygląd.
+Wynik to E3 z 4 wolnymi miejscami, potem E2 z 3. `HAVING` filtruje grupy
+na podstawie wyniku agregacji. `WHERE` filtruje wiersze przed grupowaniem.
 
+Nie wystarczy `WHERE seat_limit > 0`: dodatni limit nie oznacza, że zostały
+wolne miejsca. E1 ma dodatni limit, ale wszystkie są zajęte.
 
-## 8️⃣ Filtrowanie – WHERE
+**Raport nie rezerwuje miejsca.** Pokazuje stan podczas odczytu. Pomiędzy
+odczytem a późniejszym zapisem ktoś inny może zająć miejsce. Ochronę operacji
+modyfikującej dane trzeba zaprojektować oddzielnie.
 
-Kiedy chcemy wybrać tylko część danych, używamy klauzuli WHERE.
-Dzięki niej możemy ustawić warunki, jakie muszą spełniać rekordy, by pojawiły się w wyniku.
-To bardzo potężne narzędzie, które pozwala np. wyszukiwać książki z konkretnego roku lub autora.
-W poniższym przykładzie wybieramy książki wydane po roku 1850.
+## 6. Jedna rezygnacja i zmiana odpowiedzi
 
+Przed aktualizacją sprawdzamy zakres tym samym warunkiem:
 
 ```sql
-SELECT * FROM Ksiazki
-WHERE rok > 1850;
+SELECT * FROM enrollments
+WHERE participant_id = 'U2' AND edition_id = 'E1';
 ```
-
-### 🧠 Operatory:
-
-Możemy też stosować inne operatory: 
-
-- =, <>, <, >, <=, >=
-- LIKE 'Q%' → zaczyna się na Q
-- IN (...)
-- BETWEEN 1800 AND 1900
-- IS NULL, IS NOT NULL
-
-
-Na przykład, aby znaleźć wszystkie książki, których tytuł zawiera literę „a”, używamy wzorca z LIKE:
-
 
 ```sql
-SELECT tytul FROM Ksiazki WHERE tytul LIKE '%a%';
+UPDATE enrollments SET status = 'cancelled'
+WHERE participant_id = 'U2' AND edition_id = 'E1';
 ```
 
-Klauzula WHERE pozwala więc filtrować dane na wiele sposobów, co czyni zapytania SQL bardzo elastycznymi.
+Zmienia się dokładnie U2–E1. W DB Browser zatwierdzamy przez **Write Changes**,
+a potem ponawiamy raport wolnych miejsc. Wynik to teraz **1, 3, 4**, więc E1
+również pojawi się wśród dostępnych edycji. Nazwisko uczestnika i inne zapisy
+nie zmieniły się. Nie usunęliśmy Bartka z ewidencji.
 
+Bez warunku edycji aktualizacja dotyczyłaby wszystkich zapisów Bartka.
+Bez `WHERE` dotyczyłaby wszystkich zapisów w tabeli. Operacja bez WHERE nie jest
+błędem składni: może być zamierzona, ale jej zakres trzeba świadomie ustalić.
 
-## 9️⃣ Sortowanie – ORDER BY
+Prowadzący przywróci stan bazowy przed kolejną próbą, po sprawdzeniu, że nikt
+nie zajął zwolnionego miejsca. Sam odczyt i późniejszy UPDATE nie stanowią
+kompletnej ochrony przed równoczesnymi zgłoszeniami.
 
-Po pobraniu danych często chcemy uporządkować je według określonego kryterium.
-Do tego służy klauzula ORDER BY, dzięki której możemy sortować rosnąco (ASC) lub malejąco (DESC).
-Sortowanie działa na dowolnej kolumnie, także tych, które nie są wyświetlane w wyniku.
-W przykładzie poniżej porządkujemy książki według roku wydania od najnowszej do najstarszej.
+## 7. Liczymy osoby czy uczestnictwa?
+
+Kierownik pyta: „Ile osób mamy na kursie K1?”. Jedna osoba może uczestniczyć
+w dwóch edycjach tego kursu. Trzeba więc doprecyzować, czy liczymy potwierdzone
+zapisy na edycje, czy różnych ludzi.
 
 ```sql
-SELECT * FROM Ksiazki ORDER BY rok DESC;
+SELECT c.course_id, c.name,
+ COUNT(z.participant_id) AS confirmed_registrations,
+ COUNT(DISTINCT z.participant_id) AS distinct_participants
+FROM courses AS c
+LEFT JOIN editions AS e ON e.course_id = c.course_id
+LEFT JOIN enrollments AS z
+ ON z.edition_id = e.edition_id AND z.status = 'confirmed'
+GROUP BY c.course_id, c.name ORDER BY c.course_id;
 ```
 
-Jeśli nie podamy kierunku sortowania, domyślnie jest to ASC (rosnąco).
-Można też sortować według kilku kolumn jednocześnie, np. najpierw po autorze, a potem po roku.
-Sortowanie poprawia czytelność wyników i pozwala szybciej analizować dane.
+Na początku dla K1 obie liczby wynoszą 3. Prowadzący dodaje potwierdzony zapis
+Ady na E2, gdzie są wolne miejsca. Liczba zapisów rośnie do 4, ale liczba różnych
+uczestników pozostaje 3. `COUNT(DISTINCT ...)` usuwa powtórzenia identyfikatorów
+przed liczeniem. To nie jest poprawka na każdy problem z JOIN: wybór miary
+musi wynikać z pytania użytkownika.
 
-## 🔟 Grupowanie i agregacja – GROUP BY, HAVING
+Po próbie wracamy do danych bazowych. Podczas zajęć nie zmieniamy definicji
+„osoby” lub „zapisu” tylko po to, aby uzyskać oczekiwaną liczbę.
 
-Czasem chcemy policzyć, ile danych należy do danej kategorii – np. ilu autorów napisało więcej niż jedną książkę.
-Do tego służy GROUP BY, które grupuje dane według wybranej kolumny.
-W połączeniu z funkcjami agregującymi, takimi jak COUNT(), AVG(), SUM(), MIN() czy MAX(), daje duże możliwości analizy.
-Klauzula HAVING pozwala odfiltrować grupy po obliczeniu agregacji.
+## Dlaczego projekt nadal ma znaczenie?
 
-```sql
-SELECT autor_id, COUNT(*) AS liczba_ksiazek
-FROM Ksiazki
-GROUP BY autor_id
-HAVING COUNT(*) > 1;
-```
+Raporty sprawdzają projekt w praktyce. Rozdzielenie kursu i edycji pozwala pytać
+o oba poziomy. Status przy zapisie pozwala odróżnić rezygnację z jednego terminu
+od usunięcia uczestnika. Stabilne identyfikatory pozwalają liczyć różne osoby
+bez polegania na nazwach.
 
-To zapytanie zwraca tylko tych autorów, którzy mają więcej niż jedną książkę.
-Różnica między WHERE a HAVING polega na tym, że WHERE filtruje pojedyncze wiersze przed grupowaniem, a HAVING filtruje całe grupy po agregacji.
-Wyniki można potem łączyć z innymi tabelami, by uzyskać bardziej opisowe raporty.
+Na wykładzie 5 zbadamy, co dzieje się przy powielaniu tych samych informacji
+w wielu miejscach: anomalie zmian i normalizację. Na wykładzie 6 przejdziemy
+do indeksów i pomiaru planów zapytań. Na wykładzie 7 podzapytania i widoki pozwolą
+budować i ponownie wykorzystywać bardziej złożone odpowiedzi. Laboratoria służą
+samodzielnemu wykonaniu tych operacji, testowaniu i obronie rozwiązań.
 
-
-## 1️⃣1️⃣ Łączenie tabel – JOIN
-
-W relacyjnym modelu danych informacje są rozproszone w różnych tabelach, które łączy się przy pomocy kluczy obcych.
-Polecenie JOIN pozwala zestawić dane z kilku tabel na podstawie wspólnej kolumny.
-Najczęściej używany jest INNER JOIN, który zwraca tylko rekordy, dla których istnieje dopasowanie w obu tabelach.
-W przykładzie łączymy tabelę Ksiazki z Autorzy, aby zobaczyć tytuł książki i jej autora.
-
-
-### 🔹 INNER JOIN
-```sql
-SELECT k.tytul, a.imie, a.nazwisko
-FROM Ksiazki k
-JOIN Autorzy a ON k.autor_id = a.autor_id;
-```
-
-Wynikiem będzie lista książek wraz z imieniem i nazwiskiem autora.
-Jeśli chcemy, aby w wynikach pojawiły się także książki bez autora (lub autorzy bez książek), używamy odpowiednio LEFT JOIN lub RIGHT JOIN.
-Łączenie tabel to fundament relacyjnych baz danych – dzięki niemu dane są spójne i nie trzeba ich powielać.
-
-### 🔹 LEFT JOIN
-```sql
-SELECT k.tytul, a.imie, a.nazwisko
-FROM Ksiazki k
-LEFT JOIN Autorzy a ON k.autor_id = a.autor_id;
-```
-
-## 1️⃣2️⃣ Aktualizacja i usuwanie danych
-
-Polecenie UPDATE pozwala modyfikować dane już istniejące w tabeli.
-Zawsze należy używać klauzuli WHERE, aby zmiana nie objęła wszystkich rekordów.
-Z kolei DELETE służy do usuwania rekordów – również z warunkiem, by nie usunąć wszystkiego przez pomyłkę.
-Przykład poniżej pokazuje, jak zmienić rok wydania książki i usunąć starsze pozycje.
-
-```sql
-UPDATE Ksiazki SET rok = 1836 WHERE tytul = 'Pan Tadeusz';
-
-DELETE FROM Ksiazki WHERE rok < 1850;
-```
-
-UPDATE pozwala też aktualizować wiele kolumn naraz, a nawet wykonywać obliczenia.
-Z kolei DELETE usuwa rekordy z tabeli, ale nie zmienia struktury bazy.
-Warto zawsze testować warunek WHERE wcześniej przy pomocy SELECT, by uniknąć niechcianych usunięć.
-
-
-## Podsumowanie 
-
-SQL jest językiem deklaratywnym – opisujemy co chcemy uzyskać, a nie jak to zrobić.
-Dzięki temu użytkownik nie musi znać szczegółów działania bazy danych, wystarczy, że opisze warunki i strukturę zapytania.
-Poznane dziś polecenia (CREATE, INSERT, SELECT, UPDATE, DELETE, JOIN, GROUP BY) to fundament pracy z bazami danych.
-Opanowanie ich pozwala budować i analizować nawet bardzo złożone systemy informacyjne.
-
-
+[Zadanie do wspólnego pokazu](../scenariusze.qmd#wyklad-4).
