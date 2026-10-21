@@ -12,7 +12,7 @@ project:
     # - "!lectures/wyklad2.qmd"
     # - "!lectures/wyklad3.qmd"
     # - "!lectures/wyklad4.qmd"
-    - "!lectures/wyklad5.qmd"
+    # - "!lectures/wyklad5.qmd"
     - "!lectures/wyklad6.qmd"
     - "!lectures/wyklad7.qmd"
 
@@ -30,7 +30,7 @@ website:
           - lectures/wyklad2.qmd
           - lectures/wyklad3.qmd
           - lectures/wyklad4.qmd
-          # - lectures/wyklad5.qmd
+          - lectures/wyklad5.qmd
           # - lectures/wyklad6.qmd
           # - lectures/wyklad7.qmd
   page-footer: "Copyright 2026, Sebastian Zając"

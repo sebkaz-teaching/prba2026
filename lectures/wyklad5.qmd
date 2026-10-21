@@ -1,6 +1,30 @@
 ---
-title: "Jak uniknąć błędów w projektowaniu?"
+title: "Normalizacja — dlaczego poprawna tabela może być złym projektem?"
 ---
+
+## Od poprawnego raportu do bezpiecznej zmiany
+
+**22 października 2026 · wykład 5 · 2 × 45 minut.**
+
+W poprzednim wykładzie raport ośrodka „Dąb” zwracał 0, 3 i 4 wolne miejsca
+w edycjach E1, E2 i E3. Poprawny raport nie rozstrzyga jednak, czy projekt
+pozwala bezpiecznie zmieniać dane. Jeżeli nazwę sali zapisano przy każdym
+uczestniku, jedna zmiana nazwy wymaga odnalezienia wielu kopii.
+
+Normalizacja porządkuje strukturę według znaczenia danych i ich zależności.
+Celem tego pokazu jest usunięcie konkretnych anomalii przy zachowaniu informacji
+potrzebnej do raportowania. Liczba tabel sama w sobie nie mierzy jakości projektu.
+
+[Pliki SQL do pokazu — pobierz ZIP](../assets/sql/prba5-normalizacja.zip).
+
+Pokaz działa w **DB Browser for SQLite, SQLite 3.37 lub nowszy**. To osobna,
+nowa baza, np. `prba5-normalizacja.db`; plików nie uruchamia się na bazie
+z poprzedniego wykładu. W **Execute SQL** kolejne pliki 00–09 wykonuje się
+po jednym razie. Po zmianach wybiera się **Write Changes**. Pliki kontrolne 02
+oraz 06 zawierają kilka zapytań: ich wyniki należy obejrzeć osobno.
+`PRAGMA foreign_keys = ON` włącza kontrolę kluczy obcych dla połączenia;
+wykonuje się je bez aktywnej transakcji, także po ponownym otwarciu bazy.
+`PRAGMA foreign_keys` powinno zwrócić 1.
 
 ## ✅ Sprawdź się z wykładu 4
 
@@ -10,7 +34,7 @@ title: "Jak uniknąć błędów w projektowaniu?"
 CourseQuiz.mount(document.getElementById('rsod-quiz'), {
   course: "prba2026",
   lecture: "wyklad5",
-  title: "Wykład 4: Model relacyjny i podstawy SQL",
+  title: "Powtórzenie: model relacyjny i raporty SQL",
   submitUrl: "https://sebastianzajac.pl/rsod-quiz/submit.php",
   questions: [
     {
@@ -55,9 +79,9 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
     },
     {
       id: "q5", points: 3, diff: "wnioskowanie",
-      text: "Wykład wspomina, że aby zobaczyć „książki bez autora”, trzeba użyć LEFT JOIN zamiast zwykłego JOIN. Jeśli książka ma autor_id, który nie pasuje do żadnego autor_id w Autorzy, i wykonamy zwykły JOIN Ksiazki k JOIN Autorzy a ON k.autor_id = a.autor_id, co się z nią stanie w wyniku?",
+      text: "Edycja E3 nie ma żadnych zapisów. Co stanie się z nią w raporcie zbudowanym przez INNER JOIN editions e JOIN enrollments z ON z.edition_id = e.edition_id?",
       options: [
-        {v:"A", t:"Pojawi się z pustymi kolumnami autora"},
+        {v:"A", t:"Pojawi się z pustymi kolumnami zapisu"},
         {v:"B", t:"Zostanie całkowicie pominięta w wyniku"},
         {v:"C", t:"Spowoduje błąd zapytania"},
         {v:"D", t:"Zostanie zduplikowana"}
@@ -67,181 +91,247 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 });
 </script>
 
-## 1. Problemy złego projektu bazy danych
 
-Złe zaprojektowanie struktury bazy danych prowadzi do wielu problemów:
+## 1. Kontrakt danych: kurs nie jest edycją
 
-### 🔹 Redundancja danych
+Kurs oznacza temat szkolenia; edycja jest konkretną realizacją w określonym
+terminie. Każda edycja ma jedną salę i jednego prowadzącego. Ten sam kurs może
+mieć wiele edycji w różnych salach i z różnymi prowadzącymi.
 
-To **powielanie tych samych informacji** w różnych miejscach bazy. 
+Uczestnik ma najwyżej jeden zapis do danej edycji. Zapis przechowuje bieżący
+status `confirmed` lub `cancelled`; ponowne zgłoszenie aktualizuje ten sam zapis
+po sprawdzeniu miejsc. Pełna historia statusów nie należy do tego modelu.
+Nazwy osób, sal i kursów nie muszą być unikalne; identyfikujemy obiekty przez ID.
 
-Przykład: jeśli w każdej tabeli z zamówieniami przechowujemy pełne dane klienta, to zmiana jego adresu wymaga aktualizacji wielu rekordów.
+Pojemność sali opisuje salę, a limit miejsc opisuje edycję. Limit jest dodatni
+i nie większy od pojemności. Edycje nie mogą zajmować tej samej sali ani
+prowadzącego w nakładających się przedziałach; styk końca i początku jest dozwolony.
+Nazwy w tym modelu są bieżące, nie stanowią historycznej treści zaświadczeń.
 
-### 🔹 Anomalie danych
+W pliku 00 zapisujemy cztery znane zgłoszenia, z pełnym zestawem 14 wartości
+w każdym wierszu `INSERT INTO … VALUES`. Daty i statusy odpowiadają poprzedniemu
+pokazowi; dodajemy jawne dane sal oraz prowadzących.
 
-Błędy i niekonsekwencje wynikające z nadmiarowej struktury danych.
+| Uczestnik | Edycja | Kurs | Sala | Pojemność | Limit | Status |
+|---|---|---|---|---:|---:|---|
+| Ada | E1 | K1 | S1 | 20 | 2 | confirmed |
+| Bartek | E1 | K1 | S1 | 20 | 2 | confirmed |
+| Celina | E2 | K1 | S1 | 20 | 4 | confirmed |
+| Bartek | E2 | K1 | S1 | 20 | 4 | cancelled |
 
-- **Anomalia aktualizacji** – zmiana jednej informacji wymaga wielu modyfikacji.  
-  *Np. zmiana nazwiska wykładowcy w kilku wierszach tabeli.*
+**Dlaczego nie ma E3?** Arkusz zawiera wyłącznie zapisy, a E3 nie ma uczestników.
+Nie da się odtworzyć E3 na podstawie tych czterech wierszy. Po zmianie struktury
+jej dane zostaną dodane osobno z wymagań klienta, a nie „odzyskane” przez `JOIN`.
 
-- **Anomalia wstawiania** – brak możliwości dodania danych bez istnienia innych.  
-  *Np. nie można dodać nowego kursu, dopóki nie zapisze się na niego student.*
+## 2. Pierwsza postać normalna nie usuwa wszystkich problemów
 
-- **Anomalia usuwania** – usunięcie rekordu powoduje utratę innych informacji.  
-  *Np. usunięcie ostatniego studenta z kursu powoduje utratę danych o samym kursie.*
+**1NF — First Normal Form**, pierwsza postać normalna: wartości są atomowe
+w ramach przyjętych dziedzin. Tutaj wiersz opisuje jeden zapis jednej osoby
+na jedną edycję. Nie przechowuje list edycji ani list uczestników w komórce.
+Tabela `flat_enrollments` już spełnia 1NF w przyjętym modelu.
 
-👉 **Wniosek:** błędy projektowe utrudniają utrzymanie spójności danych.
+Kluczem jest para `(participant_id, edition_id)`. Sama osoba może mieć kilka
+zapisów, a jedna edycja wielu uczestników. Status dotyczy całej pary.
 
----
-
-## 2. Zależności funkcjonalne
-
-### 🔹 Definicja
-
-Zależność funkcjonalna (ang. *functional dependency*) opisuje **relację między atrybutami** w tabeli.
-
-Mówimy, że atrybut *B* jest **funkcyjnie zależny** od atrybutu *A* (zapis:  
-**A → B**), jeśli każdej wartości *A* odpowiada dokładnie jedna wartość *B*.
-
-### 🔹 Przykłady
-- NrIndeksu → Imię, Nazwisko, Kierunek  
-  (każdy numer indeksu jednoznacznie identyfikuje studenta)
-- Kurs → Sala, Prowadzący  
-  (dany kurs odbywa się zawsze w tej samej sali, prowadzony przez tę samą osobę)
-
-### 🔹 Klucze
-- **Klucz główny (primary key)** – jednoznacznie identyfikuje wiersz tabeli.  
-- **Klucz kandydujący (candidate key)** – minimalny zestaw atrybutów, który może być kluczem.  
-- **Klucz obcy (foreign key)** – wskazuje na klucz główny w innej tabeli i tworzy powiązanie między tabelami.
-
-### 🔹 Typy zależności
-- **Zależność pełna** – atrybut zależy od całego klucza złożonego.  
-- **Zależność częściowa** – atrybut zależy tylko od części klucza.  
-- **Zależność przechodnia** – atrybut zależy pośrednio od klucza (A → B → C).
-
----
-
-## 3. Formy normalne (1NF – 3NF, BCNF)
-
-Normalizacja to proces przekształcania tabel w taki sposób, aby **usunąć redundancję** i **zapobiec anomaliom**.
-
-### 🧩 Pierwsza postać normalna (1NF)
-
-- Wszystkie wartości w tabeli są **atomowe** (niepodzielne).  
-- Brak list, zbiorów lub kolumn powtarzających się.  
-  
-✅ *Każda kolumna ma jedną wartość w komórce.*
-
-**Przykład (naruszenie 1NF):**
-
-| Student | NrIndeksu | Kursy |
-|----------|------------|--------|
-| Jan Nowak | 12345 | Bazy danych, Programowanie |
-
-✅ *Poprawnie:*  
-Tworzymy osobną tabelę STUDENT_KURS, gdzie każdy kurs to osobny rekord.
-
----
-
-### 🧩 Druga postać normalna (2NF)
-
-- Tabela jest w 1NF **i** każdy atrybut niekluczowy zależy **w pełni** od
-  **każdego klucza kandydującego** (nie tylko od tego, który akurat wybraliście na
-  klucz główny — jeśli tabela ma więcej niż jeden klucz kandydujący, warunek musi
-  być spełniony względem wszystkich).
-- Ma znaczenie tylko dla tabel z **kluczem złożonym** — przy kluczu jednokolumnowym
-  2NF jest spełnione automatycznie (nie ma jak zależeć "częściowo" od jednej kolumny).
-
-**Przykład:**
-
-Tabela ZAPISY(StudentID, KursID, Sala)
-→ atrybut *Sala* zależy tylko od *KursID*, a nie od całego klucza (StudentID, KursID).
-Rozwiązanie: wydziel tabelę KURS(KursID, Sala).
-
----
-
-### 🧩 Trzecia postać normalna (3NF)
-
-- Tabela jest w 2NF **i** nie zawiera zależności przechodnich.
-- Każdy atrybut niekluczowy zależy **bezpośrednio** od klucza kandydującego — nie
-  pośrednio, przez inny atrybut niekluczowy.
-
-**Przykład:**
-
-NrIndeksu → Kierunek, Kierunek → Dziekan
-➡️ *Dziekan* zależy pośrednio od *NrIndeksu*.
-Rozwiązanie: osobna tabela KIERUNEK(Dziekan, Kierunek).
-
-### 🧩 Postać normalna Boyce'a-Codda (BCNF)
-
-3NF ma lukę: dopuszcza sytuację, w której atrybut niekluczowy determinuje **część**
-klucza — o ile sam ten atrybut nie jest "całkiem niekluczowy" (jest częścią jakiegoś
-klucza kandydującego). BCNF usuwa ten wyjątek: **każda nietrywialna zależność
-funkcjonalna `X → Y` musi mieć po lewej stronie klucz kandydujący** — bez wyjątków.
-
-**Klasyczny przykład naruszenia BCNF (przy zachowanym 3NF):**
-
-Tabela `Zajecia(Student, Przedmiot, Nauczyciel)`, gdzie:
-
-- każdy student może uczęszczać na wiele przedmiotów u różnych nauczycieli → klucz
-  kandydujący to `(Student, Przedmiot)`,
-- ale **każdy nauczyciel uczy tylko jednego przedmiotu** → `Nauczyciel → Przedmiot`
-  jest prawdziwą zależnością funkcjonalną, mimo że `Nauczyciel` **nie jest** kluczem
-  kandydującym (sam jeden nie identyfikuje wiersza).
-
-Tabela jest w 3NF (`Przedmiot` jest częścią klucza, więc formalnie "zależność
-częściowo-kluczowa" nie łamie 3NF), ale **łamie BCNF** — determinant `Nauczyciel` nie
-jest kluczem kandydującym. Rozwiązanie: wydzielić `Nauczyciele(Nauczyciel,
-Przedmiot)` i `Zajecia(Student, Nauczyciel)`.
-
-::: {.callout-note}
-## Czy BCNF jest zawsze "lepsze" niż 3NF?
-Prawie zawsze pożądane, ale nie zawsze **osiągalne bez utraty zależności** — czasem
-rozbicie tabeli do BCNF sprawia, że pewnej zależności funkcjonalnej nie da się już
-wymusić samymi więzami integralności (`PRIMARY KEY`/`UNIQUE`) bez dodatkowej logiki
-aplikacyjnej. W praktyce inżynierskiej 3NF jest bardzo częstym, "wystarczająco
-dobrym" punktem zatrzymania — BCNF wymaga świadomej analizy, czy warto.
-:::
-
-## 4. Diagramy ERD (Entity–Relationship Diagram)
-
-Diagram ERD jest graficznym sposobem przedstawienia **modelu konceptualnego** bazy danych.
-
-### 🔹 Główne elementy ERD
-
-- **Encja (Entity)** – obiekt, o którym przechowujemy dane (np. Student, Kurs).  
-- **Atrybut (Attribute)** – właściwość encji (np. Imię, Nazwisko, NrIndeksu).  
-- **Relacja (Relationship)** – powiązanie między encjami (np. Student zapisuje się na Kurs).  
-- **Kardynalność (Cardinality)** – określa liczność relacji:  
-  - 1:1 (jeden do jednego)  
-  - 1:N (jeden do wielu)  
-  - N:M (wielu do wielu)  
-- **Identyfikator (Primary Key)** – atrybut jednoznacznie identyfikujący encję.
-
-### 🔹 Przykład:
+Mimo tego nazwa sali S1 występuje w czterech wierszach. Plik 01 zmienia tylko
+jedną jej kopię:
 
 ```sql
-STUDENT (NrIndeksu, Imię, Nazwisko, Kierunek)
-KURS (KursID, Nazwa, Prowadzący)
-ZAPIS (NrIndeksu, KursID, DataZapisu)
+UPDATE flat_enrollments SET room_name = 'Sala Alfa'
+WHERE participant_id = 'U1' AND edition_id = 'E1';
 
+SELECT edition_id, participant_id, room_id, room_name
+FROM flat_enrollments ORDER BY edition_id, participant_id;
 ```
 
-Relacja między STUDENT a KURS: N:M poprzez encję pośredniczącą ZAPIS.
+Operacja nie narusza klucza głównego, a jednak ta sama sala otrzymuje sprzeczne
+nazwy. To **anomalia aktualizacji**. Dwa pozostałe problemy mają to samo źródło:
 
----
+- **Anomalia wstawiania:** nie da się zapisać edycji bez uczestnika bez wymyślania
+  fikcyjnego zapisu albo zmiany znaczenia wiersza.
+- **Anomalia usuwania:** usunięcie jedynego zapisu danej osoby usuwa również
+  jej jedyne dane z tego arkusza.
 
-## 5. Proces projektowania bazy danych
+Klucz zapobiega powtórzeniu identyfikatora zapisu, ale nie wymusza zgodności
+wszystkich kopii opisów obiektów. Plik 02 naprawia celową zmianę na podstawie
+znanej wartości źródłowej i sprawdza, czy dane są zgodne przed podziałem.
 
-Projektowanie bazy to proces etapowy:
+## 3. Zależności: co wyznacza każdą wartość?
 
-1. **Analiza wymagań** – zrozumienie, jakie dane są potrzebne i jakie operacje będą wykonywane.  
-2. **Model konceptualny** – opis danych w postaci ERD.  
-3. **Model logiczny** – zamiana modelu ERD na relacyjny schemat tabel.  
-4. **Model fizyczny** – implementacja w konkretnym systemie DBMS (np. PostgreSQL, MySQL).
+**FD — Functional Dependency**, zależność funkcjonalna, `X → Y` oznacza:
+wiersze zgodne na X muszą być zgodne na Y. Wynika z reguł dziedziny, nie z tego,
+że w kilku przykładowych rekordach przypadkiem wystąpiły te same wartości.
 
+```text
+participant_id → participant_name
+course_id → course_name
+room_id → room_name, room_capacity
+instructor_id → instructor_name
+edition_id → course_id, starts_at, ends_at, room_id, instructor_id, seat_limit
+(participant_id, edition_id) → status
+```
 
+Nie zakładamy `course_id → room_id`: kurs K1 może mieć realizacje w innych
+salach. Nie zakładamy również `room_capacity → seat_limit`. Sala na 20 osób
+może obsługiwać edycję z limitem 12, 4 albo 2.
 
-- Dokumentacja SQLite
-- Dokumentacja PostgreSQL
-- A. Silberschatz, H. Korth, S. Sudarshan, Database System Concepts
+**Nadklucz** jednoznacznie identyfikuje wiersz. **Klucz kandydujący** jest
+nadkluczem minimalnym: usunięcie dowolnego atrybutu odbiera mu tę właściwość.
+Klucz główny (**PK — Primary Key**) to wybrany klucz kandydujący.
+Klucz obcy (**FK — Foreign Key**) odwołuje się do klucza tabeli nadrzędnej.
+
+## 4. Druga postać normalna: osoba, edycja i zapis
+
+**2NF — Second Normal Form:** relacja jest w 1NF, a żaden atrybut niekluczowy
+(nienależący do żadnego klucza kandydującego) nie zależy od właściwej części
+któregokolwiek klucza kandydującego. W tym przykładzie jedynym kluczem
+kandydującym arkusza jest para identyfikatorów osoby i edycji.
+
+Imię zależy tylko od osoby. Dane edycji zależą tylko od edycji. Są to
+zależności częściowe względem tej pary. Plik 03 wydziela:
+
+| Tabela | Co przechowuje | Początkowo |
+|---|---|---:|
+| participants_2nf | Osoby | 3 wiersze |
+| editions_2nf | Edycje z powielonymi jeszcze opisami kursu, sali i prowadzącego | 2 wiersze |
+| enrollments_2nf | Powiązania osób z edycjami i status | 4 wiersze |
+
+```sql
+INSERT INTO participants_2nf (participant_id, name)
+SELECT DISTINCT participant_id, participant_name FROM flat_enrollments;
+
+INSERT INTO enrollments_2nf (participant_id, edition_id, status)
+SELECT participant_id, edition_id, status FROM flat_enrollments;
+```
+
+Pełne tworzenie i wypełnienie trzech tabel znajduje się w pliku 03. `DISTINCT`
+usuwa identyczne kopie, ale nie naprawia sprzecznych opisów. Dlatego kontrola
+z pliku 02 poprzedza podział. Nie należy arbitralnie wybierać nazwy przez `MIN`.
+
+Dodanie sztucznego jednokolumnowego PK do starego arkusza nie usuwa istniejących
+zależności. Warunek 2NF analizuje wszystkie klucze kandydujące, nie tylko PK.
+
+## 5. Dlaczego 2NF nadal nie wystarcza?
+
+Sala S1 występuje przy E1 i E2. Plik 04 zmienia nazwę tylko przy E1, zatem problem
+pozostaje, choć opis osoby już się nie powiela. W tabeli edycji obowiązuje:
+
+```text
+edition_id → room_id → room_name, room_capacity
+edition_id → course_id → course_name
+edition_id → instructor_id → instructor_name
+```
+
+To zależności przechodnie: opis sali, kursu lub prowadzącego trafia do tabeli
+edycji za pośrednictwem identyfikatora innego obiektu. Jednokolumnowy klucz edycji
+nie usuwa tych powtórzeń.
+
+## 6. Trzecia postać normalna: opis obiektu w jego tabeli
+
+**3NF — Third Normal Form:** dla każdej nietrywialnej zależności `X → A`
+wynikającej z przyjętych reguł X jest nadkluczem lub A należy do pewnego klucza
+kandydującego. W tym przykładzie dalszy podział usuwa wskazane zależności
+przechodnie atrybutów niekluczowych.
+
+Plik 05 najpierw naprawia celową zmianę z pliku 04, potem tworzy sześć tabel:
+
+```text
+participants(participant_id PK, name)
+courses(course_id PK, name)
+rooms(room_id PK, name, capacity)
+instructors(instructor_id PK, name)
+editions(edition_id PK, course_id FK, starts_at, ends_at,
+         room_id FK, instructor_id FK, seat_limit)
+enrollments(participant_id PK/FK, edition_id PK/FK, status)
+```
+
+Kurs, sala i prowadzący mogą mieć wiele edycji. Uczestnik może mieć wiele zapisów,
+a edycja wiele osób; tabela `enrollments` zachowuje te powiązania i ich statusy.
+Samo utworzenie katalogów osób i edycji nie zachowałoby informacji o zapisach.
+
+Powtarzanie FK w zapisach jest potrzebne. Usuwamy zbędne kopie opisów, nie
+identyfikatory wyrażające relacje. Limit zostaje przy edycji, pojemność przy sali.
+
+## 7. Czy podział zachował informacje?
+
+Plik 05 tworzy `enrollment_report`, widok odtwarzający wszystkie 14 kolumn
+płaskiego arkusza przez złączenia po kluczach. **VIEW** przechowuje definicję
+zapytania; zwykły widok nie jest dodatkową utrzymywaną kopią jego wyniku.
+
+Plik 06 porównuje dane w obu kierunkach, zanim wprowadzimy nowe zmiany:
+
+```sql
+SELECT * FROM flat_enrollments EXCEPT SELECT * FROM enrollment_report;
+SELECT * FROM enrollment_report EXCEPT SELECT * FROM flat_enrollments;
+PRAGMA foreign_key_check;
+```
+
+Każdy wynik ma być pusty. Samo stwierdzenie „cztery wiersze przed i po” byłoby
+za słabe: raport mógłby mieć cztery inne wiersze. Klucze gwarantują tu unikalność
+pary zapisów, więc porównanie zbiorów nie ukrywa duplikatów tych samych zapisów.
+
+Kontrola potwierdza zgodność dla przygotowanych danych. Uzasadnienie bezstratności
+podziału opiera się na zależnościach: zapis wskazuje jedną osobę i jedną edycję,
+a edycja jeden kurs, salę i prowadzącego. Złączenia po tych kluczach odtwarzają
+opisy bez arbitralnego dopasowywania nazw.
+
+## 8. Trzy próby poprawionego projektu
+
+**Plik 07 — jedna zmiana nazwy.** Aktualizacja jednego wiersza `rooms` sprawia,
+że raport pokazuje „Sala Alfa” we wszystkich czterech zapisach. Stare tabele
+etapowe nie synchronizują się z nowymi; pozostają tylko do porównania.
+
+**Plik 08 — edycja bez zapisów.** Z wymagań klienta dodajemy K2 „Pierwsza pomoc”,
+salę S2 oraz E3, z limitem 4, bez żadnego uczestnika. To nowe dane względem arkusza,
+a nie część jego dekompozycji. Znany raport z poprzedniego wykładu daje:
+
+| Edycja | Limit | Potwierdzone | Wolne miejsca |
+|---|---:|---:|---:|
+| E1 | 2 | 2 | 0 |
+| E2 | 4 | 1 | 3 |
+| E3 | 4 | 0 | 4 |
+
+**Plik 09 — osoba pozostaje po usunięciu zapisu.** Usuwamy jedyny zapis Ady
+i sprawdzamy, że nadal istnieje w `participants`. Plik następnie przywraca zapis.
+W praktycznym procesie rezygnacji używalibyśmy statusu `cancelled`; fizyczne
+usunięcie tutaj służy wyłącznie pokazaniu niezależności osoby od zapisu.
+
+## 9. Czego normalizacja nie załatwia?
+
+W skryptach są klucze, wymagane wartości, dodatnie limity i pojemności oraz
+kontrola dozwolonych statusów. **Nie zaimplementowano jeszcze ochrony limitu
+potwierdzonych zapisów, limitu względem pojemności ani kolizji terminów.**
+Nie są one automatycznym skutkiem osiągnięcia 3NF; wymagają osobnych mechanizmów.
+
+Przechowywanie bieżącej nazwy osoby albo sali jest świadomym założeniem.
+Jeżeli zaświadczenie ma zachować dokładną treść z dnia wydania, potrzebujemy
+historii lub utrwalenia dokumentu. Taka kopia może mieć inne znaczenie biznesowe
+niż bieżący opis; nie każda powtórzona wartość jest błędem.
+
+## 10. BCNF jako uzupełnienie
+
+**BCNF — Boyce–Codd Normal Form**, postać normalna Boyce’a–Codda, wymaga,
+aby w każdej nietrywialnej zależności funkcjonalnej determinant był **nadkluczem**.
+Nie musi być minimalny, więc sformułowanie „zawsze klucz kandydujący” byłoby
+zbyt mocne. 3NF dopuszcza dodatkowo prawą stronę należącą do klucza kandydującego.
+
+Przy jawnie przyjętych tutaj zależnościach końcowe tabele spełniają także BCNF.
+Nie potrzeba dodatkowego podziału tylko po to, żeby dopisać następny etap pokazu.
+W ogólności przy rozkładzie do BCNF trzeba również przeanalizować zachowanie
+zależności: bezstratność złączenia i możliwość lokalnego wymuszania wszystkich
+reguł to osobne właściwości.
+
+## Co wynika z tego dla projektu?
+
+Dla każdej kolumny trzeba wskazać obiekt lub powiązanie, które opisuje,
+oraz identyfikator wyznaczający jej wartość. Podział ma usuwać konkretną anomalię,
+zachować fakty i umożliwić sprawdzenie raportu. Na kolejnym wykładzie przejdziemy
+do indeksów i planów wykonania: dobry model logiczny jest punktem wyjścia,
+ale nie zastępuje pomiaru wydajności.
+
+[Zadanie do pokazu](../scenariusze.qmd#wyklad-5).
+
+### Materiały uzupełniające
+
+- [RPI: zależności, klucze i normalizacja](https://www.cs.rpi.edu/~sibel/csci4380/fall2018/course_notes/normalization.html).
+- [SQLite: włączanie i kontrola kluczy obcych](https://www.sqlite.org/foreignkeys.html).

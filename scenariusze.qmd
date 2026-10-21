@@ -262,4 +262,19 @@ Efekt: jedna krótka notatka pary z dwoma przykładami raportu, który ma popraw
 składnię, ale nie odpowiada na pytanie klienta. Każda osoba uzasadnia jeden
 przypadek. Notatkę omawiamy na zajęciach; nie wysyłamy jej formularzem wykładu 1.
 
+## Wykład 5 — Co naprawdę jest redundancją? {#wyklad-5}
+
+[Wykład i paczka SQL](lectures/wyklad5.qmd). Pokaz dotyczy ośrodka „Dąb”.
+
+1. W parze wskażcie, dlaczego zmiana nazwy sali w jednym zapisie daje
+   sprzeczne dane mimo poprawnego klucza głównego. Zapiszcie dwie zależności
+   funkcjonalne i wskażcie, do których tabel należą ich atrybuty.
+2. Wyjaśnijcie, dlaczego sala na 20 osób i limit edycji 12 nie są tym samym
+   faktem. Następnie uzasadnijcie, po co po podziale pozostaje tabela zapisów
+   i dlaczego nie wolno odtworzyć pustej E3 z arkusza, w którym jej nie ma.
+
+Efekt: krótka notatka pary z przykładem anomalii i uzasadnieniem podziału.
+Każda osoba przedstawia jeden argument. Nie przesyłamy tej notatki formularzem
+wykładu 1. Samodzielne wykonanie operacji rozwiniemy na laboratoriach.
+
 Kolejne karty będą udostępniane wraz z następnymi zajęciami.
