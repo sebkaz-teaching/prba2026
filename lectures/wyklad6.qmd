@@ -1,5 +1,5 @@
 ---
-title: "Wykład 6: Projekt fizyczny, indeksy i plany zapytań"
+title: "Projekt fizyczny, indeksy i plany zapytań"
 resources:
   - media/seq_vs_index.mp4
 ---
