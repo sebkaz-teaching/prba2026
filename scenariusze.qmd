@@ -236,7 +236,7 @@ od pracy projektowej w parach.
 ## Wykład 3 — Sprawdźcie, czy baza chroni projekt {#wyklad-3}
 
 [Test i materiał](lectures/wyklad3.qmd). Test wykonujecie indywidualnie, a podczas
-pokazu rozmawiacie w parach. Nie trzeba instalować SQLite ani oddawać kolejnego diagramu.
+pokazu rozmawiacie w parach. Pokaz w PostgreSQL nie wymaga oddawania kolejnego diagramu.
 
 Przez cały pokaz zapisujcie krótką tabelę: **operacja / przewidywany wynik /
 zaobserwowany wynik / reguła**. Uwzględnijcie duplikat identyfikatora, niepoprawne

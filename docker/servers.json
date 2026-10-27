@@ -1,0 +1,16 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "PRBA — PostgreSQL",
+      "Group": "Zajęcia",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "prba4_pokaz",
+      "Username": "prba",
+      "ConnectionParameters": {
+        "sslmode": "prefer",
+        "passfile": ".pgpass"
+      }
+    }
+  }
+}

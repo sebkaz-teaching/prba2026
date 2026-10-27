@@ -1,0 +1,3 @@
+PRBA — wykład 3, PostgreSQL 16 i pgAdmin
+Baza: prba3_pokaz. Auto commit włączone. Wykonuj pliki pojedynczo.
+Zacznij od 00_connection.sql. Pliki 02,03,06,07,10,11,12,13 mają celowo zgłaszać błędy ograniczeń. Po błędzie w jawnej transakcji wykonaj ROLLBACK.

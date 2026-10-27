@@ -1,0 +1,3 @@
+PRBA — wykład 5, PostgreSQL 16 i pgAdmin
+Baza: prba5_pokaz. Auto commit włączone. Wykonuj pliki pojedynczo.
+Baza jest celowo pusta. Wykonaj pliki 00–09 po jednym razie. Dwa porównania EXCEPT w 06 mają być puste; lista kluczy obcych ma convalidated=true.

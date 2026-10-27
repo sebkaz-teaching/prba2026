@@ -248,7 +248,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="z-gotowego-projektu-do-odpowiedzi-dla-użytkownika">Z gotowego projektu do odpowiedzi dla użytkownika</h2>
 <p><strong>Ten wykład nie ma testu.</strong> Zaczynamy od działającej bazy ośrodka „Dąb” z poprzedniego spotkania. Nie tworzymy jeszcze raz tabel i nie zmieniamy przykładu na bibliotekę. Kierownik chce wiedzieć: kto przyjdzie, ile miejsc zostało i które szkolenia można jeszcze zaproponować uczestnikom.</p>
 <p>SQL, czyli <strong>Structured Query Language</strong> (strukturalny język zapytań), pozwala wyrazić takie pytania. Jest deklaratywny: opisujemy oczekiwany wynik, a silnik dobiera sposób wykonania. Poprawna składnia nie gwarantuje jednak poprawnej odpowiedzi biznesowej. Zapytanie może wykonać się bez błędu i policzyć coś innego, niż potrzebuje użytkownik. To główny problem dzisiejszego pokazu.</p>
-<p>Prowadzący wykonuje zapytania w DB Browser for SQLite. Przed każdym wykonaniem przewidujemy wynik, a po nim porównujemy go z małym zbiorem kontrolnym. Samodzielne pisanie zapytań rozwiniemy na laboratoriach.</p>
+<p>Zapytania wykonujemy w PostgreSQL przez pgAdmin. Przed każdym wykonaniem przewidujemy wynik, a po nim porównujemy go z małym zbiorem kontrolnym. Samodzielne pisanie zapytań rozwiniemy na laboratoriach.</p>
 </section>
 <section id="stan-na-którym-sprawdzamy-raport" class="level2">
 <h2 class="anchored" data-anchor-id="stan-na-którym-sprawdzamy-raport">Stan, na którym sprawdzamy raport</h2>
@@ -286,7 +286,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>To stan początkowy. Jeśli podczas poprzedniego pokazu zmieniono dane, trzeba najpierw je porównać z tą tabelą albo otworzyć świeżą kopię bazy demonstracyjnej. Inny wynik nie zawsze oznacza błędny SQL: może wynikać z innego stanu danych.</p>
+<p>To stan początkowy. Jeśli podczas poprzedniego pokazu zmieniono dane, trzeba najpierw je porównać z tą tabelą. Pokaz uruchamiamy w osobnej bazie <code>prba4_pokaz</code>, która ma ten sam model i wyjściowe dane co wykład 3. Dzięki temu przebieg poprzedniej demonstracji nie zmienia punktu startowego raportów. Inny wynik nie zawsze oznacza błędny SQL: może wynikać z innego stanu danych.</p>
+<p><a href="../assets/sql/prba4-raporty.zip">Pliki SQL do raportów — pobierz ZIP</a>. Compose kursu przygotowuje dane z pliku <code>00_setup.sql</code> automatycznie, gdy w bazie nie ma jeszcze tabel pokazu. W pgAdmin wybieramy <code>prba4_pokaz</code>, otwieramy <strong>Query Tool</strong> i zaczynamy od <code>01_roster.sql</code>. Przy samodzielnym odtwarzaniu poza Compose plik 00 wykonuje się raz w nowej bazie.</p>
 </section>
 <section id="kto-przyjdzie-na-e1" class="level2">
 <h2 class="anchored" data-anchor-id="kto-przyjdzie-na-e1">1. Kto przyjdzie na E1?</h2>
@@ -365,7 +366,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> participant_id <span class="op">=</span> <span class="st">'U2'</span> <span class="kw">AND</span> edition_id <span class="op">=</span> <span class="st">'E1'</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> enrollments <span class="kw">SET</span> status <span class="op">=</span> <span class="st">'cancelled'</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> participant_id <span class="op">=</span> <span class="st">'U2'</span> <span class="kw">AND</span> edition_id <span class="op">=</span> <span class="st">'E1'</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Zmienia się dokładnie U2–E1. W DB Browser zatwierdzamy przez <strong>Write Changes</strong>, a potem ponawiamy raport wolnych miejsc. Wynik to teraz <strong>1, 3, 4</strong>, więc E1 również pojawi się wśród dostępnych edycji. Nazwisko uczestnika i inne zapisy nie zmieniły się. Nie usunęliśmy Bartka z ewidencji.</p>
+<p>Zmienia się dokładnie U2–E1. Przy włączonym <strong>Auto commit</strong> w pgAdmin zmiana zostaje zatwierdzona po poprawnym wykonaniu polecenia. Następnie ponawiamy raport wolnych miejsc. Wynik to teraz <strong>1, 3, 4</strong>, więc E1 również pojawi się wśród dostępnych edycji. Nazwisko uczestnika i inne zapisy nie zmieniły się. Nie usunęliśmy Bartka z ewidencji.</p>
 <p>Bez warunku edycji aktualizacja dotyczyłaby wszystkich zapisów Bartka. Bez <code>WHERE</code> dotyczyłaby wszystkich zapisów w tabeli. Operacja bez WHERE nie jest błędem składni: może być zamierzona, ale jej zakres trzeba świadomie ustalić.</p>
 <p>Prowadzący przywróci stan bazowy przed kolejną próbą, po sprawdzeniu, że nikt nie zajął zwolnionego miejsca. Sam odczyt i późniejszy UPDATE nie stanowią kompletnej ochrony przed równoczesnymi zgłoszeniami.</p>
 </section>

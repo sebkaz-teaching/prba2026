@@ -1,0 +1,37 @@
+PRBA — samodzielne środowisko PostgreSQL i pgAdmin
+
+Uruchom Docker Desktop. W terminalu przejdź do tego katalogu:
+cd /Users/seba/Documents/GitHub/prba2026/docker
+docker compose up -d
+
+Panel: http://localhost:5052
+Login: admin@example.com
+Hasło do panelu: PgAdmin2026Local
+Serwer jest już dodany; hasło bazy jest wczytywane automatycznie.
+
+Bazy i skrypty:
+- prba3_pokaz → materials/lectures/wyklad3
+- prba4_pokaz → materials/lectures/wyklad4
+- prba5_pokaz → materials/lectures/wyklad5
+- prba6_pokaz → materials/lectures/wyklad6
+
+W pgAdmin: rozwiń serwer → Databases → wybrana baza → Query Tool.
+Open File → materials → lectures → właściwy wykład.
+PRBA 3 i 5 zaczynają od pustej bazy: wykonuj pliki od 00 po jednym razie.
+PRBA 4 i 6 mają już dane startowe: rozpocznij od pliku 01, nie powtarzaj 00.
+PRBA 3: pliki 02,03,06,07,10,11,12,13 celowo zgłaszają błędy ograniczeń.
+PRBA 6: 05_repeat_baseline.sql usuwa tylko dodatkowy indeks pokazu.
+
+Włącz Auto commit. Wyniki: Data Output. Komunikaty: Messages.
+Po błędzie wewnątrz jawnej transakcji: ROLLBACK przed następną próbą.
+
+Po zajęciach: docker compose stop
+Następny start lub zastosowanie zmian: docker compose up -d
+Dane pozostają w woluminach. Nie używaj down -v, jeśli chcesz je zachować.
+Usługa prepare ze statusem Exited (0) oznacza poprawne przygotowanie baz.
+Zmiany własnych kopii SQL w pgAdmin nie są nadpisywane przy starcie.
+
+Cały katalog docker można przenieść na inny komputer z Docker Desktop.
+Dane nie są w Git: nowy komputer odtwarza stan początkowy ze skryptów.
+Katalog nie trafia do stron Quarto. Laboratoria dołożymy osobno.
+Przykładowe hasła służą wyłącznie do lokalnej pracy; panel jest na 127.0.0.1.

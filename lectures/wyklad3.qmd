@@ -75,7 +75,7 @@ sprawdzimy, czy potrafimy zapisać te ustalenia w bazie i rozpoznać niepoprawne
 **Model relacyjny opisuje logiczną strukturę danych**: relacje, atrybuty, klucze
 i ograniczenia. Nie opisuje fizycznego rozmieszczenia bajtów na dysku.
 
-Przez cały pokaz budujemy jeden przykład. Prowadzący uruchamia polecenia w SQLite;
+Przez cały pokaz budujemy jeden przykład w **PostgreSQL**, używając **pgAdmin**;
 Waszym zadaniem jest przewidywać wyniki i proponować próby naruszenia reguł.
 Nie trzeba jeszcze samodzielnie odtwarzać całej składni SQL.
 
@@ -98,17 +98,20 @@ wycinkiem; nie implementujemy jeszcze reguł kolizji terminów.
 
 ## Pusta baza i pierwsze reguły
 
-W SQLite sprawdzamy ustawienia używanego połączenia:
+Pokaz rozpoczyna się w pustej bazie `prba3_pokaz`. Środowisko Compose kursu
+przygotowuje ją bez tabel. W pgAdmin wybieramy tę bazę i otwieramy **Query Tool**.
+Auto commit pozostaje włączone. [Komplet plików SQL — pobierz ZIP](../assets/sql/prba3-model.zip).
 
 ```sql
-PRAGMA foreign_keys = ON;
-PRAGMA foreign_keys;
-SELECT sqlite_version();
+SELECT version();
+SELECT current_database(), current_user;
 ```
 
-Wynik `foreign_keys` powinien wynosić 1. Ustawienie włączamy poza transakcją;
-po ponownym połączeniu sprawdzamy je ponownie. Przykłady korzystają z tabel
-`STRICT`, wymagających SQLite co najmniej 3.37.0.
+Pierwsze zapytanie identyfikuje wersję serwera, drugie pomaga upewnić się,
+że polecenia trafią do właściwej bazy. Kluczy obcych nie włączamy osobnym
+poleceniem: po zadeklarowaniu są sprawdzane przez PostgreSQL. Tabele mają
+zdefiniowane typy kolumn; nie dodajemy słowa `STRICT` do `CREATE TABLE`.
+Dla terminu edycji używamy `timestamp`, czyli typu daty i czasu.
 
 ### Uczestnik i jego tożsamość
 
@@ -116,7 +119,7 @@ po ponownym połączeniu sprawdzamy je ponownie. Przykłady korzystają z tabel
 CREATE TABLE participants (
     participant_id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL
-) STRICT;
+);
 INSERT INTO participants VALUES
     ('U1', 'Ada'), ('U2', 'Bartek'), ('U3', 'Celina');
 SELECT * FROM participants ORDER BY participant_id;
@@ -136,16 +139,16 @@ tego, że ma inne imię? Sprawdźcie też różnicę między `NULL` i pustym tek
 CREATE TABLE courses (
     course_id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL
-) STRICT;
+);
 INSERT INTO courses VALUES
     ('K1', 'Obsluga wyposazenia'),
     ('K2', 'Pierwsza pomoc');
 CREATE TABLE editions (
     edition_id TEXT NOT NULL PRIMARY KEY,
     course_id TEXT NOT NULL REFERENCES courses(course_id),
-    starts_at TEXT NOT NULL,
+    starts_at TIMESTAMP NOT NULL,
     seat_limit INTEGER NOT NULL CHECK (seat_limit > 0)
-) STRICT;
+);
 INSERT INTO editions VALUES
     ('E1', 'K1', '2027-02-01 08:00', 2),
     ('E2', 'K1', '2027-02-01 10:00', 4),
@@ -176,7 +179,7 @@ CREATE TABLE enrollments (
     status TEXT NOT NULL
         CHECK (status IN ('confirmed', 'cancelled')),
     PRIMARY KEY (participant_id, edition_id)
-) STRICT;
+);
 INSERT INTO enrollments VALUES
     ('U1', 'E1', 'confirmed'),
     ('U2', 'E1', 'confirmed'),
@@ -200,13 +203,18 @@ erDiagram
 ```
 
 Diagram przedstawia powiązania czterech tabel. Nie pokazuje wszystkich ograniczeń,
-np. limitu liczby potwierdzonych zapisów. W DB Browser strukturę oglądamy w
-**Database Structure**, dane w **Browse Data**, a polecenia wykonujemy w
-**Execute SQL**. Ten rysunek jest ilustracją modelu, nie automatycznym widokiem programu.
+np. limitu liczby potwierdzonych zapisów. W pgAdmin strukturę oglądamy pod
+**Schemas → public → Tables**, a polecenia wykonujemy w **Query Tool**.
+Wyniki zapytań pojawiają się w **Data Output**, błędy w **Messages**.
+Po utworzeniu tabel może być potrzebne **Refresh** w drzewie obiektów.
+Ten rysunek jest ilustracją modelu, nie automatycznym widokiem programu.
 
 ## Próby naruszenia reguł
 
-Przed każdą operacją odpowiedzcie: przyjęta czy odrzucona, i dlaczego?
+Przed każdą operacją rozstrzygamy: przyjęta czy odrzucona, i dlaczego?
+Pliki 02, 03, 06, 07, 10, 11, 12 i 13 celowo zgłaszają błędy. Wykonujemy je
+osobno, przy włączonym Auto commit. Błąd wewnątrz jawnej transakcji wymaga
+`ROLLBACK` przed dalszą pracą — nie oznacza uszkodzenia bazy.
 
 1. Nowa osoba z istniejącym identyfikatorem U1.
 2. Edycja wskazująca nieistniejący kurs.
@@ -216,7 +224,7 @@ Przed każdą operacją odpowiedzcie: przyjęta czy odrzucona, i dlaczego?
 6. Usunięcie Bartka, kiedy istnieją jego zapisy.
 
 Powiązania mają tu domyślne zachowanie przy usuwaniu. Nie deklarujemy
-`ON DELETE CASCADE`. Baza z włączoną kontrolą kluczy obcych odrzuci usunięcie
+`ON DELETE CASCADE`. PostgreSQL odrzuci usunięcie
 uczestnika, które pozostawiłoby zapisy bez poprawnego odwołania.
 
 ## Zmiana jednego zapisu
@@ -249,7 +257,7 @@ wartość limitu, a nie liczbę zapisów w innej tabeli.
 
 To nie jest kompletny system przyjmowania zgłoszeń. Ochrona limitu wymaga
 dodatkowego mechanizmu, który obejmie sprawdzenie i modyfikację również przy
-równoczesnych operacjach. W SQLite nie umieścimy podzapytania w zwykłym `CHECK`.
+równoczesnych operacjach. W PostgreSQL zwykły `CHECK` nie może zawierać podzapytania.
 Dzisiaj rozpoznajemy brakującą ochronę, zamiast udawać, że sam diagram ją zapewnia.
 
 ## Uzupełnienie reguł mapowania
@@ -283,6 +291,6 @@ sprawdzeniu projektu; nie wymaga zapamiętania całej składni.
 
 [Zadanie towarzyszące pokazowi](../scenariusze.qmd#wyklad-3).
 
-Źródła techniczne: [SQLite: klucze obce](https://www.sqlite.org/foreignkeys.html),
-[tabele STRICT](https://www.sqlite.org/stricttables.html),
-[ograniczenia CHECK](https://www.sqlite.org/lang_createtable.html).
+Źródła techniczne: [PostgreSQL: ograniczenia tabel](https://www.postgresql.org/docs/16/ddl-constraints.html),
+[typy daty i czasu](https://www.postgresql.org/docs/16/datatype-datetime.html),
+[transakcje](https://www.postgresql.org/docs/16/tutorial-transactions.html).

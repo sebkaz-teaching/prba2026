@@ -318,7 +318,7 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <section id="od-diagramu-do-działającej-bazy" class="level2">
 <h2 class="anchored" data-anchor-id="od-diagramu-do-działającej-bazy">Od diagramu do działającej bazy</h2>
 <p>Na poprzednim spotkaniu ustaliliśmy, jakie obiekty opisuje ośrodek „Dąb”. Teraz sprawdzimy, czy potrafimy zapisać te ustalenia w bazie i rozpoznać niepoprawne operacje. <strong>Model relacyjny opisuje logiczną strukturę danych</strong>: relacje, atrybuty, klucze i ograniczenia. Nie opisuje fizycznego rozmieszczenia bajtów na dysku.</p>
-<p>Przez cały pokaz budujemy jeden przykład. Prowadzący uruchamia polecenia w SQLite; Waszym zadaniem jest przewidywać wyniki i proponować próby naruszenia reguł. Nie trzeba jeszcze samodzielnie odtwarzać całej składni SQL.</p>
+<p>Przez cały pokaz budujemy jeden przykład w <strong>PostgreSQL</strong>, używając <strong>pgAdmin</strong>; Waszym zadaniem jest przewidywać wyniki i proponować próby naruszenia reguł. Nie trzeba jeszcze samodzielnie odtwarzać całej składni SQL.</p>
 </section>
 <section id="cztery-obiekty-które-zamienimy-w-tabele" class="level2">
 <h2 class="anchored" data-anchor-id="cztery-obiekty-które-zamienimy-w-tabele">Cztery obiekty, które zamienimy w tabele</h2>
@@ -358,17 +358,16 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 </section>
 <section id="pusta-baza-i-pierwsze-reguły" class="level2">
 <h2 class="anchored" data-anchor-id="pusta-baza-i-pierwsze-reguły">Pusta baza i pierwsze reguły</h2>
-<p>W SQLite sprawdzamy ustawienia używanego połączenia:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>PRAGMA foreign_keys <span class="op">=</span> <span class="kw">ON</span>;</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>PRAGMA foreign_keys;</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> sqlite_version();</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Wynik <code>foreign_keys</code> powinien wynosić 1. Ustawienie włączamy poza transakcją; po ponownym połączeniu sprawdzamy je ponownie. Przykłady korzystają z tabel <code>STRICT</code>, wymagających SQLite co najmniej 3.37.0.</p>
+<p>Pokaz rozpoczyna się w pustej bazie <code>prba3_pokaz</code>. Środowisko Compose kursu przygotowuje ją bez tabel. W pgAdmin wybieramy tę bazę i otwieramy <strong>Query Tool</strong>. Auto commit pozostaje włączone. <a href="../assets/sql/prba3-model.zip">Komplet plików SQL — pobierz ZIP</a>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> version();</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> current_database(), current_user;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pierwsze zapytanie identyfikuje wersję serwera, drugie pomaga upewnić się, że polecenia trafią do właściwej bazy. Kluczy obcych nie włączamy osobnym poleceniem: po zadeklarowaniu są sprawdzane przez PostgreSQL. Tabele mają zdefiniowane typy kolumn; nie dodajemy słowa <code>STRICT</code> do <code>CREATE TABLE</code>. Dla terminu edycji używamy <code>timestamp</code>, czyli typu daty i czasu.</p>
 <section id="uczestnik-i-jego-tożsamość" class="level3">
 <h3 class="anchored" data-anchor-id="uczestnik-i-jego-tożsamość">Uczestnik i jego tożsamość</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> participants (</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    participant_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    name TEXT <span class="kw">NOT</span> <span class="kw">NULL</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>);</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> participants <span class="kw">VALUES</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U1'</span>, <span class="st">'Ada'</span>), (<span class="st">'U2'</span>, <span class="st">'Bartek'</span>), (<span class="st">'U3'</span>, <span class="st">'Celina'</span>);</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> participants <span class="kw">ORDER</span> <span class="kw">BY</span> participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -381,16 +380,16 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> courses (</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    course_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    name TEXT <span class="kw">NOT</span> <span class="kw">NULL</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>);</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> courses <span class="kw">VALUES</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'K1'</span>, <span class="st">'Obsluga wyposazenia'</span>),</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'K2'</span>, <span class="st">'Pierwsza pomoc'</span>);</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> editions (</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    edition_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    course_id TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">REFERENCES</span> courses(course_id),</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    starts_at TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    starts_at <span class="dt">TIMESTAMP</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    seat_limit <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (seat_limit <span class="op">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>);</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> editions <span class="kw">VALUES</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'E1'</span>, <span class="st">'K1'</span>, <span class="st">'2027-02-01 08:00'</span>, <span class="dv">2</span>),</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'E2'</span>, <span class="st">'K1'</span>, <span class="st">'2027-02-01 10:00'</span>, <span class="dv">4</span>),</span>
@@ -409,7 +408,7 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    status TEXT <span class="kw">NOT</span> <span class="kw">NULL</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">CHECK</span> (status <span class="kw">IN</span> (<span class="st">'confirmed'</span>, <span class="st">'cancelled'</span>)),</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (participant_id, edition_id)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>) STRICT;</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>);</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> enrollments <span class="kw">VALUES</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U1'</span>, <span class="st">'E1'</span>, <span class="st">'confirmed'</span>),</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'U2'</span>, <span class="st">'E1'</span>, <span class="st">'confirmed'</span>),</span>
@@ -432,11 +431,11 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 </div>
 </div>
 </div>
-<p>Diagram przedstawia powiązania czterech tabel. Nie pokazuje wszystkich ograniczeń, np. limitu liczby potwierdzonych zapisów. W DB Browser strukturę oglądamy w <strong>Database Structure</strong>, dane w <strong>Browse Data</strong>, a polecenia wykonujemy w <strong>Execute SQL</strong>. Ten rysunek jest ilustracją modelu, nie automatycznym widokiem programu.</p>
+<p>Diagram przedstawia powiązania czterech tabel. Nie pokazuje wszystkich ograniczeń, np. limitu liczby potwierdzonych zapisów. W pgAdmin strukturę oglądamy pod <strong>Schemas → public → Tables</strong>, a polecenia wykonujemy w <strong>Query Tool</strong>. Wyniki zapytań pojawiają się w <strong>Data Output</strong>, błędy w <strong>Messages</strong>. Po utworzeniu tabel może być potrzebne <strong>Refresh</strong> w drzewie obiektów. Ten rysunek jest ilustracją modelu, nie automatycznym widokiem programu.</p>
 </section>
 <section id="próby-naruszenia-reguł" class="level2">
 <h2 class="anchored" data-anchor-id="próby-naruszenia-reguł">Próby naruszenia reguł</h2>
-<p>Przed każdą operacją odpowiedzcie: przyjęta czy odrzucona, i dlaczego?</p>
+<p>Przed każdą operacją rozstrzygamy: przyjęta czy odrzucona, i dlaczego? Pliki 02, 03, 06, 07, 10, 11, 12 i 13 celowo zgłaszają błędy. Wykonujemy je osobno, przy włączonym Auto commit. Błąd wewnątrz jawnej transakcji wymaga <code>ROLLBACK</code> przed dalszą pracą — nie oznacza uszkodzenia bazy.</p>
 <ol type="1">
 <li>Nowa osoba z istniejącym identyfikatorem U1.</li>
 <li>Edycja wskazująca nieistniejący kurs.</li>
@@ -445,7 +444,7 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <li>Status <code>banana</code> zamiast jednej z dozwolonych wartości.</li>
 <li>Usunięcie Bartka, kiedy istnieją jego zapisy.</li>
 </ol>
-<p>Powiązania mają tu domyślne zachowanie przy usuwaniu. Nie deklarujemy <code>ON DELETE CASCADE</code>. Baza z włączoną kontrolą kluczy obcych odrzuci usunięcie uczestnika, które pozostawiłoby zapisy bez poprawnego odwołania.</p>
+<p>Powiązania mają tu domyślne zachowanie przy usuwaniu. Nie deklarujemy <code>ON DELETE CASCADE</code>. PostgreSQL odrzuci usunięcie uczestnika, które pozostawiłoby zapisy bez poprawnego odwołania.</p>
 </section>
 <section id="zmiana-jednego-zapisu" class="level2">
 <h2 class="anchored" data-anchor-id="zmiana-jednego-zapisu">Zmiana jednego zapisu</h2>
@@ -459,7 +458,7 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <p>Przywracamy podstawowy stan: na E1 są Ada i Bartek, limit wynosi 2. Następnie próbujemy dopisać Celinę:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> enrollments <span class="kw">VALUES</span> (<span class="st">'U3'</span>, <span class="st">'E1'</span>, <span class="st">'confirmed'</span>);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Ta operacja zostanie przyjęta przez pokazany schemat. Wszystkie odwołania są poprawne, para jest nowa, status dozwolony. <code>CHECK (seat_limit &gt; 0)</code> sprawdza wartość limitu, a nie liczbę zapisów w innej tabeli.</p>
-<p>To nie jest kompletny system przyjmowania zgłoszeń. Ochrona limitu wymaga dodatkowego mechanizmu, który obejmie sprawdzenie i modyfikację również przy równoczesnych operacjach. W SQLite nie umieścimy podzapytania w zwykłym <code>CHECK</code>. Dzisiaj rozpoznajemy brakującą ochronę, zamiast udawać, że sam diagram ją zapewnia.</p>
+<p>To nie jest kompletny system przyjmowania zgłoszeń. Ochrona limitu wymaga dodatkowego mechanizmu, który obejmie sprawdzenie i modyfikację również przy równoczesnych operacjach. W PostgreSQL zwykły <code>CHECK</code> nie może zawierać podzapytania. Dzisiaj rozpoznajemy brakującą ochronę, zamiast udawać, że sam diagram ją zapewnia.</p>
 </section>
 <section id="uzupełnienie-reguł-mapowania" class="level2">
 <h2 class="anchored" data-anchor-id="uzupełnienie-reguł-mapowania">Uzupełnienie reguł mapowania</h2>
@@ -477,7 +476,7 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <h2 class="anchored" data-anchor-id="co-zabieramy-na-następne-zajęcia">Co zabieramy na następne zajęcia?</h2>
 <p>Potrafimy wyjaśnić, dlaczego istnieje każda tabela, gdzie znajdują się klucze oraz jaki błąd blokuje dane ograniczenie. Na wykładzie 4 rozwiniemy SQL: odczytywanie, filtrowanie, łączenie i zmienianie danych. Dzisiejszy pokaz służy sprawdzeniu projektu; nie wymaga zapamiętania całej składni.</p>
 <p><a href="../scenariusze.html#wyklad-3">Zadanie towarzyszące pokazowi</a>.</p>
-<p>Źródła techniczne: <a href="https://www.sqlite.org/foreignkeys.html">SQLite: klucze obce</a>, <a href="https://www.sqlite.org/stricttables.html">tabele STRICT</a>, <a href="https://www.sqlite.org/lang_createtable.html">ograniczenia CHECK</a>.</p>
+<p>Źródła techniczne: <a href="https://www.postgresql.org/docs/16/ddl-constraints.html">PostgreSQL: ograniczenia tabel</a>, <a href="https://www.postgresql.org/docs/16/datatype-datetime.html">typy daty i czasu</a>, <a href="https://www.postgresql.org/docs/16/tutorial-transactions.html">transakcje</a>.</p>
 
 
 </section>

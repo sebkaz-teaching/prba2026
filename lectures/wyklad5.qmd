@@ -17,14 +17,13 @@ potrzebnej do raportowania. Liczba tabel sama w sobie nie mierzy jakości projek
 
 [Pliki SQL do pokazu — pobierz ZIP](../assets/sql/prba5-normalizacja.zip).
 
-Pokaz działa w **DB Browser for SQLite, SQLite 3.37 lub nowszy**. To osobna,
-nowa baza, np. `prba5-normalizacja.db`; plików nie uruchamia się na bazie
-z poprzedniego wykładu. W **Execute SQL** kolejne pliki 00–09 wykonuje się
-po jednym razie. Po zmianach wybiera się **Write Changes**. Pliki kontrolne 02
-oraz 06 zawierają kilka zapytań: ich wyniki należy obejrzeć osobno.
-`PRAGMA foreign_keys = ON` włącza kontrolę kluczy obcych dla połączenia;
-wykonuje się je bez aktywnej transakcji, także po ponownym otwarciu bazy.
-`PRAGMA foreign_keys` powinno zwrócić 1.
+Pokaz działa w **PostgreSQL i pgAdmin**, w osobnej bazie `prba5_pokaz`.
+Compose tworzy tę bazę pustą: budowanie tabel jest częścią demonstracji.
+W **Query Tool** kolejne pliki 00–09 wykonuje się po jednym razie, przy
+włączonym **Auto commit**. Pliki kontrolne 02 oraz 06 zawierają kilka zapytań:
+ich wyniki należy obejrzeć osobno. Klucze obce są sprawdzane przez serwer
+bez dodatkowego polecenia włączającego. Daty i godziny mają typ `timestamp`.
+Nie wykonujemy tego pokazu na tabelach z wykładu 4.
 
 ## ✅ Sprawdź się z wykładu 4
 
@@ -263,10 +262,15 @@ Plik 06 porównuje dane w obu kierunkach, zanim wprowadzimy nowe zmiany:
 ```sql
 SELECT * FROM flat_enrollments EXCEPT SELECT * FROM enrollment_report;
 SELECT * FROM enrollment_report EXCEPT SELECT * FROM flat_enrollments;
-PRAGMA foreign_key_check;
+SELECT conrelid::regclass AS table_name, conname, convalidated
+FROM pg_constraint
+WHERE connamespace = 'public'::regnamespace AND contype = 'f';
 ```
 
-Każdy wynik ma być pusty. Samo stwierdzenie „cztery wiersze przed i po” byłoby
+Dwa wyniki `EXCEPT` mają być puste. Trzecie zapytanie wypisuje klucze obce:
+każdy powinien mieć `convalidated = true`. To kontrola stanu ograniczeń,
+a nie kolejny pusty raport ani kontrola wszystkich reguł biznesowych.
+Samo stwierdzenie „cztery wiersze przed i po” byłoby
 za słabe: raport mógłby mieć cztery inne wiersze. Klucze gwarantują tu unikalność
 pary zapisów, więc porównanie zbiorów nie ukrywa duplikatów tych samych zapisów.
 
@@ -334,4 +338,5 @@ ale nie zastępuje pomiaru wydajności.
 ### Materiały uzupełniające
 
 - [RPI: zależności, klucze i normalizacja](https://www.cs.rpi.edu/~sibel/csci4380/fall2018/course_notes/normalization.html).
-- [SQLite: włączanie i kontrola kluczy obcych](https://www.sqlite.org/foreignkeys.html).
+- [PostgreSQL: klucze i ograniczenia](https://www.postgresql.org/docs/16/ddl-constraints.html).
+- [Katalog ograniczeń pg_constraint](https://www.postgresql.org/docs/16/catalog-pg-constraint.html).

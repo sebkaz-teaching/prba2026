@@ -1,6 +1,7 @@
 PRBA 6 — PostgreSQL / pgAdmin
 
-W osobnej bazie wykonaj 00_setup.sql jeden raz. Dane: 200000 zapisów, 180000 confirmed; edycja 42: 180 confirmed i 20 cancelled.
+W Compose kursu baza prba6_pokaz jest już przygotowana: zacznij od 01_before.sql.
+Poza Compose wykonaj 00_setup.sql jeden raz w nowej bazie. Dane: 200000 zapisów, 180000 confirmed; edycja 42: 180 confirmed i 20 cancelled.
 Kolejność pomiarów: 01_before.sql, 02_index.sql, 03_after.sql, 04_broad_query.sql.
 W 03 wykonuj dwa EXPLAIN osobno; tylko pierwszy jest tym samym raportem co w 01.
 05_repeat_baseline.sql usuwa tylko dodatkowy indeks i pozwala powtórzyć 01–03.

@@ -15,7 +15,7 @@ dobiera sposób wykonania. Poprawna składnia nie gwarantuje jednak poprawnej
 odpowiedzi biznesowej. Zapytanie może wykonać się bez błędu i policzyć coś innego,
 niż potrzebuje użytkownik. To główny problem dzisiejszego pokazu.
 
-Prowadzący wykonuje zapytania w DB Browser for SQLite. Przed każdym wykonaniem
+Zapytania wykonujemy w PostgreSQL przez pgAdmin. Przed każdym wykonaniem
 przewidujemy wynik, a po nim porównujemy go z małym zbiorem kontrolnym.
 Samodzielne pisanie zapytań rozwiniemy na laboratoriach.
 
@@ -28,8 +28,16 @@ Samodzielne pisanie zapytań rozwiniemy na laboratoriach.
 | E3, kurs K2 | 4 | Brak zapisów | 0 | 4 |
 
 To stan początkowy. Jeśli podczas poprzedniego pokazu zmieniono dane, trzeba
-najpierw je porównać z tą tabelą albo otworzyć świeżą kopię bazy demonstracyjnej.
+najpierw je porównać z tą tabelą. Pokaz uruchamiamy w osobnej bazie
+`prba4_pokaz`, która ma ten sam model i wyjściowe dane co wykład 3.
+Dzięki temu przebieg poprzedniej demonstracji nie zmienia punktu startowego raportów.
 Inny wynik nie zawsze oznacza błędny SQL: może wynikać z innego stanu danych.
+
+[Pliki SQL do raportów — pobierz ZIP](../assets/sql/prba4-raporty.zip).
+Compose kursu przygotowuje dane z pliku `00_setup.sql` automatycznie, gdy
+w bazie nie ma jeszcze tabel pokazu. W pgAdmin wybieramy `prba4_pokaz`,
+otwieramy **Query Tool** i zaczynamy od `01_roster.sql`. Przy samodzielnym
+odtwarzaniu poza Compose plik 00 wykonuje się raz w nowej bazie.
 
 ## 1. Kto przyjdzie na E1?
 
@@ -177,8 +185,9 @@ UPDATE enrollments SET status = 'cancelled'
 WHERE participant_id = 'U2' AND edition_id = 'E1';
 ```
 
-Zmienia się dokładnie U2–E1. W DB Browser zatwierdzamy przez **Write Changes**,
-a potem ponawiamy raport wolnych miejsc. Wynik to teraz **1, 3, 4**, więc E1
+Zmienia się dokładnie U2–E1. Przy włączonym **Auto commit** w pgAdmin
+zmiana zostaje zatwierdzona po poprawnym wykonaniu polecenia.
+Następnie ponawiamy raport wolnych miejsc. Wynik to teraz **1, 3, 4**, więc E1
 również pojawi się wśród dostępnych edycji. Nazwisko uczestnika i inne zapisy
 nie zmieniły się. Nie usunęliśmy Bartka z ewidencji.
 

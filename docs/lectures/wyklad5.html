@@ -253,7 +253,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>W poprzednim wykładzie raport ośrodka „Dąb” zwracał 0, 3 i 4 wolne miejsca w edycjach E1, E2 i E3. Poprawny raport nie rozstrzyga jednak, czy projekt pozwala bezpiecznie zmieniać dane. Jeżeli nazwę sali zapisano przy każdym uczestniku, jedna zmiana nazwy wymaga odnalezienia wielu kopii.</p>
 <p>Normalizacja porządkuje strukturę według znaczenia danych i ich zależności. Celem tego pokazu jest usunięcie konkretnych anomalii przy zachowaniu informacji potrzebnej do raportowania. Liczba tabel sama w sobie nie mierzy jakości projektu.</p>
 <p><a href="../assets/sql/prba5-normalizacja.zip">Pliki SQL do pokazu — pobierz ZIP</a>.</p>
-<p>Pokaz działa w <strong>DB Browser for SQLite, SQLite 3.37 lub nowszy</strong>. To osobna, nowa baza, np. <code>prba5-normalizacja.db</code>; plików nie uruchamia się na bazie z poprzedniego wykładu. W <strong>Execute SQL</strong> kolejne pliki 00–09 wykonuje się po jednym razie. Po zmianach wybiera się <strong>Write Changes</strong>. Pliki kontrolne 02 oraz 06 zawierają kilka zapytań: ich wyniki należy obejrzeć osobno. <code>PRAGMA foreign_keys = ON</code> włącza kontrolę kluczy obcych dla połączenia; wykonuje się je bez aktywnej transakcji, także po ponownym otwarciu bazy. <code>PRAGMA foreign_keys</code> powinno zwrócić 1.</p>
+<p>Pokaz działa w <strong>PostgreSQL i pgAdmin</strong>, w osobnej bazie <code>prba5_pokaz</code>. Compose tworzy tę bazę pustą: budowanie tabel jest częścią demonstracji. W <strong>Query Tool</strong> kolejne pliki 00–09 wykonuje się po jednym razie, przy włączonym <strong>Auto commit</strong>. Pliki kontrolne 02 oraz 06 zawierają kilka zapytań: ich wyniki należy obejrzeć osobno. Klucze obce są sprawdzane przez serwer bez dodatkowego polecenia włączającego. Daty i godziny mają typ <code>timestamp</code>. Nie wykonujemy tego pokazu na tabelach z wykładu 4.</p>
 </section>
 <section id="sprawdź-się-z-wykładu-4" class="level2">
 <h2 class="anchored" data-anchor-id="sprawdź-się-z-wykładu-4">✅ Sprawdź się z wykładu 4</h2>
@@ -481,8 +481,10 @@ enrollments(participant_id PK/FK, edition_id PK/FK, status)</code></pre>
 <p>Plik 06 porównuje dane w obu kierunkach, zanim wprowadzimy nowe zmiany:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> flat_enrollments <span class="kw">EXCEPT</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> enrollment_report;</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> enrollment_report <span class="kw">EXCEPT</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> flat_enrollments;</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>PRAGMA foreign_key_check;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Każdy wynik ma być pusty. Samo stwierdzenie „cztery wiersze przed i po” byłoby za słabe: raport mógłby mieć cztery inne wiersze. Klucze gwarantują tu unikalność pary zapisów, więc porównanie zbiorów nie ukrywa duplikatów tych samych zapisów.</p>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> conrelid:<span class="ch">:regclass</span> <span class="kw">AS</span> table_name, conname, convalidated</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> pg_constraint</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> connamespace <span class="op">=</span> <span class="st">'public'</span>:<span class="ch">:regnamespace</span> <span class="kw">AND</span> contype <span class="op">=</span> <span class="st">'f'</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Dwa wyniki <code>EXCEPT</code> mają być puste. Trzecie zapytanie wypisuje klucze obce: każdy powinien mieć <code>convalidated = true</code>. To kontrola stanu ograniczeń, a nie kolejny pusty raport ani kontrola wszystkich reguł biznesowych. Samo stwierdzenie „cztery wiersze przed i po” byłoby za słabe: raport mógłby mieć cztery inne wiersze. Klucze gwarantują tu unikalność pary zapisów, więc porównanie zbiorów nie ukrywa duplikatów tych samych zapisów.</p>
 <p>Kontrola potwierdza zgodność dla przygotowanych danych. Uzasadnienie bezstratności podziału opiera się na zależnościach: zapis wskazuje jedną osobę i jedną edycję, a edycja jeden kurs, salę i prowadzącego. Złączenia po tych kluczach odtwarzają opisy bez arbitralnego dopasowywania nazw.</p>
 </section>
 <section id="trzy-próby-poprawionego-projektu" class="level2">
@@ -539,7 +541,8 @@ enrollments(participant_id PK/FK, edition_id PK/FK, status)</code></pre>
 <h3 class="anchored" data-anchor-id="materiały-uzupełniające">Materiały uzupełniające</h3>
 <ul>
 <li><a href="https://www.cs.rpi.edu/~sibel/csci4380/fall2018/course_notes/normalization.html">RPI: zależności, klucze i normalizacja</a>.</li>
-<li><a href="https://www.sqlite.org/foreignkeys.html">SQLite: włączanie i kontrola kluczy obcych</a>.</li>
+<li><a href="https://www.postgresql.org/docs/16/ddl-constraints.html">PostgreSQL: klucze i ograniczenia</a>.</li>
+<li><a href="https://www.postgresql.org/docs/16/catalog-pg-constraint.html">Katalog ograniczeń pg_constraint</a>.</li>
 </ul>
 
 

@@ -1,0 +1,4 @@
+prba3_pokaz|-|-
+prba4_pokaz|public.enrollments|lectures/wyklad4/00_setup.sql
+prba5_pokaz|-|-
+prba6_pokaz|prba6_demo.enrollments|lectures/wyklad6/00_setup.sql

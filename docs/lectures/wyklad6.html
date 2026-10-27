@@ -109,6 +109,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="../style.css">
@@ -408,6 +411,115 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <p>Najczęstszy indeks PostgreSQL jest oparty na <strong>B-tree</strong>, zrównoważonej strukturze drzewiastej przechowującej uporządkowane klucze. „Drzewo” oznacza wielopoziomową organizację informacji: na wyższych poziomach wybierany jest właściwy zakres, a na niższych odnajdywane są poszukiwane wartości. Nie jest to drzewo binarne — węzeł może kierować do wielu zakresów.</p>
 <p>Istotne są dwie własności. Po pierwsze, do odnalezienia niewielkiego zakresu nie trzeba zwykle przeglądać całej struktury. Po drugie, uporządkowanie kluczy pomaga nie tylko przy równości, lecz także przy warunkach zakresowych oraz niektórych sortowaniach. Nadal trzeba jednak obsłużyć wszystkie wymagane wyniki. Jeśli pasuje bardzo wiele wierszy, koszt ich pobrania może dominować nad kosztem samego znalezienia początku zakresu.</p>
 <p>Indeks zajmuje miejsce i zwiększa pracę przy zapisie. <code>INSERT</code> może wymagać dopisania informacji także do kilku indeksów, a zmiana indeksowanej wartości wymaga utrzymania ich zgodności. Indeks nie jest bezpłatną kopią, którą należy dodać do każdej kolumny.</p>
+<section id="btree-krok-po-kroku" class="level3">
+<h3 class="anchored" data-anchor-id="btree-krok-po-kroku">Jak zbudowane jest B-tree?</h3>
+<p><strong>B-tree (B-drzewo) jest uporządkowaną, zrównoważoną strukturą wyszukiwania.</strong> Zamiast trzymać wszystkie wartości w jednej długiej liście do przeglądania, dzieli je na mniejsze zakresy. Informacje o granicach zakresów pozwalają wybrać właściwy fragment, a następnie powtarzać ten wybór na kolejnych poziomach. Nazwa nie oznacza <em>binary tree</em>: węzeł może mieć znacznie więcej niż dwoje dzieci.</p>
+<p>Do zrozumienia schematu wystarczą cztery pojęcia:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pojęcie</th>
+<th>Znaczenie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Korzeń — root</strong></td>
+<td>Punkt rozpoczęcia wyszukiwania; wskazuje, w którym głównym zakresie należy szukać.</td>
+</tr>
+<tr class="even">
+<td><strong>Węzeł wewnętrzny — internal node</strong></td>
+<td>Zawiera wartości rozdzielające zakresy, czyli separatory, oraz odwołania do niższych poziomów.</td>
+</tr>
+<tr class="odd">
+<td><strong>Liść — leaf</strong></td>
+<td>Najniższy poziom. W indeksie PostgreSQL zawiera klucze i odwołania do wierszy tabeli.</td>
+</tr>
+<tr class="even">
+<td><strong>Klucz indeksu — index key</strong></td>
+<td>Wartość lub zestaw wartości, według których uporządkowano indeks. Nie musi to być klucz główny tabeli.</td>
+</tr>
+</tbody>
+</table>
+<p>W bazie węzły są przechowywane na stronach indeksu. Jedna strona może zawierać wiele wpisów. Na rysunku pokazano ich tylko kilka, aby dało się prześledzić algorytm bez znajomości formatu plików PostgreSQL.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+    R["Korzeń: separatory 30 i 60"]
+    A["Liść A: 10 · 20 · 25"]
+    B["Liść B: 30 · 40 · 42 · 50"]
+    C["Liść C: 60 · 70 · 90"]
+    R --&gt;|"klucz &lt; 30"| A
+    R --&gt;|"30 ≤ klucz &lt; 60"| B
+    R --&gt;|"klucz ≥ 60"| C
+    A &lt;-.-&gt; B
+    B &lt;-.-&gt; C
+    style B fill:#dff2e8,stroke:#187653,stroke-width:3px
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>To <strong>schemat ideowy indeksu jednej kolumny</strong>, z odręcznie dobranymi granicami. Nie jest zrzutem stron naszej bazy ani regułą dokładnego rozmieszczenia wartości przez PostgreSQL. Każdej wartości w liściu należy dodatkowo wyobrazić sobie odwołanie do odpowiedniego wiersza tabeli. W rzeczywistym nieunikalnym indeksie tej samej wartości może odpowiadać wiele wierszy.</p>
+<p>W małym drzewie korzeń może wskazywać bezpośrednio liście, jak na rysunku. W większym między nimi występują kolejne poziomy węzłów wewnętrznych. <strong>Zrównoważenie oznacza, że wszystkie liście znajdują się na tej samej odległości od korzenia.</strong> Nie oznacza, że każdy liść ma identyczną liczbę wpisów.</p>
+</section>
+<section id="szukanie-wartości-42-krok-po-kroku" class="level3">
+<h3 class="anchored" data-anchor-id="szukanie-wartości-42-krok-po-kroku">Szukanie wartości 42 krok po kroku</h3>
+<p>Załóżmy warunek <code>edition_id = 42</code>. Dla uproszczenia rysunek reprezentuje indeks tylko po <code>edition_id</code>.</p>
+<ol type="1">
+<li><strong>Odczyt korzenia.</strong> Widać granice 30 i 60. Liczba 42 należy do środkowego zakresu: jest nie mniejsza niż 30 i mniejsza niż 60.</li>
+<li><strong>Przejście do liścia B.</strong> Nie przeglądamy liści A i C. W liściu B odnajdujemy wpis 42 wśród uporządkowanych wartości 30, 40, 42 i 50.</li>
+<li><strong>Odczyt odwołania do danych.</strong> Wpis indeksowy pozwala odnaleźć wiersz tabeli. Jeżeli kilka zapisów ma tę samą edycję 42, trzeba obsłużyć wszystkie pasujące wpisy, które mogą zajmować także sąsiednie strony.</li>
+<li><strong>Dokończenie zapytania.</strong> Silnik odczytuje potrzebne dane i sprawdza pozostałe wymagania zapytania. Indeks tylko po edycji nie rozstrzyga sam, czy zapis ma status <code>confirmed</code>.</li>
+</ol>
+<p>Oszczędność polega na pominięciu niepasujących zakresów. W większym drzewie kolejny węzeł wewnętrzny ponownie zawęża zakres, zamiast wymagać przeglądu całej tabeli. Liczba poziomów rośnie znacznie wolniej niż liczba wpisów. To nie znaczy, że wynik zawierający tysiące wierszy staje się równie tani jak wynik jednowierszowy: po odnalezieniu początku nadal trzeba odczytać i zwrócić wszystkie dopasowania.</p>
+</section>
+<section id="dlaczego-b-tree-pomaga-również-przy-zakresie" class="level3">
+<h3 class="anchored" data-anchor-id="dlaczego-b-tree-pomaga-również-przy-zakresie">Dlaczego B-tree pomaga również przy zakresie?</h3>
+<p>Dla warunku <code>edition_id BETWEEN 40 AND 70</code> oba końce zakresu są włączone. W pokazanym przykładzie poszukiwane wartości to 40, 42, 50, 60 i 70.</p>
+<p>Najpierw schodzimy od korzenia do miejsca, w którym zaczyna się zakres. Następnie czytamy kolejne wpisy liścia B i przechodzimy do sąsiedniego liścia C. Kończymy po przekroczeniu wartości 70. Nie trzeba rozpoczynać wyszukiwania od korzenia osobno dla każdej kolejnej wartości.</p>
+<p>Przerywane strzałki na rysunku przedstawiają przejścia między sąsiednimi liśćmi. Uporządkowanie i takie połączenia pomagają w odczycie zakresu. Wyjaśniają także możliwość dostarczenia wartości w kolejności zgodnej z indeksem. Nie gwarantują jednak, że każde <code>ORDER BY</code> zostanie obsłużone bez sortowania: liczą się kolumny, kierunek porządku i wybrany plan.</p>
+</section>
+<section id="co-dzieje-się-podczas-wstawiania" class="level3">
+<h3 class="anchored" data-anchor-id="co-dzieje-się-podczas-wstawiania">Co dzieje się podczas wstawiania?</h3>
+<p>Nowy wpis trafia do liścia odpowiedniego dla swojej wartości. Jeśli jest miejsce, zostaje umieszczony we właściwym porządku. Jeżeli strona się zapełni, może być potrzebny <strong>podział strony — page split</strong>: część wpisów przenoszona jest na nową stronę, a poziom wyżej otrzymuje informację o nowym zakresie.</p>
+<p>Przykład wyłącznie ilustracyjny: załóżmy, że liść może pomieścić cztery wpisy. Przed dopisaniem 45 ma wartości <code>[30, 40, 42, 50]</code>. Jednym z możliwych podziałów pięciu uporządkowanych wpisów są liście <code>[30, 40]</code> i <code>[42, 45, 50]</code>. Rodzic musi teraz odróżniać zakresy granicą 42. Rzeczywisty wybór podziału zależy od implementacji i rozmiarów wpisów, nie od zasady „zawsze po dwa”.</p>
+<p>Jeżeli zabraknie miejsca również u rodzica, zmiana może przejść wyżej. Podział korzenia zwiększa wysokość drzewa. To część wyjaśnienia kosztu indeksu: baza utrzymuje jego uporządkowanie i strukturę także podczas zmian danych. Nie trzeba ręcznie przebudowywać całego indeksu po każdym <code>INSERT</code>.</p>
+<p>Taki opis liści, stron i podziałów odpowiada idei używanej w PostgreSQL. W podręcznikach wariant z odwołaniami do danych w liściach oraz połączonymi liśćmi jest często omawiany jako <strong>B+ tree</strong>. PostgreSQL nazywa swoją metodę indeksowania <strong>B-tree</strong>. Na tym wykładzie istotne są mechanizm wyszukania zakresu i koszt utrzymania, a nie implementowanie drzewa od podstaw. <a href="https://www.postgresql.org/docs/16/btree-implementation.html">Opis struktury indeksu w PostgreSQL</a>.</p>
+</section>
+<section id="jak-to-się-łączy-z-trzema-kolumnami-naszego-indeksu" class="level3">
+<h3 class="anchored" data-anchor-id="jak-to-się-łączy-z-trzema-kolumnami-naszego-indeksu">Jak to się łączy z trzema kolumnami naszego indeksu?</h3>
+<p>W demonstracji kluczem indeksu jest cała trójka:</p>
+<pre class="text"><code>(edition_id, status, participant_id)</code></pre>
+<p>Trójki porównuje się w kolejności kolumn, podobnie jak osoby na liście według nazwiska, potem imienia, a dopiero na końcu dodatkowego identyfikatora. Najpierw porównywana jest edycja. Przy równej edycji porównywany jest status. Dopiero przy zgodności obu tych elementów porównywany jest uczestnik.</p>
+<p>Przykładowy fragment porządku, zapisany dla zilustrowania zasady, wygląda tak:</p>
+<pre class="text"><code>(41, confirmed, 9000)
+(42, cancelled,   41)
+(42, cancelled,   42)
+(42, confirmed, 1041)
+(42, confirmed, 1042)
+(43, cancelled,   42)</code></pre>
+<p>Mniejszy identyfikator uczestnika nie przesuwa zapisu z edycji 43 przed edycję 42, bo pierwszeństwo ma pierwsza kolumna. Dwa warunki równości — edycja 42 oraz status <code>confirmed</code> — wskazują spójny fragment takiego porządku. W tym fragmencie uczestnicy są już uporządkowani rosnąco. To właśnie powód wyboru kolejności kolumn w demonstracji.</p>
+<p><strong>Trzy kolumny nie oznaczają trzech poziomów drzewa.</strong> Korzeń nie jest „kolumną edycja”, kolejny poziom „kolumną status”, a liść „kolumną uczestnik”. Wpisy są porządkowane według wspólnego klucza, a poziomy wynikają z podziału indeksu na strony i z jego rozmiaru. Rysunek wyszukiwania po jednej liczbie upraszczał porównywanie kluczy, nie zmieniał tej zasady.</p>
+</section>
+<section id="co-ten-rysunek-pozwala-wywnioskować" class="level3">
+<h3 class="anchored" data-anchor-id="co-ten-rysunek-pozwala-wywnioskować">Co ten rysunek pozwala wywnioskować?</h3>
+<ul>
+<li>Szukanie małego zakresu pozwala pominąć dużą część indeksu i tabeli.</li>
+<li>Znalezienie wartości nie oznacza jeszcze zwrócenia wszystkich potrzebnych danych.</li>
+<li>Wyszukiwanie po samym statusie słabo pasuje do indeksu zaczynającego się od edycji: ten sam status występuje w wielu oddzielnych grupach edycji.</li>
+<li>Odczyt prawie całej tabeli nadal oznacza dużo pracy, niezależnie od szybkiego odnalezienia pierwszego pasującego wpisu.</li>
+<li>Indeks wymaga utrzymania przy zmianach; dlatego dodajemy go dla uzasadnionych potrzeb, a następnie sprawdzamy plan.</li>
+</ul>
+</section>
 <section id="animacja-skan-i-wyszukanie-przez-indeks" class="level3">
 <h3 class="anchored" data-anchor-id="animacja-skan-i-wyszukanie-przez-indeks">Animacja: skan i wyszukanie przez indeks</h3>
 <p>Poniższa animacja przedstawia <strong>model ideowy</strong> porównania. Liczba kroków na rysunku nie jest pomiarem czasu, stron dyskowych ani buforów PostgreSQL. Wyszukiwanie pojedynczej wartości jest uproszczeniem; rzeczywisty raport może potrzebować wielu pasujących wpisów i dodatkowego odczytu tabeli.</p>
@@ -430,13 +542,13 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <h2 class="anchored" data-anchor-id="indeks-złożony-kolejność-kolumn-wynika-z-pytań">Indeks złożony: kolejność kolumn wynika z pytań</h2>
 <p>Klucz główny <code>(participant_id, edition_id)</code> chroni przed podwójnym zapisem osoby do tej samej edycji. PostgreSQL tworzy dla takiego klucza unikalny indeks B-tree. Jego porządek zaczyna się jednak od uczestnika. To naturalne wsparcie dla pytania „na jakie edycje zapisana jest osoba 125?”, ale niekoniecznie najlepsza droga do pytania „kto jest zapisany na edycję 42?”.</p>
 <p>Dla naszego raportu rozważamy:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> enrollments_edition_status_participant_idx</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ON</span> prba6_demo.enrollments (edition_id, status, participant_id);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> enrollments_edition_status_participant_idx</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ON</span> prba6_demo.enrollments (edition_id, status, participant_id);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Najpierw grupowane są wpisy według edycji, następnie według statusu, a w tak wybranej grupie według uczestnika. Można to odczytać jak porządek w skorowidzu wielopoziomowym: <strong>edycja → status → uczestnik</strong>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> participant_id</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba6_demo.enrollments</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> edition_id <span class="op">=</span> <span class="dv">42</span> <span class="kw">AND</span> status <span class="op">=</span> <span class="st">'confirmed'</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> participant_id</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba6_demo.enrollments</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> edition_id <span class="op">=</span> <span class="dv">42</span> <span class="kw">AND</span> status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Dwa pierwsze warunki ustalają pojedyncze wartości. Pozostała część indeksu może dostarczyć identyfikatory uczestników w wymaganej kolejności. To uzasadnia kandydata na indeks; dopiero plan pokaże, czy silnik faktycznie go wykorzysta oraz czy usunie osobne sortowanie.</p>
 <table class="caption-top table">
 <colgroup>
@@ -474,11 +586,11 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <section id="plan-wykonania-szacunek-i-pomiar" class="level2">
 <h2 class="anchored" data-anchor-id="plan-wykonania-szacunek-i-pomiar">Plan wykonania: szacunek i pomiar</h2>
 <p><code>EXPLAIN</code> pokazuje plan wybrany przez optymalizator. Zwykły <code>EXPLAIN</code> nie wykonuje raportowego <code>SELECT</code>. Dodanie <code>ANALYZE</code> powoduje rzeczywiste wykonanie i pomiar, a <code>BUFFERS</code> dodaje informacje o pracy z buforami.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> (<span class="kw">ANALYZE</span>, BUFFERS)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> participant_id</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba6_demo.enrollments</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> edition_id <span class="op">=</span> <span class="dv">42</span> <span class="kw">AND</span> status <span class="op">=</span> <span class="st">'confirmed'</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> (<span class="kw">ANALYZE</span>, BUFFERS)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> participant_id</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba6_demo.enrollments</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> edition_id <span class="op">=</span> <span class="dv">42</span> <span class="kw">AND</span> status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>ANALYZE tabela</code> i <code>EXPLAIN ANALYZE zapytanie</code> mają inne role: pierwsze zbiera statystyki danych, drugie mierzy wykonanie zapytania. Podobna nazwa nie oznacza tej samej czynności.</p>
 <table class="caption-top table">
 <colgroup>
@@ -556,8 +668,8 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 </section>
 <section id="demonstracja-na-projekcie-dąb" class="level2">
 <h2 class="anchored" data-anchor-id="demonstracja-na-projekcie-dąb">Demonstracja na projekcie „Dąb”</h2>
-<p><a href="../assets/sql/prba6-indeksy.zip">Pobierz kompletny zestaw SQL</a>. Pokaz używa <strong>PostgreSQL i pgAdmin</strong>; polecenia planowania i generator danych są właściwe dla tego systemu. Wcześniejsze pliki SQLite pozostają materiałem z poprzednich zajęć. Nie należy otwierać tej paczki jako skryptu SQLite.</p>
-<p>W osobnej bazie dydaktycznej należy otworzyć Query Tool i wykonać pliki w podanej kolejności. Plik <code>00_setup.sql</code> tworzy schemat <code>prba6_demo</code> i nie nadpisuje istniejącego schematu o tej nazwie.</p>
+<p><a href="../assets/sql/prba6-indeksy.zip">Pobierz kompletny zestaw SQL</a>. Pokaz używa <strong>PostgreSQL i pgAdmin</strong>; polecenia planowania i generator danych są właściwe dla tego systemu. Wykłady 3–6 korzystają z tej samej platformy PostgreSQL, z osobnymi bazami dla poszczególnych pokazów.</p>
+<p>W środowisku Compose kursu baza <code>prba6_pokaz</code> i jej dane startowe są już przygotowane: w Query Tool zaczynamy od pliku 01. Przy odtwarzaniu poza Compose należy najpierw wykonać <code>00_setup.sql</code> w nowej bazie. Tworzy on schemat <code>prba6_demo</code> i nie nadpisuje istniejącego schematu o tej nazwie.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -609,11 +721,11 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 <section id="najpierw-prosty-odczyt-potem-złączenie" class="level3">
 <h3 class="anchored" data-anchor-id="najpierw-prosty-odczyt-potem-złączenie">Najpierw prosty odczyt, potem złączenie</h3>
 <p>Pierwszy pomiar zwraca tylko identyfikatory uczestników. Pozwala to odizolować wpływ indeksu na odnalezienie zapisów. Następnie dodajemy nazwę uczestnika:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id, p.name</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba6_demo.enrollments <span class="kw">AS</span> e</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> prba6_demo.participants <span class="kw">AS</span> p <span class="kw">USING</span> (participant_id)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> e.edition_id <span class="op">=</span> <span class="dv">42</span> <span class="kw">AND</span> e.status <span class="op">=</span> <span class="st">'confirmed'</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> e.participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id, p.name</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba6_demo.enrollments <span class="kw">AS</span> e</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> prba6_demo.participants <span class="kw">AS</span> p <span class="kw">USING</span> (participant_id)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> e.edition_id <span class="op">=</span> <span class="dv">42</span> <span class="kw">AND</span> e.status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> e.participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>USING (participant_id)</code> wskazuje kolumnę o tej samej nazwie w obu tabelach. Złączenie odtwarza dane potrzebne w raporcie bez dopisywania nazwy uczestnika do każdego zapisu. Dodatkowa operacja w planie nie oznacza automatycznie, że normalizacja była błędem. Trzeba ocenić jej rzeczywisty koszt i dostępne struktury dostępu.</p>
 </section>
 <section id="co-może-się-zmienić-po-dodaniu-indeksu" class="level3">

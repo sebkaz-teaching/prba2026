@@ -1,0 +1,3 @@
+PRBA — wykład 4, PostgreSQL 16 i pgAdmin
+Baza: prba4_pokaz. Auto commit włączone. Wykonuj pliki pojedynczo.
+W środowisku Docker dane z 00_setup.sql są już przygotowane: zacznij od 01_roster.sql. Poza Dockerem wykonaj 00 raz w nowej bazie.
