@@ -38,3 +38,10 @@ Godziny rozpoczęcia i sale sprawdźcie w planie zajęć swojej grupy.
 ## Scenariusze zajęć
 
 [Otwórz zadania i opis projektu](scenariusze.qmd).
+
+
+## Wykład 6 — 28 października
+
+[Projekt fizyczny, indeksy i plany zapytań](lectures/wyklad6.qmd):
+przejście od normalizacji projektu „Dąb” do doboru indeksów i pomiaru zapytań.
+Materiał zawiera test z wykładu 5, animację i kompletny pokaz SQL dla PostgreSQL.

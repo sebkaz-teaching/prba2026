@@ -1,6 +1,7 @@
 ---
-title: "🧭 Wprowadzenie do optymalizacji zapytań SQL"
-format: html
+title: "Wykład 6: Projekt fizyczny, indeksy i plany zapytań"
+resources:
+  - media/seq_vs_index.mp4
 ---
 
 ## ✅ Sprawdź się z wykładu 5
@@ -68,416 +69,393 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 });
 </script>
 
-Optymalizacja zapytań SQL to jeden z najważniejszych elementów pracy z bazami danych.  
-Dotyczy zarówno programistów aplikacji, jak i administratorów baz danych (DBA).  
-Celem jest takie przygotowanie zapytań, struktur danych i indeksów, aby **uzyskać maksymalną wydajność przy minimalnym obciążeniu systemu**.
+## Od modelu logicznego do projektu fizycznego
 
----
+Normalizacja uporządkowała fakty o ośrodku „Dąb”. Dane uczestnika znajdują się
+w jednym miejscu, kurs oznacza temat szkolenia, a edycja — jego konkretne
+przeprowadzenie. Zapis łączy uczestnika z edycją i przechowuje status.
+Rozdzielenie tych informacji ogranicza anomalie aktualizacji, wstawiania
+oraz usuwania. **Poprawność takiego projektu nie zależy od tego, czy tabela ma
+trzy wiersze, czy milion.**
 
-## 💡 Dlaczego optymalizacja jest ważna?
+Liczba danych ma natomiast znaczenie dla kosztu uzyskania odpowiedzi.
+Raport „potwierdzeni uczestnicy edycji 42” nadal jest logicznie prosty,
+ale odnalezienie właściwych zapisów może wymagać sprawdzenia dużej tabeli.
+Na tym wykładzie przechodzimy od pytania **jakie fakty przechowywać** do pytania
+**jak umożliwić ich sprawne wyszukiwanie przy rzeczywistym obciążeniu**.
 
-Każde zapytanie SQL, nawet najprostsze, wymaga od silnika bazy danych wykonania określonych operacji: odczytu danych z dysku, przetworzenia warunków `WHERE`, wykonania `JOIN`, `GROUP BY`, `ORDER BY`, a następnie zwrócenia wyników użytkownikowi.
+Projekt fizyczny obejmuje konkretne typy danych, ograniczenia i struktury
+dostępu dostępne w wybranym systemie. Nie zmienia sam przez się znaczenia
+encji ani związku uczestnik–edycja. Indeks dodany do tabeli zapisów nie tworzy
+nowego faktu biznesowego i nie zastępuje normalizacji.
 
-Jeśli baza danych zawiera **miliony rekordów**, to nawet niewielkie różnice w sposobie wykonania zapytania mogą oznaczać:
+Po wykładzie istotna jest umiejętność:
 
-- różnicę między **milisekundami a sekundami**,  
-- obciążenie **jednego wątku** zamiast całego serwera,  
-- lub zużycie **gigabajtów pamięci i I/O** bez potrzeby.
+- odróżnienia poprawności modelu od wydajności realizacji zapytań;
+- wyjaśnienia, co przechowuje indeks i za co płacimy przy jego utrzymaniu;
+- uzasadnienia kolejności kolumn w indeksie złożonym;
+- odczytania podstawowych informacji z planu wykonania;
+- zaplanowania porównania przed zmianą i po zmianie bez obietnicy wyniku z góry.
 
-> 🧠 *„Optymalizacja zapytań SQL to nie sztuka pisania krótszego kodu,  
-> lecz umiejętność zmuszenia silnika bazy danych do pracy mądrze, a nie ciężko.”*
+## Co pozostaje z poprzedniego projektu?
 
----
+W projekcie „Dąb” zachowujemy sześć tabel:
 
-## ⚙️ Jak działa zapytanie w silniku bazy danych?
+| Tabela | Przechowywany fakt | Główne powiązanie |
+|---|---|---|
+| `participants` | Uczestnik i jego bieżące dane. | Identyfikator uczestnika. |
+| `courses` | Temat kursu. | Identyfikator kursu. |
+| `rooms` | Sala i jej pojemność. | Identyfikator sali. |
+| `instructors` | Prowadzący. | Identyfikator prowadzącego. |
+| `editions` | Konkretna edycja: termin, kurs, sala, prowadzący i limit. | Klucze obce do trzech tabel. |
+| `enrollments` | Aktualny zapis uczestnika do edycji i jego status. | Para uczestnik–edycja. |
 
-Aby zrozumieć optymalizację, musimy wiedzieć, **co dzieje się z zapytaniem od momentu jego wysłania do bazy danych**.  
-Silnik SQL analizuje składnię zapytania, przepisuje je logicznie, wybiera najtańszy plan wykonania i dopiero wtedy odczytuje dane.  
+Klucz główny zapisów to `(participant_id, edition_id)`: jedna osoba ma najwyżej
+jeden zapis do danej edycji. Status `cancelled` pozostaje stanem tego samego
+zapisu. Nie tworzymy osobnego rekordu przy każdym ponowieniu zgłoszenia.
 
----
+W małej próbce poprzednich zajęć edycje E1, E2 i E3 miały odpowiednio 2, 1 i 0
+potwierdzonych zapisów. Taki zbiór dobrze sprawdza znaczenie raportu, ale słabo
+pokazuje koszt przeszukiwania. Dzisiejsza demonstracja używa **osobnego,
+syntetycznego zbioru o tej samej strukturze**, z liczbowymi identyfikatorami
+edycji 1–1000. Nie zmienia danych ani limitów wcześniejszych E1–E3.
 
-## 🧩 Co wpływa na wydajność zapytań SQL?
+## Od zapytania do planu wykonania
 
-Wydajność zapytań zależy zarówno od **tego, jak zapytanie jest napisane**, jak i **od tego, jak zorganizowane są dane w bazie**:
+SQL — *Structured Query Language*, strukturalny język zapytań — opisuje
+wymagany wynik. System musi jeszcze ustalić, jak go obliczyć. Dwa sposoby
+wykonania mogą zwrócić ten sam wynik, ale wymagać innej liczby odczytów,
+porównań i operacji sortowania.
 
-### 🔹 Struktura zapytania
-- Złożoność klauzul `WHERE`, `JOIN`, `ORDER BY`
-- Zagnieżdżone podzapytania (`subqueries`)
-- Użycie funkcji agregujących (`COUNT`, `SUM`, `AVG`)
+Dla listy uczestników konkretnej edycji mogą pojawić się następujące czynności:
 
-### 🔹 Architektura danych
-- Ilość danych w tabelach  
-- Indeksy (ich liczba, rodzaj i aktualność)  
-- Klucze główne i obce (`PRIMARY KEY`, `FOREIGN KEY`)  
-- Stopień normalizacji lub denormalizacji danych  
+1. Odnalezienie zapisów danej edycji.
+2. Odrzucenie zapisów anulowanych.
+3. Dołączenie danych uczestników.
+4. Uporządkowanie wyniku według identyfikatora.
 
-### 🔹 Stan środowiska bazy
-- Dostępna pamięć RAM  
-- Buforowanie i cache dyskowy  
-- Statystyki tabel (`ANALYZE`, `UPDATE STATISTICS`)  
-- Obciążenie serwera (inne procesy, sesje, transakcje)
+To opis logiczny potrzeb raportu. Fizyczny plan może łączyć niektóre działania
+albo wykonywać je inną metodą. Przykładowo indeks może dostarczyć wiersze już
+w odpowiednim porządku, więc osobne sortowanie okaże się zbędne.
 
----
+W uproszczeniu obsługa zapytania obejmuje sprawdzenie składni i nazw obiektów,
+planowanie oraz wykonanie. **Optymalizator** ocenia dostępne warianty na podstawie
+modelu kosztów i statystyk danych. Nie przeprowadza pełnego wykonania każdego
+wariantu tylko po to, by wybrać najszybszy. Jego wybór jest oparty na szacunkach,
+które mogą być niedokładne.
 
-## 📊 Przykład znaczenia optymalizacji
+## Skan sekwencyjny: kiedy przeglądanie tabeli ma sens?
 
-Wyobraźmy sobie tabelę **`orders`** z 10 milionami zamówień.  
-Chcemy znaleźć wszystkie zamówienia z ostatnich 30 dni:
+Skan sekwencyjny, w planie PostgreSQL oznaczany jako `Seq Scan`, przegląda
+wiersze tabeli i sprawdza warunek. Dla zapytania żądającego wszystkich dopasowań,
+bez ograniczenia liczby wyników, znalezienie pierwszego pasującego wiersza
+nie kończy pracy: dalej mogą znajdować się następne.
 
-```sql
-SELECT * FROM orders WHERE order_date >= CURRENT_DATE - INTERVAL '30 days';
-```
+Nie jest to z definicji zły plan. Mała tabela może mieścić się na niewielu
+stronach pamięci, a odczyt większości dużej tabeli może być tańszy niż korzystanie
+z wielu odwołań przez indeks. **Strona** jest jednostką organizacji danych
+w pliku i buforach silnika; nie jest pojedynczym wierszem ani stroną WWW.
+Nie trzeba znać szczegółów jej budowy, aby rozumieć, że wiele wierszy może
+zostać odczytanych razem.
 
-### Scenariusz A – brak indeksu
-Silnik musi przeskanować całą tabelę (tzw. **Seq Scan**).
-Każdy wiersz jest sprawdzany, czy spełnia warunek `order_date >= ...`.
+Skan staje się kosztowny, gdy duża tabela jest wielokrotnie przeszukiwana po to,
+by za każdym razem zwrócić niewielki fragment. Właśnie tak wygląda lista
+potwierdzonych zapisów jednej edycji w demonstracji.
 
-- ⏱️ Czas wykonania: ~3.2 s  
-- 💾 Operacje I/O: wysokie  
+## Indeks: dodatkowa droga do danych
 
-### Scenariusz B – z indeksem
+Indeks jest dodatkową strukturą pozwalającą odnaleźć dane według określonych
+wartości. Można go porównać do uporządkowanego skorowidza: zamiast odczytać
+wszystkie strony książki, najpierw szukamy hasła i dostajemy wskazanie miejsca.
+W bazie struktura jest utrzymywana automatycznie przy zmianach danych.
 
-Dodajemy indeks:
-```sql
-CREATE INDEX idx_orders_date ON orders(order_date);
-```
+Najczęstszy indeks PostgreSQL jest oparty na **B-tree**, zrównoważonej
+strukturze drzewiastej przechowującej uporządkowane klucze. „Drzewo” oznacza
+wielopoziomową organizację informacji: na wyższych poziomach wybierany jest
+właściwy zakres, a na niższych odnajdywane są poszukiwane wartości. Nie jest to
+drzewo binarne — węzeł może kierować do wielu zakresów.
 
-Silnik teraz korzysta z **Index Scan**, czyli odczytu tylko fragmentu danych pasujących do warunku.
+Istotne są dwie własności. Po pierwsze, do odnalezienia niewielkiego zakresu
+nie trzeba zwykle przeglądać całej struktury. Po drugie, uporządkowanie kluczy
+pomaga nie tylko przy równości, lecz także przy warunkach zakresowych
+oraz niektórych sortowaniach. Nadal trzeba jednak obsłużyć wszystkie wymagane
+wyniki. Jeśli pasuje bardzo wiele wierszy, koszt ich pobrania może dominować
+nad kosztem samego znalezienia początku zakresu.
 
-- ⏱️ Czas wykonania: ~0.03 s  
-- 💾 Operacje I/O: minimalne  
+Indeks zajmuje miejsce i zwiększa pracę przy zapisie. `INSERT` może wymagać
+dopisania informacji także do kilku indeksów, a zmiana indeksowanej wartości
+wymaga utrzymania ich zgodności. Indeks nie jest bezpłatną kopią, którą należy
+dodać do każdej kolumny.
 
-➡️ **100× szybsze zapytanie** – bez zmiany jednej linijki logiki, tylko dzięki optymalizacji struktury danych.
+### Animacja: skan i wyszukanie przez indeks
 
----
+Poniższa animacja przedstawia **model ideowy** porównania. Liczba kroków na
+rysunku nie jest pomiarem czasu, stron dyskowych ani buforów PostgreSQL.
+Wyszukiwanie pojedynczej wartości jest uproszczeniem; rzeczywisty raport może
+potrzebować wielu pasujących wpisów i dodatkowego odczytu tabeli.
 
-# ⚙️ Jak działa optymalizator zapytań SQL
+{{< video media/seq_vs_index.mp4 title="Seq Scan vs Index Scan — ilustracja idei" >}}
 
-Każde zapytanie SQL, które wysyłasz do bazy danych, przechodzi **proces planowania i wykonania**.  
-Silnik SQL **nie wykonuje zapytania dokładnie tak, jak je napisałeś** — najpierw szuka **najbardziej efektywnego sposobu** uzyskania tego samego wyniku.
+Po znalezieniu odwołania w indeksie silnik często musi jeszcze sięgnąć do
+wiersza w tabeli. W pewnych warunkach plan może odczytać potrzebne wartości
+z samego indeksu. To wyjaśnia, dlaczego „znaleziono w indeksie” i „gotowy wynik
+zapytania” nie zawsze są tym samym etapem.
 
-Tym właśnie zajmuje się **optymalizator zapytań (Query Optimizer)**.
+## Selektywność i rozkład danych
 
----
+Dwa warunki na tej samej tabeli mogą oznaczać zupełnie inny nakład pracy:
 
-## 🧠 Czym jest optymalizator zapytań?
+- `edition_id = 42 AND status = 'confirmed'` — 180 z 200 000 zapisów;
+- `status = 'confirmed'` — 180 000 z 200 000 zapisów.
 
-Optymalizator analizuje zapytanie i decyduje, **w jaki sposób najlepiej pobrać dane**.  
-Nie zmienia logiki zapytania, ale może całkowicie zmienić:
+Pierwszy warunek pozostawia **0,09%** wierszy, drugi **90%**. Dla uniknięcia
+niejednoznaczności słowa „selektywność” zawsze podajemy udział pasujących
+wierszy. Mały udział oznacza silne zawężenie wyniku. Indeks jest szczególnie
+wart rozważenia właśnie wtedy, gdy pozwala ominąć dużą część niepotrzebnych
+danych, choć nie jest to jedyne kryterium jego użyteczności.
 
-- kolejność operacji,  
-- sposób łączenia tabel (`JOIN order`),  
-- wybór indeksów,  
-- metodę sortowania lub agregacji.
+Sama liczba różnych wartości kolumny nie wystarcza do oceny. Przy dwóch
+statusach rozkład może wynosić 50%–50% albo 99,9%–0,1%. To samo zapytanie
+z inną wartością parametru może zatem uzasadniać inny plan. Dlatego przykładowe
+dane powinny przypominać rzeczywiste obciążenie, a nie tylko mieć dużą liczbę
+wierszy.
 
-> 💡 *Optymalizator to planista — nie wykonuje zapytania sam,  
-> ale układa plan działania tak, by wynik uzyskać jak najszybciej i najtaniej.*
+PostgreSQL zbiera statystyki, między innymi informacje przydatne do szacowania
+liczby dopasowań. `ANALYZE` odświeża te statystyki. Po masowym wygenerowaniu
+danych uruchamiamy je jawnie, aby nie porównywać planów opartych wyłącznie
+na nieaktualnych oszacowaniach. `ANALYZE` samo nie tworzy indeksu.
 
----
+## Indeks złożony: kolejność kolumn wynika z pytań
 
-## 🔄 Etapy przetwarzania zapytania
+Klucz główny `(participant_id, edition_id)` chroni przed podwójnym zapisem
+osoby do tej samej edycji. PostgreSQL tworzy dla takiego klucza unikalny indeks
+B-tree. Jego porządek zaczyna się jednak od uczestnika. To naturalne wsparcie
+dla pytania „na jakie edycje zapisana jest osoba 125?”, ale niekoniecznie
+najlepsza droga do pytania „kto jest zapisany na edycję 42?”.
 
-Dla przykładu:
-
-```sql
-SELECT name, salary 
-FROM employees 
-WHERE department_id = 10 AND salary > 5000;
-```
-
-Silnik przechodzi przez kilka logicznych etapów:
-
-### 1. Parsing (analiza składniowa)
-- sprawdza poprawność składni SQL,  
-- weryfikuje istnienie tabel i kolumn,  
-- tworzy drzewo zapytania (*parse tree*).
-
-### 2. Rewriting (przepisanie logiczne)
-- upraszcza warunki (`WHERE TRUE`, podwójne filtry),  
-- zamienia `IN` na `EXISTS`,  
-- łączy filtry logiczne (`AND`, `OR`),  
-- może przenosić warunki do podzapytań (*predicate pushdown*).
-
-### 3. Optimization (planowanie kosztowe)
-Optymalizator analizuje różne plany wykonania:
-- który indeks użyć,  
-- w jakiej kolejności łączyć tabele,  
-- jakiego algorytmu użyć (`hash join`, `merge join`, `nested loop`).
-
-Każdy plan ma przypisany **koszt (cost estimate)** oparty na:
-- liczbie wierszy,  
-- selektywności warunków,  
-- dostępnych indeksach,  
-- statystykach i kosztach I/O oraz CPU.
-
-> 🧮 Optymalizator nie wykonuje zapytań — **symuluje scenariusze** i wybiera ten o najniższym koszcie.
-
-### 4. Execution Plan (plan wykonania)
-Po wyborze najlepszego planu, optymalizator przekazuje go do modułu wykonawczego.  
-Plan opisuje krok po kroku, jak dane zostaną pobrane i przetworzone.
-
-Możemy go podejrzeć poleceniem:
-```sql
-EXPLAIN SELECT ...
-```
-lub
-```sql
-EXPLAIN ANALYZE SELECT ...
-```
-
----
-
-# 🔍 Analiza planu zapytania (EXPLAIN)
-
-Jednym z najważniejszych narzędzi w optymalizacji SQL jest komenda **`EXPLAIN`**.  
-Pozwala „zajrzeć do środka” silnika bazy danych i zobaczyć, **jak zapytanie zostało zaplanowane i wykonane**.
-
-Dzięki niej możemy:
-- zrozumieć, dlaczego zapytanie działa wolno,  
-- sprawdzić, czy używany jest indeks,  
-- ocenić, ile operacji baza musi wykonać, by uzyskać wynik.
-
-> 🧠 *Nie zgaduj, dlaczego Twoje zapytanie jest wolne — zobacz plan wykonania i sprawdź, co naprawdę robi baza.*
-
-
-## ⚙️ Co to jest plan zapytania?
-
-Plan zapytania to **opis kroków**, jakie silnik bazy danych musi wykonać, by uzyskać wynik.  
-Każdy krok reprezentuje konkretną operację — np.:
-- **Scan** (odczyt danych z tabeli lub indeksu),
-- **Join** (łączenie danych z kilku tabel),
-- **Sort** (sortowanie wyników),
-- **Aggregate** (sumowanie, grupowanie, liczenie).
-
-Każdy z tych kroków ma przypisany **szacowany koszt** — liczbową wartość określającą, ile operacji CPU, I/O lub pamięci wymaga jego wykonanie.
-
-
-## 🧩 Składnia polecenia `EXPLAIN`
-
-W większości systemów baz danych można użyć `EXPLAIN` na początku dowolnego zapytania:
+Dla naszego raportu rozważamy:
 
 ```sql
-EXPLAIN SELECT * FROM employees WHERE department_id = 10;
+CREATE INDEX enrollments_edition_status_participant_idx
+ON prba6_demo.enrollments (edition_id, status, participant_id);
 ```
 
-Aby uzyskać więcej szczegółów, można dodać:
-```sql
-EXPLAIN ANALYZE SELECT * FROM employees WHERE department_id = 10;
-```
-
-📊 Różnica:
-
-- EXPLAIN — pokazuje plan teoretyczny (na podstawie statystyk i kosztów),
-- EXPLAIN ANALYZE — faktycznie wykonuje zapytanie i pokazuje rzeczywisty czas oraz liczbę przetworzonych wierszy.
-
-### 🧠 Przykład w PostgreSQL
-
-Załóżmy, że mamy tabelę:
-```sql
-CREATE TABLE orders (
-  id SERIAL PRIMARY KEY,
-  customer_id INTEGER,
-  order_date DATE,
-  total DECIMAL
-);
-
-CREATE INDEX idx_orders_customer ON orders(customer_id);
-
-```
-i wykonujemy zapytanie:
-```sql
-EXPLAIN ANALYZE
-SELECT * FROM orders WHERE customer_id = 42;
-```
-### 🔹 Wynik (plan zapytania):
+Najpierw grupowane są wpisy według edycji, następnie według statusu,
+a w tak wybranej grupie według uczestnika. Można to odczytać jak porządek
+w skorowidzu wielopoziomowym: **edycja → status → uczestnik**.
 
 ```sql
-Index Scan using idx_orders_customer on orders  (cost=0.29..8.50 rows=3 width=48)
-  Index Cond: (customer_id = 42)
-Planning Time: 0.100 ms
-Execution Time: 0.030 ms
+SELECT participant_id
+FROM prba6_demo.enrollments
+WHERE edition_id = 42 AND status = 'confirmed'
+ORDER BY participant_id;
 ```
 
+Dwa pierwsze warunki ustalają pojedyncze wartości. Pozostała część indeksu
+może dostarczyć identyfikatory uczestników w wymaganej kolejności. To uzasadnia
+kandydata na indeks; dopiero plan pokaże, czy silnik faktycznie go wykorzysta
+oraz czy usunie osobne sortowanie.
 
-| Element              | Znaczenie                                                                 |
-|-----------------------|---------------------------------------------------------------------------|
-| **Index Scan**        | Baza odczytuje dane przy użyciu indeksu (nie pełny skan tabeli).          |
-| **idx_orders_customer** | Nazwa użytego indeksu.                                                   |
-| **cost=0.29..8.50**   | Szacowany koszt (startowy i całkowity). Im mniejszy, tym lepiej.         |
-| **rows=3**            | Szacowana liczba wierszy, które spełnią warunek.                         |
-| **width=48**          | Średni rozmiar jednego wiersza (w bajtach).                              |
-| **Index Cond**        | Warunek, który został użyty do przeszukania indeksu.                     |
-| **Execution Time**    | Faktyczny czas wykonania (tylko w `EXPLAIN ANALYZE`).   
+| Zapytanie | Co wynika z porządku indeksu? |
+|---|---|
+| Jedna edycja i jeden status, sortowanie po uczestniku. | Dobre dopasowanie do wszystkich trzech kolumn. |
+| Jedna edycja bez ograniczenia statusu. | Początek indeksu nadal pasuje; porządek samych uczestników nie musi być globalnie zachowany między statusami. |
+| Sam uczestnik. | Lepiej pasuje istniejący indeks klucza głównego. |
+| Wszystkie potwierdzone zapisy. | Brakuje warunku na pierwszą kolumnę, a wynik obejmuje większość danych. |
 
+Nie przyjmujemy bezwzględnej reguły „indeks działa tylko wtedy, gdy podano
+pierwszą kolumnę”. Możliwe metody zależą od systemu, jego wersji i zapytania.
+Praktyczna zasada jest skromniejsza: **wiodące kolumny i zakres wyniku silnie
+wpływają na użyteczność indeksu**. Dlatego oglądamy plan.
 
+Klucz obcy (*Foreign Key*, FK) nie tworzy w PostgreSQL automatycznie indeksu
+na kolumnie tabeli odwołującej się. Natomiast klucz główny (*Primary Key*, PK)
+i ograniczenie `UNIQUE` są wspierane automatycznie utworzonymi unikalnymi
+indeksami. Nie trzeba powielać identycznego indeksu „na wszelki wypadek”.
 
+## Plan wykonania: szacunek i pomiar
 
-### 🔎 Porównanie: brak indeksu
-
-Jeśli usuniemy indeks i uruchomimy to samo zapytanie:
+`EXPLAIN` pokazuje plan wybrany przez optymalizator. Zwykły `EXPLAIN` nie wykonuje
+raportowego `SELECT`. Dodanie `ANALYZE` powoduje rzeczywiste wykonanie i pomiar,
+a `BUFFERS` dodaje informacje o pracy z buforami.
 
 ```sql
-EXPLAIN ANALYZE
-SELECT * FROM orders WHERE customer_id = 42;
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT participant_id
+FROM prba6_demo.enrollments
+WHERE edition_id = 42 AND status = 'confirmed'
+ORDER BY participant_id;
 ```
 
-otrzymamy:
+`ANALYZE tabela` i `EXPLAIN ANALYZE zapytanie` mają inne role: pierwsze zbiera
+statystyki danych, drugie mierzy wykonanie zapytania. Podobna nazwa nie oznacza
+tej samej czynności.
+
+| Element planu | Jak go interpretować? |
+|---|---|
+| `Seq Scan` | Przegląd tabeli i ewentualny filtr. |
+| `Index Scan` | Wyszukiwanie przez indeks z odczytami tabeli. |
+| `Index Only Scan` | Plan korzystający z wartości w indeksie; może nadal wykonywać sprawdzenia tabeli, widoczne jako `Heap Fetches`. |
+| `Bitmap Index Scan` / `Bitmap Heap Scan` | Wyszukanie lokalizacji przez indeks i późniejszy odczyt wskazanych obszarów tabeli. To operacje planu, nie osobny typ indeksu „bitmapowego” do utworzenia w tym pokazie. |
+| `Sort` | Dodatkowe porządkowanie wyniku. |
+| `cost=...` | Koszt szacowany w jednostkach modelu, a nie milisekundy. |
+| `rows=...` | Szacowana liczba wierszy wychodzących z danego węzła. |
+| `actual time`, `actual rows`, `loops` | Pomiar wykonania; przy wielu pętlach czasy i wiersze węzła są prezentowane jako średnie na wykonanie. |
+| `Rows Removed by Filter` | Wiersze odrzucone po sprawdzeniu filtru w danym węźle. |
+| `Buffers: shared hit/read` | Trafienia w bufory PostgreSQL i odczyty do tych buforów; `read` nie dowodzi fizycznego odczytu z nośnika, bo działa też pamięć podręczna systemu operacyjnego. |
+| `Execution Time` | Czas wykonania mierzony przez serwer z narzutem instrumentacji, bez pełnego kosztu prezentacji wyniku u klienta. |
+
+Plan jest drzewem czynności. Wynik operacji niżej położonej staje się wejściem
+operacji nadrzędnej. Czasy węzłów nie są niezależnymi odcinkami, które można
+bezrefleksyjnie zsumować; czas rodzica obejmuje pracę jego dzieci.
+
+Przed oceną czasu warto zapytać: ile wierszy miało przejść według szacunku,
+ile faktycznie przeszło i gdzie odrzucono większość danych? Duża rozbieżność
+może wskazywać, że decyzja optymalizatora opierała się na złym obrazie rozkładu.
+Nie każdy taki problem naprawi kolejny indeks.
+
+::: {.callout-note}
+## Pomiar wykonuje polecenie
+
+`EXPLAIN ANALYZE` wykonuje także polecenie modyfikujące, jeśli takie mu podamy.
+W demonstracji mierzymy wyłącznie `SELECT`. To nie jest polecenie do
+bezpiecznego „podejrzenia” dowolnego `DELETE` bez jego skutków.
+:::
+
+## Demonstracja na projekcie „Dąb”
+
+[Pobierz kompletny zestaw SQL](../assets/sql/prba6-indeksy.zip).
+Pokaz używa **PostgreSQL i pgAdmin**; polecenia planowania i generator danych
+są właściwe dla tego systemu. Wcześniejsze pliki SQLite pozostają materiałem
+z poprzednich zajęć. Nie należy otwierać tej paczki jako skryptu SQLite.
+
+W osobnej bazie dydaktycznej należy otworzyć Query Tool i wykonać pliki
+w podanej kolejności. Plik `00_setup.sql` tworzy schemat `prba6_demo` i nie
+nadpisuje istniejącego schematu o tej nazwie.
+
+| Plik | Co wykonuje? | Co należy porównać? |
+|---|---|---|
+| `00_setup.sql` | Tworzy sześć tabel, 100 tys. uczestników, 1000 edycji i 200 tys. zapisów. | 180 tys. zapisów potwierdzonych; dla edycji 42: 180 potwierdzonych i 20 anulowanych. |
+| `01_before.sql` | Pokazuje istniejący indeks PK i plan raportu. | Miejsce filtrowania, sortowanie, liczba wierszy i czas. |
+| `02_index.sql` | Dodaje indeks zaczynający się od edycji. | Nowy obiekt, bez zmiany treści zapisów. |
+| `03_after.sql` | Mierzy identyczny raport, następnie wersję z nazwami uczestników. | Zmiana metody dostępu; koszt złączenia jako osobny krok. |
+| `04_broad_query.sql` | Mierzy odczyt 90% zapisów i pokazuje rozmiary struktur. | Czy indeks nadal jest opłacalny i ile zajmuje miejsca? |
+| `05_repeat_baseline.sql` | Usuwa wyłącznie dodatkowy indeks pokazu. | Możliwość powtórzenia plików 01–03 bez usuwania danych. |
+
+Generator używa `generate_series`, funkcji PostgreSQL tworzącej ciąg wartości.
+Każdy uczestnik ma dwa zapisy do różnych edycji. Wszystkie edycje mają po 200
+zapisów, w tym 180 potwierdzonych, oraz limit 250. Odbywają się w różnych dniach,
+więc w przygotowanym zbiorze nie nakładają się terminy tej samej sali i osoby
+prowadzącej. Tabela sal zawiera pojemność 250.
+
+To zbiór pomiarowy, a nie pełna implementacja przyjmowania zgłoszeń.
+Skrypt ma klucze, klucze obce i podstawowe ograniczenia, ale nie implementuje
+wszystkich reguł między tabelami, takich jak pilnowanie limitu względem sali,
+konfliktów terminów i liczby potwierdzonych zapisów przy kolejnych zmianach.
+Wygenerowane dane respektują te reguły; samo przyszłe `INSERT` nie jest przez
+pokaz w pełni chronione przed ich naruszeniem.
+
+### Najpierw prosty odczyt, potem złączenie
+
+Pierwszy pomiar zwraca tylko identyfikatory uczestników. Pozwala to odizolować
+wpływ indeksu na odnalezienie zapisów. Następnie dodajemy nazwę uczestnika:
 
 ```sql
-Seq Scan on orders  (cost=0.00..450.00 rows=3 width=48)
-  Filter: (customer_id = 42)
-Execution Time: 22.5 ms
+SELECT p.participant_id, p.name
+FROM prba6_demo.enrollments AS e
+JOIN prba6_demo.participants AS p USING (participant_id)
+WHERE e.edition_id = 42 AND e.status = 'confirmed'
+ORDER BY e.participant_id;
 ```
 
-📉 Różnica:
+`USING (participant_id)` wskazuje kolumnę o tej samej nazwie w obu tabelach.
+Złączenie odtwarza dane potrzebne w raporcie bez dopisywania nazwy uczestnika
+do każdego zapisu. Dodatkowa operacja w planie nie oznacza automatycznie,
+że normalizacja była błędem. Trzeba ocenić jej rzeczywisty koszt i dostępne
+struktury dostępu.
 
-- Baza musi przeskanować całą tabelę (Seq Scan),
-- Pomimo tego, że wynik jest ten sam, wykonanie jest znacznie wolniejsze.
+### Co może się zmienić po dodaniu indeksu?
 
-💬 EXPLAIN pokazuje, że problemem nie jest zapytanie, lecz brak indeksu.
+Może zniknąć przegląd większości tabeli, a osobne sortowanie może okazać się
+zbędne. W planie mogą wystąpić `Index Scan`, `Index Only Scan` albo operacje
+bitmapowe; nie ma obowiązku uzyskania identycznego planu na każdym komputerze.
+Wersja PostgreSQL, statystyki, ustawienia i stan buforów wpływają na wybór.
 
-<!-- 
-### 🪶 Przykład w SQLite
+Wynik logiczny ma pozostać taki sam: **180 identyfikatorów dla edycji 42**.
+Jeżeli przed zmianą i po zmianie porównujemy inne dane, inny filtr albo inną
+liczbę wyników, nie jest to wiarygodny dowód poprawy tej samej operacji.
 
-SQLite również wspiera EXPLAIN QUERY PLAN, choć w uproszczonej formie.
+## Jak porównywać wyniki bez pochopnych wniosków?
 
-```sql
-CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
-  name TEXT,
-  email TEXT
-);
+Dobry eksperyment zmienia jeden istotny czynnik: obecność konkretnego indeksu.
+Zapytanie, dane i środowisko pozostają te same. Warto zapisać pełne plany,
+a nie tylko najmniejszy zauważony czas.
 
-CREATE INDEX idx_users_email ON users(email);
+Pierwszy odczyt może przygotować dane w pamięci podręcznej. Kolejny bywa szybszy
+nawet bez nowego indeksu. Budowanie indeksu również czyta tabelę. Dlatego
+porównujemy kilka powtórzeń po obu stronach, zaznaczamy, czy pierwszy pomiar
+różnił się od następnych, i patrzymy również na metodę dostępu oraz liczbę
+obsłużonych wierszy. Nie trzeba czyścić pamięci całego komputera na zajęciach.
 
-EXPLAIN QUERY PLAN
-SELECT * FROM users WHERE email = 'john@example.com';
-```
-### 🔹 Wynik:
+Przykładowa notatka z pomiaru powinna zawierać:
 
-```sql
-SEARCH users USING INDEX idx_users_email (email=?)
-```
+- wersję PostgreSQL, liczbę wierszy i dokładne zapytanie;
+- listę indeksów przed zmianą oraz dodaną definicję;
+- plan przed zmianą i po niej;
+- kilka czasów wykonania oraz informację o trafieniach i odczytach buforów;
+- wniosek ograniczony do badanego zapytania i rozkładu danych.
 
-Lub — jeśli nie ma indeksu:
+Wniosek „na tej bazie indeks ograniczył pracę dla raportu jednej edycji” jest
+uzasadniony, jeśli potwierdzają go plany i wyniki. Wniosek „każdy raport będzie
+teraz sto razy szybszy” nie wynika z tego eksperymentu.
 
-```sql
-SCAN users
-```
+## Dobre praktyki projektowe
 
+**Najpierw ustalenie potrzeb.** Indeks powinien wynikać z ważnych filtrów,
+złączeń i sortowań rzeczywiście wykonywanych zapytań. Lista najczęstszych
+raportów jest częścią wiedzy potrzebnej przy projekcie fizycznym.
 
-Proste, ale bardzo czytelne:
+**Poprawność wyniku przed czasem.** Szybkie zapytanie, które pomija edycje bez
+zapisów albo liczy anulowanych uczestników jako potwierdzonych, nadal jest
+błędne. Wiedza o `LEFT JOIN`, agregacji i znaczeniu statusu pozostaje potrzebna.
 
-- SCAN oznacza pełne przeszukiwanie tabeli,
-- SEARCH ... USING INDEX oznacza, że baza użyła indeksu. -->
+**Ograniczenie niepotrzebnej pracy.** Pobieramy potrzebne kolumny, stosujemy
+właściwe filtry i unikamy wykonywania tego samego raportu osobno dla każdej
+pozycji, gdy można uzyskać zbiór jednym zapytaniem. Nie każda funkcja na
+kolumnie czy konwersja typu pozwoli wykorzystać zwykły indeks tej kolumny;
+zgodność wyrażenia i struktury dostępu trzeba sprawdzić.
 
-## 🧮 Jak korzystać z EXPLAIN w praktyce
+**Uwzględnienie zapisów.** System zgłoszeń wykonuje również `INSERT` i `UPDATE`.
+Wiele indeksów może pomagać odczytom, a równocześnie zwiększać koszt zmian.
+Projekt ma odpowiadać całemu obciążeniu, nie tylko jednemu pokazowemu `SELECT`.
 
-1. Sprawdzaj, czy używany jest indeks
+**Denormalizacja jako świadoma decyzja.** Powielenie nazwy uczestnika w zapisach
+wprowadzi ponownie pytanie, jak synchronizować wiele kopii. Nie należy traktować
+tego jako pierwszej reakcji na wolny raport. Najpierw sprawdzamy zapytanie,
+statystyki, indeksy i plan. Ewentualny zapis danych historycznych, takich jak
+nazwa na wystawionym zaświadczeniu, jest natomiast innym wymaganiem biznesowym,
+a nie zwykłym zabiegiem wydajnościowym.
 
-Jeśli widzisz Seq Scan lub SCAN TABLE, to znak, że indeks nie jest wykorzystywany.
+## Pytania do omówienia
 
-2. Zwracaj uwagę na kolejność JOINów
+1. Dlaczego indeks PK uczestnik–edycja nie rozwiązuje automatycznie każdego raportu po edycji?
+2. Czy dodanie indeksu zmienia model logiczny albo usuwa potrzebę normalizacji?
+3. Dlaczego odczyt 180 wierszy i odczyt 180 tysięcy mogą mieć inne dobre plany?
+4. Czy `cost=100` oznacza 100 milisekund?
+5. Dlaczego pojedynczy szybszy pomiar nie wystarcza do przypisania poprawy indeksowi?
+6. Co tracimy, indeksując wszystkie kolumny?
+7. Jakie dowody byłyby potrzebne przed świadomą denormalizacją?
 
-Czasami odwrócenie kolejności tabel w zapytaniu może dać inny plan i lepszy czas.
+Na laboratorium ta sama metoda posłuży do samodzielnego uzasadniania zmian:
+**poprawne zapytanie → plan i pomiar → kandydat na indeks → ponowny pomiar →
+wniosek wraz z ograniczeniami**.
 
-3. Analizuj koszty (cost=...)
+## Dokumentacja i dalsza lektura
 
-Porównuj plany z różnymi indeksami i filtrami — wybieraj ten o niższym koszcie.
-
-4. Używaj EXPLAIN ANALYZE tylko testowo
-
-W środowisku produkcyjnym EXPLAIN ANALYZE faktycznie wykonuje zapytanie, więc może być kosztowne.
-
-5. Porównuj teoretyczny i rzeczywisty plan
-
-Jeśli szacunki (rows, cost) mocno różnią się od rzeczywistego czasu, oznacza to:
-
-- brak aktualnych statystyk,
-- zły indeks,
-- lub błędne założenia optymalizatora.
-
-
-## 🗂️ Indeksy w SQL
-
-Indeksy to **podstawowe narzędzie optymalizacji zapytań**, które pozwala bazie danych szybko znaleźć potrzebne wiersze, bez konieczności skanowania całej tabeli.  
-Można je porównać do **spisu treści w książce** — zamiast czytać każdy rozdział, patrzymy od razu na właściwą stronę.
-
-### 🔹 Dlaczego indeksy są ważne?
-
-Bez indeksu baza danych musi sprawdzić każdy wiersz tabeli, by znaleźć pasujące rekordy (**sequential scan**).  
-Z indeksem, silnik może odczytać **tylko te dane**, które spełniają warunek — znacznie szybciej i przy mniejszym zużyciu zasobów.
-
-Korzyści z indeksów:
-
-- ⏱️ **Szybsze wyszukiwanie** danych, szczególnie w dużych tabelach  
-- 💾 **Ograniczenie operacji I/O**, bo baza czyta mniej bloków z dysku  
-- 🔄 **Przyspieszenie sortowania i łączenia tabel** (`JOIN`), jeśli indeks obejmuje kolumny używane w warunkach
-
-### 🔹 Rodzaje indeksów
-
-Najczęściej spotykane:
-
-1. **B-Tree (balanced tree)** – najpopularniejszy typ, sprawdza się w większości wyszukiwań, zakresów i sortowań  
-2. **Hash** – szybki dostęp po dokładnej wartości (nie obsługuje zakresów)  
-3. **Bitmap** – efektywny dla kolumn o małej liczbie unikalnych wartości, np. płeć lub status  
-4. **Kompozytowe** – obejmują kilka kolumn, przydatne przy filtrach i sortowaniach wielokolumnowych
-
-### 🔹 Co indeksuje?
-
-- **Kolumny używane w WHERE** – aby szybciej wyszukać dane  
-- **Kolumny używane w JOIN** – przyspiesza łączenie tabel  
-- **Kolumny w ORDER BY lub GROUP BY** – pomaga szybciej sortować i grupować wyniki  
-- **Kolumny unikalne lub klucze główne** – zapewnia integralność danych i przyspiesza wyszukiwanie
-
-### 🔹 Wady nadmiaru indeksów
-
-Indeksy przyspieszają odczyt, ale mają też koszty:
-
-- 🔄 **Spowolnienie operacji INSERT/UPDATE/DELETE**, bo indeksy trzeba aktualizować  
-- 💾 **Zwiększone zużycie pamięci i przestrzeni dyskowej**  
-- ⚖️ Trzeba wybrać **optymalny zestaw indeksów**, żeby nie pogorszyć ogólnej wydajności
-
-## Praktyczne aspekty użycia indeksów
-
-W tej sekcji rozszerzamy temat indeksów, unikając powtórzenia wcześniejszych przykładów z SELECT po `customer_id`.
-
-Przy łączeniu tabel indeksy znacząco przyspieszają zapytania:
-
-```sql
-SELECT o.id, c.name
-FROM orders o
-JOIN customers c ON o.customer_id = c.id
-WHERE c.region = 'Europe';
-```
-
-- Indeks na customers.id i orders.customer_id przyspiesza JOIN
-- Indeks na customers.region przyspiesza filtrowanie po regionie
-
-
-## Indeksy a sortowanie i grupowanie
-
-Indeksy na kolumnach używanych w ORDER BY lub GROUP BY pozwalają uniknąć kosztownych operacji sortowania w pamięci:
-```sql
-SELECT customer_id, SUM(total) 
-FROM orders 
-GROUP BY customer_id 
-ORDER BY SUM(total) DESC;
-```
-
-- Indeks na customer_id może przyspieszyć agregację
-- Indeks kompozytowy z kolumną używaną w ORDER BY może wyeliminować dodatkowe sortowanie
-
-🔹 Wpływ indeksów na modyfikacje danych
-
-- Operacje INSERT, UPDATE, DELETE wymagają aktualizacji indeksów
-- Zbyt wiele indeksów może spowolnić zapis danych
-- W praktyce wybieramy najbardziej potrzebne indeksy i monitorujemy ich wpływ
-
-🔹 Wskazówki praktyczne
-
-- Twórz indeksy tylko na kolumnach często filtrowanych lub sortowanych
-- Analizuj plany wykonania (EXPLAIN, EXPLAIN ANALYZE)
-- Zwracaj uwagę na koszt operacji (cost=…) i liczbę wierszy (rows=...)
-- Równoważ czas odczytu i zapis danych – nie każdy indeks jest opłacalny
----
+- [PostgreSQL: wprowadzenie do indeksów](https://www.postgresql.org/docs/16/indexes-intro.html).
+- [Rodzaje indeksów, w tym B-tree](https://www.postgresql.org/docs/16/indexes-types.html).
+- [Indeksy wielokolumnowe](https://www.postgresql.org/docs/16/indexes-multicolumn.html).
+- [Klucze i ograniczenia tabel](https://www.postgresql.org/docs/16/ddl-constraints.html).
+- [Czytanie EXPLAIN i pomiar wykonania](https://www.postgresql.org/docs/16/using-explain.html).
+- [Statystyki planowania](https://www.postgresql.org/docs/16/planner-stats.html).
+- [Index-only scans i odczyty tabeli](https://www.postgresql.org/docs/16/indexes-index-only-scans.html).
