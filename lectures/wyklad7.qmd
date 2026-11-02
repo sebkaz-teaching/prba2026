@@ -1,5 +1,5 @@
 ---
-title: "Podzapytania (Subqueries) i Widoki (Views) w SQL"
+title: "Podzapytania, JOIN-y i widoki w SQL"
 ---
 
 ## ✅ Sprawdź się z wykładu 6
@@ -67,400 +67,412 @@ CourseQuiz.mount(document.getElementById('rsod-quiz'), {
 });
 </script>
 
-# 1️⃣3️⃣ Podzapytania (Subqueries) w SQL
+## Cel ostatniego wykładu
 
-Podzapytanie to **zapytanie wewnątrz innego zapytania SQL**. 
-Służy do wykonywania bardziej złożonych operacji, kiedy jedno zapytanie potrzebuje wyników innego.  
-Możemy je traktować jak „mini-zapytania”, które dostarczają danych do zapytania głównego.
+Wracamy do projektu centrum szkoleniowego **„Dąb”**. Umiemy już zaprojektować
+relacje, połączyć tabele i zmierzyć zapytanie. Teraz odpowiemy na pytanie:
+**jak użyć wyniku jednego zapytania do zbudowania następnego?**
 
-Podzapytania mogą występować w różnych miejscach:
+Po wykładzie potrafisz dobrać `IN`, `EXISTS`, podzapytanie skalarne lub `JOIN`,
+przewidzieć liczbę wierszy wyniku i zapisać raport jako widok.
 
-- w klauzuli **WHERE** – do filtrowania danych,
-- w klauzuli **FROM** – jako tymczasowa tabela,
-- w klauzuli **SELECT** – do obliczeń w każdej krotce,
-- w konstrukcjach **EXISTS**, **IN**, **ALL**, **ANY** – do testowania warunków logicznych.
+Proponowany przebieg 2 × 45 minut: przypomnienie i dane (10 min), animacja
+oraz `IN`/`JOIN`/`EXISTS` (25 min), agregacje i `NULL` (15 min), widoki (25 min),
+plany i zadania podsumowujące (15 min). Przerwę robimy między blokami.
 
+## 1. Jedna baza do całego pokazu
 
-## 🔹 1. Podzapytanie w klauzuli WHERE (jednowartościowe)
+[**Pobierz kompletny zestaw SQL**](../assets/sql/prba7-podzapytania.zip).
+Przykłady dotyczą **PostgreSQL 16**. W środowisku kursu otwórz bazę
+`prba7_pokaz` w pgAdmin i folder `materials/lectures/wyklad7`.
+Po aktualizacji repozytorium wykonaj `docker compose up -d` w katalogu `docker`.
+Usługa przygotowująca tworzy nową bazę, zachowując wcześniejsze pokazy.
 
-To najczęstszy typ podzapytania.  
-Zapytanie główne wybiera dane na podstawie **wartości zwróconej przez podzapytanie**.
+Jeśli tworzysz pustą bazę samodzielnie, wykonaj `00_setup.sql` jeden raz.
+W gotowym środowisku zacznij od `01_steps.sql`. Włącz **Auto commit**.
+Tabele są w osobnym schemacie `prba7_demo`; nie zmieniamy danych wykładu 6.
+To mały wycinek modelu „Dąb”, bez terminów i sal, bo badamy teraz logikę zapytań.
 
-### 🧩 Przykład:
+| Relacja | Znaczenie i dane |
+|---|---|
+| `participants` | P1 Anna, P2 Bartek, P3 Celina, P4 Dawid |
+| `courses` | SQL — Podstawy SQL; PY — Python |
+| `editions` | E1: SQL, limit 2; E2: SQL, limit 3; E3: PY, limit 5; E4: PY, limit 2 |
+| `enrollments` | Zapis uczestnika na edycję; klucz `(participant_id, edition_id)` |
 
-Znajdź książki napisane przez autora o nazwisku *Sienkiewicz*.
+| Uczestnik | Edycja | Status |
+|---|---|---|
+| P1 Anna | E1 | confirmed |
+| P1 Anna | E2 | confirmed |
+| P2 Bartek | E1 | confirmed |
+| P3 Celina | E2 | cancelled |
+| P3 Celina | E3 | confirmed |
 
-```sql
-SELECT tytul, rok
-FROM Ksiazki
-WHERE autor_id = (
-    SELECT autor_id
-    FROM Autorzy
-    WHERE nazwisko = 'Sienkiewicz'
-);
+Dawid nie ma żadnego zapisu. E4 nie ma żadnego uczestnika. Te przypadki są
+celowe: sprawdzają, czy zapytanie poprawnie obsługuje brak dopasowania.
+
+## 2. Film: od podzapytania do wyniku i JOIN-a
+
+```{=html}
+<video controls poster="media/subqueries_joins.jpg" preload="metadata" playsinline style="width:100%;max-width:1100px" aria-label="Animacja podzapytania IN oraz złączenia JOIN">
+<source src="media/subqueries_joins.mp4" type="video/mp4">
+Twoja przeglądarka nie odtwarza filmu. <a href="media/subqueries_joins.mp4">Pobierz MP4</a>.
+</video>
 ```
 
-### 📘 Opis działania:
+Film ma napisy, nie wymaga dźwięku. Można zatrzymywać go na każdej tabeli.
+Najpierw wybieramy edycje SQL: **E1, E2**. Następnie zachowujemy potwierdzone
+zapisy z tych edycji: **P1/E1, P1/E2, P2/E1**. Na końcu wybieramy uczestników:
+**Anna, Bartek**. Druga część pokazuje złączenia i dwa wiersze Anny.
 
-1.	Podzapytanie wewnętrzne szuka identyfikatora autora autor_id, którego nazwisko to Sienkiewicz.
-2.	Zapytanie główne wybiera z tabeli Ksiazki tylko te rekordy, w których autor_id jest równy wynikowi podzapytania.
+::: {.callout-important}
+## Kolejność rozumowania a plan wykonania
+„Najpierw podzapytanie, potem zapytanie zewnętrzne” jest tutaj **modelem
+logicznym**. SQL opisuje wynik. Optymalizator może zmienić sposób obliczania,
+np. użyć semizłączenia, a tabeli pośredniej wcale nie materializować.
+To, co silnik rzeczywiście zrobił, sprawdzamy przez `EXPLAIN (ANALYZE, BUFFERS)`.
+:::
 
-> 🔸 Takie podzapytanie **powinno** zwrócić jedną wartość (scalar subquery). Co się
-> stanie, gdy zwróci więcej niż jedną, zależy od silnika: **PostgreSQL zgłosi błąd**
-> (`more than one row returned by a subquery used as an expression`) — ale
-> **SQLite nie zgłasza błędu**, tylko po cichu bierze jeden z wierszy (który
-> konkretnie — nie jest gwarantowane) i ignoruje resztę. To niebezpieczne "milczące"
-> zachowanie: kod, który w SQLite "działa", może się wywrócić dopiero po
-> przeniesieniu na PostgreSQL. Nie polegajcie na konkretnym zachowaniu — jeśli
-> podzapytanie może zwrócić więcej niż jeden wiersz, użyjcie `IN` (sekcja niżej) albo
-> dodajcie `LIMIT 1` ze świadomym sortowaniem.
+## 3. Podzapytanie wielowierszowe: IN
 
-## 🔹 2. Podzapytanie zwracające wiele wartości (operator IN)
+**Pytanie:** kto ma potwierdzony zapis na dowolną edycję SQL?
 
-Jeśli podzapytanie zwraca więcej niż jeden rekord, używamy operatora IN.
-
-### 🧩 Przykład:
-
-Znajdź wszystkie książki autorów, których nazwiska zaczynają się na literę M.
+`IN` odpowiada na pytanie o **przynależność**: czy identyfikator występuje
+w wyniku podzapytania? W tym przykładzie prawa strona ma jedną kolumnę,
+ale może mieć wiele wierszy. Uruchom kolejno trzy polecenia z `01_steps.sql`.
 
 ```sql
-SELECT tytul, rok
-FROM Ksiazki
-WHERE autor_id IN (
-    SELECT autor_id
-    FROM Autorzy
-    WHERE nazwisko LIKE 'M%'
-);
-```
-
-### 📘 Opis działania:
-
-- Podzapytanie wewnętrzne zwraca listę identyfikatorów autorów, np. [1, 5, 7].
-- Zapytanie główne wybiera książki, których autor_id znajduje się na tej liście.
-
-> 🔸 Operator IN można traktować jak porównanie z „wieloma wartościami jednocześnie”.
-
-
-## 🔹 3. Podzapytanie w klauzuli SELECT
-
-Podzapytanie może też zwracać pojedynczą wartość (skalarną) i być użyte w liście kolumn.
-
-### 🧩 Przykład:
-
-Wyświetl listę autorów wraz z liczbą ich książek.
-
-```sql
-SELECT
-    a.imie,
-    a.nazwisko,
-    (
-        SELECT COUNT(*)
-        FROM Ksiazki k
-        WHERE k.autor_id = a.autor_id
-    ) AS liczba_ksiazek
-FROM Autorzy a;
-
-```
-
-### 📘 Opis działania:
-
-- Dla każdego autora (a.autor_id) wykonuje się osobne podzapytanie,
-które liczy książki przypisane do tego autora.
-- Wynik jest dodawany jako nowa kolumna liczba_ksiazek.
-
-> 🔸 To tzw. podzapytanie skorelowane (correlated subquery), ponieważ odnosi się do kolumny z zapytania głównego.
-
-## 🔹 4. Podzapytanie w klauzuli FROM (tabela pochodna)
-
-Podzapytanie może tworzyć tymczasową tabelę w sekcji FROM.
-Takie rozwiązanie nazywa się derived table i pozwala na pracę z przetworzonymi danymi.
-
-### 🧩 Przykład:
-
-Policz średni rok wydania książek, a następnie wybierz te, które są starsze od średniej.
-
-```sql
-SELECT tytul, rok
-FROM (
-    SELECT *
-    FROM Ksiazki
-) AS K
-WHERE K.rok < (
-    SELECT AVG(rok) FROM Ksiazki
-);
-```
-
-### 📘 Opis działania:
-
-- Podzapytanie w FROM tworzy tymczasową tabelę K.
-- W klauzuli WHERE używamy innego podzapytania, które liczy średni rok wydania.
-- Wynik to książki starsze od średniej publikacji.
-
-## 🔹 5. Korelowane podzapytanie (correlated subquery)
-
-To podzapytanie, które odwołuje się do kolumn z zapytania głównego.
-Wykonuje się dla każdego wiersza osobno – dlatego bywa wolniejsze, ale bardzo elastyczne.
-
-### 🧩 Przykład:
-
-Znajdź najstarszą książkę każdego autora.
-
-```sql
-SELECT k.tytul, k.rok, a.nazwisko
-FROM Ksiazki k
-JOIN Autorzy a ON k.autor_id = a.autor_id
-WHERE k.rok = (
-    SELECT MIN(rok)
-    FROM Ksiazki
-    WHERE autor_id = k.autor_id
-);
-
-```
-
-### 📘 Opis działania:
-
-- Dla każdego wiersza w tabeli Ksiazki podzapytanie szuka najmniejszego roku dla tego samego autora.
-- Porównanie k.rok = (MIN(rok)) sprawia, że zostaje tylko najstarsza książka każdego autora.
-
-## 🔹 6. Podzapytanie z EXISTS
-
-Operator EXISTS sprawdza, czy podzapytanie zwróciło jakiekolwiek wiersze.
-Nie liczy ich — interesuje nas jedynie, czy wynik istnieje (TRUE/FALSE).
-
-### 🧩 Przykład:
-
-Znajdź autorów, którzy napisali przynajmniej jedną książkę.
-```sql
-SELECT imie, nazwisko
-FROM Autorzy a
-WHERE EXISTS (
-    SELECT 1
-    FROM Ksiazki k
-    WHERE k.autor_id = a.autor_id
-);
-
-```
-
-### 📘 Opis działania:
-
-- Dla każdego autora sprawdzane jest, czy istnieje co najmniej jeden wiersz w tabeli Ksiazki z tym samym autor_id.
-- Jeśli tak — warunek EXISTS zwraca TRUE, a autor pojawia się w wyniku.
-
-
-## 🔹 7. Porównania z ALL / ANY
-
-Operator ALL wymaga, aby warunek był spełniony dla wszystkich wyników podzapytania.
-Operator ANY (lub SOME) – aby warunek był spełniony dla przynajmniej jednego.
-
-### 🧩 Przykład:
-
-Znajdź książki wydane wcześniej niż wszystkie książki Prusa.
-```sql
-SELECT tytul, rok
-FROM Ksiazki
-WHERE rok < ALL (
-    SELECT rok
-    FROM Ksiazki
-    WHERE autor_id = (
-        SELECT autor_id FROM Autorzy WHERE nazwisko = 'Prus'
+-- Step 1: SQL editions -> E1, E2.
+SELECT edition_id FROM prba7_demo.editions WHERE course_id = 'SQL' ORDER BY edition_id;
+-- Step 2: matching confirmed enrollments -> P1/E1, P1/E2, P2/E1.
+SELECT participant_id, edition_id FROM prba7_demo.enrollments
+WHERE status = 'confirmed' AND edition_id IN (
+    SELECT edition_id FROM prba7_demo.editions WHERE course_id = 'SQL'
+)
+ORDER BY participant_id, edition_id;
+-- Step 3: participant membership -> Anna, Bartek (one row per participant).
+SELECT p.participant_id, p.name FROM prba7_demo.participants AS p
+WHERE p.participant_id IN (
+    SELECT z.participant_id FROM prba7_demo.enrollments AS z
+    WHERE z.status = 'confirmed' AND z.edition_id IN (
+        SELECT e.edition_id FROM prba7_demo.editions AS e WHERE e.course_id = 'SQL'
     )
-);
+)
+ORDER BY p.participant_id;
 ```
 
-### 📘 Opis działania:
+Wynik wewnętrzny może zawierać P1 dwukrotnie. Nie powoduje to powielenia
+wiersza Anny w zapytaniu zewnętrznym: każdy wiersz `participants` jest
+albo zachowany, albo odrzucony. `ORDER BY` ustala kolejność wyświetlania;
+bez niego baza nie gwarantuje uporządkowania wyniku.
 
-- Podzapytanie wewnętrzne zwraca lata publikacji książek Prusa.
-- Zapytanie główne wybiera tylko te książki, których rok jest mniejszy niż wszystkie te wartości.
+## 4. Ten sam problem przez JOIN — uwaga na krotność
 
-
-
-### 🧮 Podsumowanie typów podzapytań w SQL
-
-| **Typ podzapytania** | **Miejsce użycia** | **Zwracany wynik** | **Typowe operatory** | **Przykład zastosowania** |
-|------------------------|--------------------|--------------------|----------------------|----------------------------|
-| **Jednowartościowe (scalar)** | `WHERE`, `SELECT` | Pojedyncza wartość (1 rekord, 1 kolumna) | `=`, `<`, `>` | Autor o nazwisku „Sienkiewicz” |
-| **Wielowartościowe (multivalue)** | `WHERE` | Lista wartości (wiele rekordów) | `IN`, `NOT IN` | Autorzy, których nazwisko zaczyna się na „M” |
-| **Korelowane (correlated)** | `WHERE`, `SELECT` | Zmienny wynik dla każdego wiersza | `=`, `EXISTS` | Najstarsza książka danego autora |
-| **Zagnieżdżone w FROM (tabela pochodna)** | `FROM` | Zbiór wierszy (tymczasowa tabela) | — | Średni rok wydania książek i porównanie ze średnią |
-| **Z operatorem EXISTS / NOT EXISTS** | `WHERE` | Prawda / Fałsz (czy istnieje wynik) | `EXISTS`, `NOT EXISTS` | Autorzy, którzy napisali przynajmniej jedną książkę |
-| **Z operatorem ALL / ANY / SOME** | `WHERE` | Porównanie z wieloma wartościami | `ALL`, `ANY`, `SOME` | Książki starsze niż wszystkie książki Prusa |
-
-
-# 1️⃣4️⃣ Widoki (VIEW) w SQL
-
-Widoki (ang. *views*) to **wirtualne tabele**, które przechowują **zdefiniowane zapytania SQL**.  
-Nie przechowują one fizycznie danych – jedynie **zapamiętują zapytanie**, które można później traktować tak, jakby było tabelą.
-
-Widok jest więc **logiczna reprezentacją** danych, utworzoną na podstawie jednej lub kilku tabel.  
-Dzięki widokom można:
-- uprościć skomplikowane zapytania,
-- ukryć złożoność bazy przed użytkownikiem,
-- zwiększyć bezpieczeństwo (np. pokazywać tylko wybrane kolumny),
-- tworzyć „stałe raporty” z danych dynamicznych.
-
----
-
-## 🔹 1. Tworzenie widoku
-
-Widok tworzymy za pomocą polecenia `CREATE VIEW`.
-
-### Przykład:
-Utwórz widok wyświetlający listę książek wraz z nazwiskiem autora.
+Przypomnienie: `JOIN ... ON` tworzy wiersze z **pasujących kombinacji**
+rekordów. Klucz obcy wyjaśnia, po czym łączymy tabele, ale nie sprawia,
+że uczestnik pojawia się w wyniku tylko raz.
 
 ```sql
-CREATE VIEW Widok_Ksiazki_Autorzy AS
-SELECT
-    k.tytul,
-    k.rok,
-    a.imie,
-    a.nazwisko
-FROM Ksiazki k
-JOIN Autorzy a ON k.autor_id = a.autor_id;
+-- A JOIN returns matching combinations: Anna appears twice.
+SELECT p.participant_id, p.name, e.edition_id
+FROM prba7_demo.participants AS p
+JOIN prba7_demo.enrollments AS z ON z.participant_id = p.participant_id
+JOIN prba7_demo.editions AS e ON e.edition_id = z.edition_id
+WHERE z.status = 'confirmed' AND e.course_id = 'SQL'
+ORDER BY p.participant_id, e.edition_id;
+-- Match the participant list returned by IN. Deduplicate by identity, not name alone.
+SELECT DISTINCT p.participant_id, p.name
+FROM prba7_demo.participants AS p
+JOIN prba7_demo.enrollments AS z ON z.participant_id = p.participant_id
+JOIN prba7_demo.editions AS e ON e.edition_id = z.edition_id
+WHERE z.status = 'confirmed' AND e.course_id = 'SQL'
+ORDER BY p.participant_id;
 ```
 
-➡️ Po utworzeniu widoku można z niego korzystać tak, jak z każdej innej tabeli:
+Pierwszy wynik ma **3 wiersze**, a drugi **2**:
+
+| participant_id | name | edition_id w pierwszym wyniku |
+|---|---|---|
+| P1 | Anna | E1 |
+| P1 | Anna | E2 |
+| P2 | Bartek | E1 |
+
+Jeżeli pytamy o **zapisy**, trzy wiersze są prawidłowe. Jeżeli pytamy o
+**uczestników**, potrzebujemy `DISTINCT` na identyfikatorze i nazwie albo
+konstrukcji wyrażającej istnienie. Samo `DISTINCT name` połączyłoby także
+różne osoby o tym samym imieniu. Nie usuwaj duplikatów bez ustalenia,
+co reprezentuje jeden wiersz raportu.
+
+### INNER JOIN i LEFT JOIN
+
+`INNER JOIN` zachowuje wyłącznie dopasowania. `LEFT JOIN` zachowuje także
+wiersze lewej tabeli bez dopasowania; w kolumnach prawej pojawia się `NULL`.
+Dlatego do zestawienia **wszystkich edycji, także pustej E4**, użyjemy
+`LEFT JOIN` w sekcji o agregacji. Warunek statusu umieścimy w `ON`.
+
+## 5. EXISTS i NOT EXISTS: czy istnieje dopasowanie?
+
+Podzapytanie **skorelowane** odwołuje się do bieżącego wiersza zewnętrznego,
+tutaj przez `z.participant_id = p.participant_id`. `EXISTS` bada, czy istnieje
+co najmniej jeden pasujący wiersz; wartość `1` na liście `SELECT` nie jest liczbą
+zapisów. Nie potrzebujemy pobierać wszystkich danych znalezionych zapisów.
 
 ```sql
-SELECT * FROM Widok_Ksiazki_Autorzy;
+-- EXISTS tests membership without multiplying outer rows.
+SELECT p.participant_id, p.name FROM prba7_demo.participants AS p
+WHERE EXISTS (
+    SELECT 1 FROM prba7_demo.enrollments AS z
+    JOIN prba7_demo.editions AS e ON e.edition_id = z.edition_id
+    WHERE z.participant_id = p.participant_id
+      AND z.status = 'confirmed' AND e.course_id = 'SQL'
+)
+ORDER BY p.participant_id;
+-- No confirmed enrollment -> Dawid (P4).
+SELECT p.participant_id, p.name FROM prba7_demo.participants AS p
+WHERE NOT EXISTS (
+    SELECT 1 FROM prba7_demo.enrollments AS z
+    WHERE z.participant_id = p.participant_id AND z.status = 'confirmed'
+)
+ORDER BY p.participant_id;
 ```
 
-## 🔹 2. Widoki jako warstwa abstrakcji
+Pierwszy wynik: **P1 Anna, P2 Bartek**. Drugi: **P4 Dawid**.
+Celina nie pojawia się w drugim wyniku, ponieważ ma potwierdzony zapis Python.
+Gdybyśmy chcieli osoby bez potwierdzonego **SQL**, należałoby dołączyć edycje
+i dodać `course_id = 'SQL'` wewnątrz `NOT EXISTS`.
 
-Widoki działają jak poziom pośredni między użytkownikiem a fizyczną strukturą bazy danych.
-Użytkownik nie musi znać szczegółów łączenia tabel, kluczy obcych czy kolumn — wystarczy, że zna nazwę widoku.
+Skorelowane podzapytanie opisujemy logicznie dla każdego wiersza zewnętrznego.
+Nie wynika z tego, że silnik zawsze uruchamia je od początku dla każdego wiersza.
+Sposób wykonania zależy od planu, indeksów, statystyk i rozmiaru danych.
 
-### Przykład:
+## 6. Podzapytanie skalarne: jedna wartość
 
-Widok pokazujący tylko podstawowe dane o książkach:
-```sql
-CREATE VIEW Widok_Biblioteka_Publiczna AS
-SELECT tytul, rok
-FROM Ksiazki;
-```
-
-➡️ Użytkownik może wykonać:
-```sql
-SELECT * FROM Widok_Biblioteka_Publiczna;
-
-```
-i otrzymać uproszczony zestaw danych bez dostępu do tabel źródłowych.
-
-## 🔹 3. Widoki oparte na podzapytaniach
-
-Widoki mogą zawierać podzapytania — dzięki temu można tworzyć widoki analityczne, raportowe, czy agregujące dane.
-
-### Przykład:
-
-Widok pokazujący liczbę książek napisanych przez każdego autora:
-
-```sql
-CREATE VIEW Widok_LiczbaKsiazek AS
-SELECT
-    a.autor_id,
-    a.imie,
-    a.nazwisko,
-    COUNT(k.ksiazka_id) AS liczba_ksiazek
-FROM Autorzy a
-LEFT JOIN Ksiazki k ON a.autor_id = k.autor_id
-GROUP BY a.autor_id, a.imie, a.nazwisko;
-```
-
-➡️ Następnie możemy wykonać:
-
-```sqml
-SELECT * FROM Widok_LiczbaKsiazek WHERE liczba_ksiazek > 3;
-```
-
-## 🔹 4. Aktualizowalność widoków
-
-Nie każdy widok można modyfikować (czyli wykonywać INSERT, UPDATE, DELETE).
-
-Widoki są aktualizowalne, jeśli:
-
-- odnoszą się tylko do jednej tabeli,
-- nie zawierają GROUP BY, DISTINCT, UNION, HAVING ani funkcji agregujących,
-- nie zawierają podzapytań w klauzuli SELECT.
-
-Jeśli widok jest bardziej złożony (np. z JOIN lub GROUP BY), staje się tylko do odczytu.
-
-### Przykład – widok aktualizowalny:
-```sql
-CREATE VIEW Widok_AutorzyPodstawowi AS
-SELECT autor_id, imie, nazwisko
-FROM Autorzy;
-```
-Możemy:
+**Pytanie:** które edycje mają limit większy od średniego limitu wszystkich edycji?
+Średnia `(2 + 3 + 5 + 2) / 4 = 3`. Odpowiedź: **E3, limit 5**.
 
 ```sql
-UPDATE Widok_AutorzyPodstawowi
-SET nazwisko = 'Nowak'
-WHERE autor_id = 1;
+-- The aggregate returns one row: average limit = 3. E3 is above average.
+SELECT edition_id, seat_limit FROM prba7_demo.editions
+WHERE seat_limit > (SELECT AVG(seat_limit) FROM prba7_demo.editions)
+ORDER BY edition_id;
+-- A nonaggregate scalar subquery returning zero rows has the value NULL.
+SELECT (SELECT edition_id FROM prba7_demo.editions WHERE course_id = 'MISSING') AS no_match;
+-- Correlated aggregate: P1=2, P2=1, P3=1, P4=0.
+SELECT p.participant_id, p.name, (
+    SELECT COUNT(*) FROM prba7_demo.enrollments AS z
+    WHERE z.participant_id = p.participant_id AND z.status = 'confirmed'
+) AS confirmed_count
+FROM prba7_demo.participants AS p ORDER BY p.participant_id;
 ```
 
-## 🔹 5. Usuwanie i modyfikacja widoków
+Podzapytanie skalarne musi zwrócić **jedną kolumnę i najwyżej jeden wiersz**.
+Zero wierszy daje `NULL`; więcej niż jeden wiersz powoduje błąd PostgreSQL.
+Agregacja `AVG` bez `GROUP BY` zwraca jeden wiersz, także dla pustego wejścia
+(wtedy `AVG` jest `NULL`). Analogiczny `COUNT(*)` zwraca wtedy **0**.
 
-Aby usunąć widok:
+W pliku `09_expected_errors.sql` pierwsze polecenie próbuje potraktować
+**dwie edycje SQL** jako jedną wartość — to celowy błąd kardynalności.
+Nie naprawiamy go przypadkowym `LIMIT 1`: najpierw ustalamy, czy pytanie
+dotyczy jednej edycji, czy całego zbioru edycji.
+
+## 7. Podzapytanie w FROM: wynik jako relacja
+
+**Pytanie:** które edycje mają co najmniej dwóch potwierdzonych uczestników?
+Najpierw grupujemy zapisy, a potem filtrujemy wynik agregacji.
+
 ```sql
-DROP VIEW Widok_LiczbaKsiazek;
+-- Aggregate first, filter the resulting relation: E1=2, E2=1, E3=1; result E1.
+SELECT q.edition_id, q.confirmed_count FROM (
+    SELECT edition_id, COUNT(*) AS confirmed_count
+    FROM prba7_demo.enrollments WHERE status = 'confirmed' GROUP BY edition_id
+) AS q
+WHERE q.confirmed_count >= 2 ORDER BY q.edition_id;
+-- The same logical operation using HAVING.
+SELECT edition_id, COUNT(*) AS confirmed_count
+FROM prba7_demo.enrollments WHERE status = 'confirmed'
+GROUP BY edition_id HAVING COUNT(*) >= 2 ORDER BY edition_id;
+-- LEFT JOIN preserves E4. COUNT(z.participant_id) ignores the null-extended row.
+SELECT e.edition_id, COUNT(z.participant_id) AS confirmed_count
+FROM prba7_demo.editions AS e
+LEFT JOIN prba7_demo.enrollments AS z
+    ON z.edition_id = e.edition_id AND z.status = 'confirmed'
+GROUP BY e.edition_id ORDER BY e.edition_id;
 ```
-Aby zmienić definicję widoku:
+
+Pierwsze dwa zapytania zwracają **E1, 2**. Alias `q` pozwala odwołać się
+do kolumn tabeli pochodnej. Nie jest to trwała tabela utworzona w bazie.
+
+Trzecie zapytanie zwraca **E1: 2, E2: 1, E3: 1, E4: 0**.
+`COUNT(z.participant_id)` nie liczy `NULL` z niedopasowanego wiersza.
+`COUNT(*)` policzyłby go i błędnie dał E4 wartość 1.
+Przeniesienie `z.status = 'confirmed'` do `WHERE` usunęłoby E4:
+porównanie `NULL = 'confirmed'` nie jest prawdziwe.
+
+### WHERE, GROUP BY, HAVING
+
+Logicznie `WHERE` filtruje wiersze wejściowe, `GROUP BY` tworzy grupy,
+a `HAVING` filtruje grupy. Podzapytanie w `FROM` pomaga rozdzielić te etapy,
+gdy wynik agregacji ma być wejściem do kolejnej operacji.
+Dla prostego warunku na `COUNT` zapis z `HAVING` jest krótszy.
+
+## 8. Pułapka NOT IN i NULL
+
+W SQL warunek może mieć wartość `TRUE`, `FALSE` lub nieznaną (`NULL`).
+`WHERE` zachowuje tylko wiersze, dla których warunek jest `TRUE`.
+
 ```sql
-CREATE OR REPLACE VIEW Widok_LiczbaKsiazek AS
-SELECT nazwisko, COUNT(*) AS liczba
-FROM Autorzy a
-JOIN Ksiazki k ON a.autor_id = k.autor_id
-GROUP BY nazwisko;
+-- UNKNOWN, not TRUE: WHERE would discard this result.
+SELECT 'P4' NOT IN ('P1', NULL) AS not_in_with_null;
+-- A nullable imported list is deliberately separate from the constrained course tables.
+WITH imported_ids(participant_id) AS (VALUES ('P1'::text), (NULL::text))
+SELECT p.participant_id FROM prba7_demo.participants AS p
+WHERE p.participant_id NOT IN (SELECT participant_id FROM imported_ids)
+ORDER BY p.participant_id;
+-- NOT EXISTS ignores the unmatched NULL: P2, P3, P4.
+WITH imported_ids(participant_id) AS (VALUES ('P1'::text), (NULL::text))
+SELECT p.participant_id FROM prba7_demo.participants AS p
+WHERE NOT EXISTS (
+    SELECT 1 FROM imported_ids AS i WHERE i.participant_id = p.participant_id
+)
+ORDER BY p.participant_id;
 ```
 
-## 🔹 6. Zalety i wady widoków
+Lista `('P1', NULL)` nie pozwala stwierdzić, że P4 na pewno do niej nie należy:
+nie wiemy, czym jest brakująca wartość. Dlatego `NOT IN` daje tu `NULL`,
+a drugi przykład nie zwraca żadnego wiersza. `NOT EXISTS` z jawnym warunkiem
+równości zwraca **P2, P3, P4**. W naszych tabelach klucze obce są `NOT NULL`,
+ale importy i inne źródła danych nie muszą mieć tej gwarancji.
 
-✅ Zalety:
+### ANY i ALL — rozszerzenie
 
-- Uproszczenie złożonych zapytań (abstrakcja)
-- Zwiększenie bezpieczeństwa – ograniczony dostęp do danych
-- Reużywalność – jedno miejsce definicji raportu
-- Możliwość definiowania logicznych perspektyw danych
+`x = ANY (podzapytanie)` odpowiada porównaniu z dowolną wartością
+(dla jednej kolumny jest odpowiednikiem `IN`). `x > ALL (podzapytanie)`
+wymaga, by `x` było większe od każdej zwróconej wartości.
+Dla pustego podzapytania `ANY` daje `FALSE`, a `ALL` daje `TRUE`.
+Obecność `NULL` może prowadzić do wyniku nieznanego, jeżeli pozostałe
+porównania nie rozstrzygają całości. Nie traktuj `ALL` jako zamiennika
+porównania z `MAX` bez sprawdzenia pustego zbioru i brakujących wartości.
 
-⚠️ Wady:
+## 9. Widok: nazwany raport
 
-- Wydajność – każde odwołanie do widoku powoduje wykonanie zapytania źródłowego
-- Ograniczona aktualizowalność
-- Złożone widoki mogą utrudniać debugowanie i optymalizację
+Zamiast wklejać agregację do każdego raportu, zapiszmy ją jako `VIEW`.
+Zwykły widok przechowuje **definicję zapytania**, a nie osobną kopię wyników.
+W pliku `07_views.sql` wykonaj tworzenie widoków jeden raz.
 
-### 🧩 Przykład praktyczny – widok zagnieżdżony
-
-Widoki można zagnieżdżać – jeden widok może korzystać z innego.
 ```sql
-CREATE VIEW Widok_StarsiAutorzy AS
-SELECT autor_id, imie, nazwisko
-FROM Autorzy
-WHERE rok_urodzenia < 1950;
-
-CREATE VIEW Widok_StarsiAutorzy_LiczbaKsiazek AS
-SELECT
-    sa.imie,
-    sa.nazwisko,
-    COUNT(k.ksiazka_id) AS liczba_ksiazek
-FROM Widok_StarsiAutorzy sa
-JOIN Ksiazki k ON sa.autor_id = k.autor_id
-GROUP BY sa.imie, sa.nazwisko;
-
+CREATE VIEW prba7_demo.edition_summary AS
+SELECT e.edition_id, e.course_id, e.seat_limit,
+       COUNT(z.participant_id) AS confirmed_count,
+       e.seat_limit - COUNT(z.participant_id) AS free_places
+FROM prba7_demo.editions AS e
+LEFT JOIN prba7_demo.enrollments AS z
+    ON z.edition_id = e.edition_id AND z.status = 'confirmed'
+GROUP BY e.edition_id, e.course_id, e.seat_limit;
+SELECT * FROM prba7_demo.edition_summary ORDER BY edition_id;
+SELECT edition_id, free_places FROM prba7_demo.edition_summary
+WHERE free_places > 0 ORDER BY edition_id;
+-- A regular view reflects source changes. ROLLBACK restores the dataset.
+BEGIN;
+UPDATE prba7_demo.enrollments SET status = 'cancelled'
+WHERE participant_id = 'P2' AND edition_id = 'E1';
+SELECT * FROM prba7_demo.edition_summary WHERE edition_id = 'E1';
+ROLLBACK;
+SELECT * FROM prba7_demo.edition_summary WHERE edition_id = 'E1';
+CREATE VIEW prba7_demo.small_editions AS
+SELECT edition_id, course_id, seat_limit FROM prba7_demo.editions
+WHERE seat_limit <= 3 WITH CHECK OPTION;
+-- Successful update through an automatically updatable view; then restore it.
+BEGIN;
+UPDATE prba7_demo.small_editions SET seat_limit = 3 WHERE edition_id = 'E1';
+SELECT * FROM prba7_demo.small_editions ORDER BY edition_id;
+ROLLBACK;
 ```
 
-➡️ Teraz możesz wykonać:
-```sql
+Początkowo `edition_summary` daje:
 
-SELECT * FROM Widok_StarsiAutorzy_LiczbaKsiazek
-WHERE liczba_ksiazek > 2;
-```
+| edition_id | course_id | seat_limit | confirmed_count | free_places |
+|---|---|---:|---:|---:|
+| E1 | SQL | 2 | 2 | 0 |
+| E2 | SQL | 3 | 1 | 2 |
+| E3 | PY | 5 | 1 | 4 |
+| E4 | PY | 2 | 0 | 2 |
 
+Po anulowaniu zapisu Bartka E1 ma **1 potwierdzony zapis i 1 wolne miejsce**.
+Po `ROLLBACK` znowu ma **2 zapisy i 0 wolnych miejsc**. Widok nie wymaga
+odświeżania; odczyt podlega widoczności danych bieżącej transakcji.
+**Widok zmaterializowany** jest inną konstrukcją: przechowuje wynik i wymaga
+odświeżania, gdy chcemy uaktualnić ten wynik.
 
-Widoki pozwalają budować hierarchię logicznych perspektyw danych — od prostych po analityczne.
+### Czy można zmieniać dane przez widok?
 
-## 📘 Najważniejsze wnioski
+Prosty widok `small_editions` jest automatycznie aktualizowalny w PostgreSQL.
+Zmiana trafia do tabeli `editions`. `WITH CHECK OPTION` wymaga, aby nowy lub
+zmieniony wiersz nadal spełniał filtr widoku. Ustawienie E1 limitu 10 przez
+ten widok zostanie odrzucone — drugie polecenie pliku `09_expected_errors.sql`.
 
-- Widoki nie przechowują danych, lecz definicję zapytania.
-- Można je traktować jak „tabele wirtualne”.
-- Ułatwiają zarządzanie dostępem do danych i tworzenie raportów.
-- Proste widoki są aktualizowalne, złożone — tylko do odczytu.
-- Można je zagnieżdżać, tworząc coraz bardziej rozbudowane analizy.
+Raport `edition_summary`, zawierający agregację i złączenie, nie jest
+**automatycznie** aktualizowalny. PostgreSQL pozwala programować obsługę
+zmian bardziej złożonych widoków, np. wyzwalaczem `INSTEAD OF`; to osobny temat.
+
+### Utrzymanie definicji i uprawnienia
+
+`CREATE OR REPLACE VIEW` pozwala zmienić zapytanie, ale istniejące kolumny
+muszą zachować nazwy, kolejność i typy; można dodać nowe kolumny na końcu.
+To ograniczenie chroni zapytania zależne od dotychczasowego interfejsu widoku.
+
+Widok może udostępniać wybrane kolumny użytkownikowi mającemu odpowiednie
+uprawnienia. Samo utworzenie widoku **nie odbiera** dostępu do tabel źródłowych.
+Bezpieczeństwo zależy także od `GRANT`/`REVOKE`, właściciela widoku i sposobu
+sprawdzania uprawnień. Widok raportowy nie jest automatycznie szybszy:
+optymalizator nadal planuje zapytanie do danych źródłowych.
+
+## 10. IN, EXISTS czy JOIN — jak wybrać?
+
+| Potrzeba | Konstrukcja | Na co uważać |
+|---|---|---|
+| Jedna obliczona wartość | Podzapytanie skalarne | Najwyżej jeden wiersz; zero daje `NULL` |
+| Przynależność do zbioru | `IN` | Liczba kolumn i logika `NULL` |
+| Istnienie powiązania | `EXISTS` | Poprawna korelacja z wierszem zewnętrznym |
+| Brak powiązania | `NOT EXISTS` | Jakie dokładnie powiązania wykluczamy? |
+| Kolumny z obu tabel | `JOIN` | Jeden wiersz na każdą pasującą kombinację |
+| Wszystkie lewe wiersze | `LEFT JOIN` | Filtry prawej tabeli i liczenie `NULL` |
+| Dalsza praca na agregacie | Podzapytanie w `FROM` | Znaczenie jednego wiersza wyniku |
+| Wielokrotnie używany raport | `VIEW` | Uprawnienia, stabilny interfejs, plan zapytania |
+
+Wykonaj `08_plans.sql`. Sprawdź, czy plan zawiera złączenie, agregację lub
+semizłączenie. Nie zakładaj konkretnego węzła: plan może się zmienić.
+Na czterech uczestnikach różnica czasu nie jest wiarygodnym pomiarem wydajności.
+Najpierw dowodzimy równoważności **wyników i krotności**, dopiero potem
+porównujemy plany na reprezentatywnej ilości danych.
+
+## 11. Zakończenie kursu — zadania do wspólnego omówienia
+
+1. Zmień warunek przykładu na Python. Kto zostanie wybrany przez `IN`?
+2. Znajdź uczestników bez potwierdzonego zapisu SQL. Czy Celina należy do wyniku?
+3. Dlaczego `DISTINCT participant_id, name, edition_id` nadal zwróci Annę dwa razy?
+4. Zwróć edycje bez potwierdzonych zapisów przez `NOT EXISTS`, a potem `LEFT JOIN`.
+5. Dlaczego filtr widoku nie zastępuje `CHECK (seat_limit > 0)` w tabeli?
+6. Czy odczyt `free_places > 0` i późniejszy `INSERT` gwarantują brak nadmiarowych
+   zapisów przy dwóch użytkownikach? Nie: to wymaga kontroli transakcyjnej;
+   sam widok raportowy nie rezerwuje miejsca.
+
+::: {.callout-note collapse="true"}
+## Odpowiedzi do samodzielnej kontroli
+1. Celina (P3), mimo że Python ma dwie edycje — E4 jest pusta.
+2. Celina i Dawid (P3, P4); anulowany SQL Celiny nie jest potwierdzonym zapisem.
+3. E1 i E2 różnią się, więc całe wiersze są różne.
+4. E4. W wersji z `LEFT JOIN` status filtrujemy w `ON`, a w `WHERE` sprawdzamy
+   `z.participant_id IS NULL`.
+5. `CHECK OPTION` dotyczy zmian przez dany widok, a ograniczenie tabeli chroni
+   także inne drogi zapisu.
+:::
+
+Przeszliśmy od wymagań i modelu encji, przez klucze i normalizację, do SQL,
+indeksów, podzapytań i widoków. W projekcie każdą decyzję uzasadnij pytaniem:
+**jaką regułę danych lub potrzebę użytkownika realizuje ten element?**
+
+## Dokumentacja PostgreSQL 16
+
+- [Podzapytania: EXISTS, IN, NOT IN, ANY i ALL](https://www.postgresql.org/docs/16/functions-subquery.html).
+- [CREATE VIEW: aktualizowalność, CHECK OPTION i uprawnienia](https://www.postgresql.org/docs/16/sql-createview.html).
+- [Złączenia i wyrażenia tabelowe](https://www.postgresql.org/docs/16/queries-table-expressions.html).

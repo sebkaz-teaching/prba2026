@@ -13,6 +13,9 @@ Bazy i skrypty:
 - prba4_pokaz → materials/lectures/wyklad4
 - prba5_pokaz → materials/lectures/wyklad5
 - prba6_pokaz → materials/lectures/wyklad6
+- prba7_pokaz → materials/lectures/wyklad7
+PRBA 7: dane startowe są gotowe; zacznij od 01_steps.sql.
+07 tworzy widoki raz; 09 zawiera oczekiwane błędy (uruchamiaj osobno).
 
 W pgAdmin: rozwiń serwer → Databases → wybrana baza → Query Tool.
 Open File → materials → lectures → właściwy wykład.

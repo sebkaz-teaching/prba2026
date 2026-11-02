@@ -3,6 +3,7 @@ project:
   output-dir: docs
   resources:
     - assets/sql/**
+    - lectures/media/**
     - "!docker/**"
   # Reveal each lecture week by week: comment OUT its "!lectures/..." line
   # below (so it renders) once that lecture is taught, then uncomment the
@@ -18,7 +19,7 @@ project:
     # - "!lectures/wyklad4.qmd"
     # - "!lectures/wyklad5.qmd"
     # - "!lectures/wyklad6.qmd"
-    - "!lectures/wyklad7.qmd"
+    # - "!lectures/wyklad7.qmd"
 
 website:
   title: Projektowanie Relacyjnych Baz Danych
@@ -36,7 +37,7 @@ website:
           - lectures/wyklad4.qmd
           - lectures/wyklad5.qmd
           - lectures/wyklad6.qmd
-          # - lectures/wyklad7.qmd
+          - lectures/wyklad7.qmd
   page-footer: "Copyright 2026, Sebastian Zając"
 format:
   html:

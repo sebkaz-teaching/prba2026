@@ -1,0 +1,16 @@
+PRBA 7 — podzapytania, JOIN-y i widoki (PostgreSQL 16)
+
+Osobna baza prba7_pokaz. W środowisku kursu dane tworzą się automatycznie:
+rozpocznij od 01_steps.sql. W ręcznie utworzonej pustej bazie wykonaj 00 raz.
+Włącz Auto commit. Wykonuj pliki 01–08 w kolejności; wszystkie polecenia
+jednego bloku BEGIN...ROLLBACK wykonuj razem. Skrypt 07 tworzy widoki raz.
+Plik 09 zawiera dwa OCZEKIWANE błędy; zaznaczaj pojedyncze polecenia.
+Po błędzie wewnątrz jawnej transakcji wykonaj ROLLBACK.
+
+Dane: SQL -> E1,E2; Python -> E3,E4. Anna ma dwa potwierdzone zapisy SQL,
+Bartek jeden. Celina ma anulowany SQL i potwierdzony Python; Dawid nie ma zapisów.
+IN/EXISTS: Anna, Bartek. JOIN: Anna/E1, Anna/E2, Bartek/E1.
+Widok: E1 (2/2, wolne 0), E2 (1/3, wolne 2), E3 (1/5, wolne 4), E4 (0/2, wolne 2).
+Film przedstawia logiczny sposób czytania SQL, nie fizyczny plan silnika.
+Powtórny pokaz: pliki 01–06 i 08 są tylko do odczytu; plik 07 wymaga
+istniejących widoków usuniętych świadomie albo wykonania samych SELECT-ów.

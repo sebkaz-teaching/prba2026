@@ -30,3 +30,16 @@ cp /tmp/manim/videos/seq_vs_index/720p30/SeqScanVsIndexScan.mp4 lectures/media/s
 
 Use `-ql` (480p15) for quick previews while editing. Keep committed videos
 at 720p (`-qm`) so every re-render adds only a few MB to the git history.
+
+## Lecture 7: subqueries and joins
+
+`subqueries_joins.py` → `SubqueriesAndJoins` illustrates the logical selection
+of SQL editions, matching confirmed enrollments, participant membership and
+JOIN multiplicity. Its dataset matches `assets/sql/prba7-podzapytania`.
+Polish captions make the animation usable without audio. It does not claim
+to represent the physical query plan.
+
+```bash
+.venv/bin/manim -qm --media_dir /tmp/prba7-manim _manim/subqueries_joins.py SubqueriesAndJoins
+cp /tmp/prba7-manim/videos/subqueries_joins/720p30/SubqueriesAndJoins.mp4 lectures/media/subqueries_joins.mp4
+```

@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Podzapytania, JOIN-y i widoki w SQL – Projektowanie Relacyjnych Baz Danych</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-94ae530b1fc9924793afbc3bb7de9d3b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wykłady</a></li><li class="breadcrumb-item"><a href="../lectures/wyklad7.html">Podzapytania, JOIN-y i widoki w SQL</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Projektowanie Relacyjnych Baz Danych</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Informacje ogólne</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Wykłady</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wprowadzenie do relacyjnych baz danych</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Projektowanie koncepcyjne – model ER (Entity-Relationship)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Od modelu ER do modelu relacyjnego</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SQL w praktyce — czy raport mówi prawdę?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Normalizacja — dlaczego poprawna tabela może być złym projektem?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Projekt fizyczny, indeksy i plany zapytań</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/wyklad7.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Podzapytania, JOIN-y i widoki w SQL</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title"><strong>Sections</strong></h2>
+   
+  <ul class="collapse">
+  <li><a href="#sprawdź-się-z-wykładu-6" id="toc-sprawdź-się-z-wykładu-6" class="nav-link active" data-scroll-target="#sprawdź-się-z-wykładu-6">✅ Sprawdź się z wykładu 6</a></li>
+  <li><a href="#cel-ostatniego-wykładu" id="toc-cel-ostatniego-wykładu" class="nav-link" data-scroll-target="#cel-ostatniego-wykładu">Cel ostatniego wykładu</a></li>
+  <li><a href="#jedna-baza-do-całego-pokazu" id="toc-jedna-baza-do-całego-pokazu" class="nav-link" data-scroll-target="#jedna-baza-do-całego-pokazu">1. Jedna baza do całego pokazu</a></li>
+  <li><a href="#film-od-podzapytania-do-wyniku-i-join-a" id="toc-film-od-podzapytania-do-wyniku-i-join-a" class="nav-link" data-scroll-target="#film-od-podzapytania-do-wyniku-i-join-a">2. Film: od podzapytania do wyniku i JOIN-a</a></li>
+  <li><a href="#podzapytanie-wielowierszowe-in" id="toc-podzapytanie-wielowierszowe-in" class="nav-link" data-scroll-target="#podzapytanie-wielowierszowe-in">3. Podzapytanie wielowierszowe: IN</a></li>
+  <li><a href="#ten-sam-problem-przez-join-uwaga-na-krotność" id="toc-ten-sam-problem-przez-join-uwaga-na-krotność" class="nav-link" data-scroll-target="#ten-sam-problem-przez-join-uwaga-na-krotność">4. Ten sam problem przez JOIN — uwaga na krotność</a></li>
+  <li><a href="#exists-i-not-exists-czy-istnieje-dopasowanie" id="toc-exists-i-not-exists-czy-istnieje-dopasowanie" class="nav-link" data-scroll-target="#exists-i-not-exists-czy-istnieje-dopasowanie">5. EXISTS i NOT EXISTS: czy istnieje dopasowanie?</a></li>
+  <li><a href="#podzapytanie-skalarne-jedna-wartość" id="toc-podzapytanie-skalarne-jedna-wartość" class="nav-link" data-scroll-target="#podzapytanie-skalarne-jedna-wartość">6. Podzapytanie skalarne: jedna wartość</a></li>
+  <li><a href="#podzapytanie-w-from-wynik-jako-relacja" id="toc-podzapytanie-w-from-wynik-jako-relacja" class="nav-link" data-scroll-target="#podzapytanie-w-from-wynik-jako-relacja">7. Podzapytanie w FROM: wynik jako relacja</a></li>
+  <li><a href="#pułapka-not-in-i-null" id="toc-pułapka-not-in-i-null" class="nav-link" data-scroll-target="#pułapka-not-in-i-null">8. Pułapka NOT IN i NULL</a></li>
+  <li><a href="#widok-nazwany-raport" id="toc-widok-nazwany-raport" class="nav-link" data-scroll-target="#widok-nazwany-raport">9. Widok: nazwany raport</a></li>
+  <li><a href="#in-exists-czy-join-jak-wybrać" id="toc-in-exists-czy-join-jak-wybrać" class="nav-link" data-scroll-target="#in-exists-czy-join-jak-wybrać">10. IN, EXISTS czy JOIN — jak wybrać?</a></li>
+  <li><a href="#zakończenie-kursu-zadania-do-wspólnego-omówienia" id="toc-zakończenie-kursu-zadania-do-wspólnego-omówienia" class="nav-link" data-scroll-target="#zakończenie-kursu-zadania-do-wspólnego-omówienia">11. Zakończenie kursu — zadania do wspólnego omówienia</a></li>
+  <li><a href="#dokumentacja-postgresql-16" id="toc-dokumentacja-postgresql-16" class="nav-link" data-scroll-target="#dokumentacja-postgresql-16">Dokumentacja PostgreSQL 16</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/wyklad1.html">Wykłady</a></li><li class="breadcrumb-item"><a href="../lectures/wyklad7.html">Podzapytania, JOIN-y i widoki w SQL</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Podzapytania, JOIN-y i widoki w SQL</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sprawdź-się-z-wykładu-6" class="level2">
+<h2 class="anchored" data-anchor-id="sprawdź-się-z-wykładu-6">✅ Sprawdź się z wykładu 6</h2>
+<div id="rsod-quiz">
+
+</div>
+<script src="../assets/js/quiz-engine.js"></script>
+<script>
+CourseQuiz.mount(document.getElementById('rsod-quiz'), {
+  course: "prba2026",
+  lecture: "wyklad7",
+  title: "Wykład 6: Wprowadzenie do optymalizacji zapytań SQL",
+  submitUrl: "https://sebastianzajac.pl/rsod-quiz/submit.php",
+  questions: [
+    {
+      id: "q1", points: 1, diff: "bardzo łatwe",
+      text: "Co robi optymalizator zapytań (Query Optimizer)?",
+      options: [
+        {v:"A", t:"Uproszcza kod SQL, żeby był krótszy"},
+        {v:"B", t:"Analizuje zapytanie i wybiera najbardziej efektywny sposób pobrania danych, nie zmieniając jego logiki"},
+        {v:"C", t:"Automatycznie tworzy indeksy na wszystkich kolumnach"},
+        {v:"D", t:"Kompresuje dane w tabeli"}
+      ]
+    },
+    {
+      id: "q2", points: 1, diff: "łatwe",
+      text: "Do czego służy indeks w bazie danych?",
+      options: [
+        {v:"A", t:"Do przechowywania kopii zapasowej tabeli"},
+        {v:"B", t:"Do szybkiego znajdowania wierszy bez skanowania całej tabeli (analogia: spis treści książki)"},
+        {v:"C", t:"Do automatycznego usuwania duplikatów"},
+        {v:"D", t:"Do szyfrowania danych w tabeli"}
+      ]
+    },
+    {
+      id: "q3", points: 2, diff: "średnie",
+      text: "Czym różni się EXPLAIN od EXPLAIN ANALYZE?",
+      options: [
+        {v:"A", t:"EXPLAIN działa tylko w Oracle, EXPLAIN ANALYZE tylko w PostgreSQL"},
+        {v:"B", t:"EXPLAIN pokazuje plan teoretyczny (na bazie statystyk), EXPLAIN ANALYZE faktycznie wykonuje zapytanie i pokazuje rzeczywisty czas"},
+        {v:"C", t:"EXPLAIN ANALYZE jest szybszą, uproszczoną wersją EXPLAIN"},
+        {v:"D", t:"Nie ma różnicy, to synonimy"}
+      ]
+    },
+    {
+      id: "q4", points: 2, diff: "trudne",
+      text: "W planie zapytania widzimy: Seq Scan on orders (cost=0.00..450.00 rows=3 width=48). Co to oznacza?",
+      options: [
+        {v:"A", t:"Baza użyła indeksu — zapytanie jest już zoptymalizowane"},
+        {v:"B", t:"Baza przeskanowała całą tabelę bez użycia indeksu"},
+        {v:"C", t:"Zapytanie zawiera błąd składniowy"},
+        {v:"D", t:"cost=0.00..450.00 to czas wykonania w milisekundach"}
+      ]
+    },
+    {
+      id: "q5", points: 3, diff: "wnioskowanie",
+      text: "Chcemy szybko wyszukiwać zamówienia z zakresu dat: order_date BETWEEN '2024-01-01' AND '2024-06-30'. Czy indeks typu Hash będzie tu dobrym wyborem? Dlaczego?",
+      options: [
+        {v:"A", t:"Tak, Hash jest zawsze najszybszy"},
+        {v:"B", t:"Nie — Hash obsługuje tylko dokładne dopasowania, nie zakresy; lepszy będzie B-Tree"},
+        {v:"C", t:"Tak, ale tylko w PostgreSQL"},
+        {v:"D", t:"Nie ma to znaczenia, oba typy działają identycznie"}
+      ]
+    }
+  ]
+});
+</script>
+</section>
+<section id="cel-ostatniego-wykładu" class="level2">
+<h2 class="anchored" data-anchor-id="cel-ostatniego-wykładu">Cel ostatniego wykładu</h2>
+<p>Wracamy do projektu centrum szkoleniowego <strong>„Dąb”</strong>. Umiemy już zaprojektować relacje, połączyć tabele i zmierzyć zapytanie. Teraz odpowiemy na pytanie: <strong>jak użyć wyniku jednego zapytania do zbudowania następnego?</strong></p>
+<p>Po wykładzie potrafisz dobrać <code>IN</code>, <code>EXISTS</code>, podzapytanie skalarne lub <code>JOIN</code>, przewidzieć liczbę wierszy wyniku i zapisać raport jako widok.</p>
+<p>Proponowany przebieg 2 × 45 minut: przypomnienie i dane (10 min), animacja oraz <code>IN</code>/<code>JOIN</code>/<code>EXISTS</code> (25 min), agregacje i <code>NULL</code> (15 min), widoki (25 min), plany i zadania podsumowujące (15 min). Przerwę robimy między blokami.</p>
+</section>
+<section id="jedna-baza-do-całego-pokazu" class="level2">
+<h2 class="anchored" data-anchor-id="jedna-baza-do-całego-pokazu">1. Jedna baza do całego pokazu</h2>
+<p><a href="../assets/sql/prba7-podzapytania.zip"><strong>Pobierz kompletny zestaw SQL</strong></a>. Przykłady dotyczą <strong>PostgreSQL 16</strong>. W środowisku kursu otwórz bazę <code>prba7_pokaz</code> w pgAdmin i folder <code>materials/lectures/wyklad7</code>. Po aktualizacji repozytorium wykonaj <code>docker compose up -d</code> w katalogu <code>docker</code>. Usługa przygotowująca tworzy nową bazę, zachowując wcześniejsze pokazy.</p>
+<p>Jeśli tworzysz pustą bazę samodzielnie, wykonaj <code>00_setup.sql</code> jeden raz. W gotowym środowisku zacznij od <code>01_steps.sql</code>. Włącz <strong>Auto commit</strong>. Tabele są w osobnym schemacie <code>prba7_demo</code>; nie zmieniamy danych wykładu 6. To mały wycinek modelu „Dąb”, bez terminów i sal, bo badamy teraz logikę zapytań.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Relacja</th>
+<th>Znaczenie i dane</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>participants</code></td>
+<td>P1 Anna, P2 Bartek, P3 Celina, P4 Dawid</td>
+</tr>
+<tr class="even">
+<td><code>courses</code></td>
+<td>SQL — Podstawy SQL; PY — Python</td>
+</tr>
+<tr class="odd">
+<td><code>editions</code></td>
+<td>E1: SQL, limit 2; E2: SQL, limit 3; E3: PY, limit 5; E4: PY, limit 2</td>
+</tr>
+<tr class="even">
+<td><code>enrollments</code></td>
+<td>Zapis uczestnika na edycję; klucz <code>(participant_id, edition_id)</code></td>
+</tr>
+</tbody>
+</table>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Uczestnik</th>
+<th>Edycja</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>P1 Anna</td>
+<td>E1</td>
+<td>confirmed</td>
+</tr>
+<tr class="even">
+<td>P1 Anna</td>
+<td>E2</td>
+<td>confirmed</td>
+</tr>
+<tr class="odd">
+<td>P2 Bartek</td>
+<td>E1</td>
+<td>confirmed</td>
+</tr>
+<tr class="even">
+<td>P3 Celina</td>
+<td>E2</td>
+<td>cancelled</td>
+</tr>
+<tr class="odd">
+<td>P3 Celina</td>
+<td>E3</td>
+<td>confirmed</td>
+</tr>
+</tbody>
+</table>
+<p>Dawid nie ma żadnego zapisu. E4 nie ma żadnego uczestnika. Te przypadki są celowe: sprawdzają, czy zapytanie poprawnie obsługuje brak dopasowania.</p>
+</section>
+<section id="film-od-podzapytania-do-wyniku-i-join-a" class="level2">
+<h2 class="anchored" data-anchor-id="film-od-podzapytania-do-wyniku-i-join-a">2. Film: od podzapytania do wyniku i JOIN-a</h2>
+<video controls="" poster="media/subqueries_joins.jpg" preload="metadata" playsinline="" style="width:100%;max-width:1100px" aria-label="Animacja podzapytania IN oraz złączenia JOIN">
+<source src="media/subqueries_joins.mp4" type="video/mp4">
+Twoja przeglądarka nie odtwarza filmu. <a href="media/subqueries_joins.mp4">Pobierz MP4</a>.
+</video>
+<p>Film ma napisy, nie wymaga dźwięku. Można zatrzymywać go na każdej tabeli. Najpierw wybieramy edycje SQL: <strong>E1, E2</strong>. Następnie zachowujemy potwierdzone zapisy z tych edycji: <strong>P1/E1, P1/E2, P2/E1</strong>. Na końcu wybieramy uczestników: <strong>Anna, Bartek</strong>. Druga część pokazuje złączenia i dwa wiersze Anny.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Kolejność rozumowania a plan wykonania
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>„Najpierw podzapytanie, potem zapytanie zewnętrzne” jest tutaj <strong>modelem logicznym</strong>. SQL opisuje wynik. Optymalizator może zmienić sposób obliczania, np. użyć semizłączenia, a tabeli pośredniej wcale nie materializować. To, co silnik rzeczywiście zrobił, sprawdzamy przez <code>EXPLAIN (ANALYZE, BUFFERS)</code>.</p>
+</div>
+</div>
+</section>
+<section id="podzapytanie-wielowierszowe-in" class="level2">
+<h2 class="anchored" data-anchor-id="podzapytanie-wielowierszowe-in">3. Podzapytanie wielowierszowe: IN</h2>
+<p><strong>Pytanie:</strong> kto ma potwierdzony zapis na dowolną edycję SQL?</p>
+<p><code>IN</code> odpowiada na pytanie o <strong>przynależność</strong>: czy identyfikator występuje w wyniku podzapytania? W tym przykładzie prawa strona ma jedną kolumnę, ale może mieć wiele wierszy. Uruchom kolejno trzy polecenia z <code>01_steps.sql</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Step 1: SQL editions -&gt; E1, E2.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> edition_id <span class="kw">FROM</span> prba7_demo.editions <span class="kw">WHERE</span> course_id <span class="op">=</span> <span class="st">'SQL'</span> <span class="kw">ORDER</span> <span class="kw">BY</span> edition_id;</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- Step 2: matching confirmed enrollments -&gt; P1/E1, P1/E2, P2/E1.</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> participant_id, edition_id <span class="kw">FROM</span> prba7_demo.enrollments</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> status <span class="op">=</span> <span class="st">'confirmed'</span> <span class="kw">AND</span> edition_id <span class="kw">IN</span> (</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> edition_id <span class="kw">FROM</span> prba7_demo.editions <span class="kw">WHERE</span> course_id <span class="op">=</span> <span class="st">'SQL'</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> participant_id, edition_id;</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- Step 3: participant membership -&gt; Anna, Bartek (one row per participant).</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id, p.name <span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> p.participant_id <span class="kw">IN</span> (</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> z.participant_id <span class="kw">FROM</span> prba7_demo.enrollments <span class="kw">AS</span> z</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span> <span class="kw">AND</span> z.edition_id <span class="kw">IN</span> (</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">SELECT</span> e.edition_id <span class="kw">FROM</span> prba7_demo.editions <span class="kw">AS</span> e <span class="kw">WHERE</span> e.course_id <span class="op">=</span> <span class="st">'SQL'</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Wynik wewnętrzny może zawierać P1 dwukrotnie. Nie powoduje to powielenia wiersza Anny w zapytaniu zewnętrznym: każdy wiersz <code>participants</code> jest albo zachowany, albo odrzucony. <code>ORDER BY</code> ustala kolejność wyświetlania; bez niego baza nie gwarantuje uporządkowania wyniku.</p>
+</section>
+<section id="ten-sam-problem-przez-join-uwaga-na-krotność" class="level2">
+<h2 class="anchored" data-anchor-id="ten-sam-problem-przez-join-uwaga-na-krotność">4. Ten sam problem przez JOIN — uwaga na krotność</h2>
+<p>Przypomnienie: <code>JOIN ... ON</code> tworzy wiersze z <strong>pasujących kombinacji</strong> rekordów. Klucz obcy wyjaśnia, po czym łączymy tabele, ale nie sprawia, że uczestnik pojawia się w wyniku tylko raz.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- A JOIN returns matching combinations: Anna appears twice.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id, p.name, e.edition_id</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> prba7_demo.enrollments <span class="kw">AS</span> z <span class="kw">ON</span> z.participant_id <span class="op">=</span> p.participant_id</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> prba7_demo.editions <span class="kw">AS</span> e <span class="kw">ON</span> e.edition_id <span class="op">=</span> z.edition_id</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span> <span class="kw">AND</span> e.course_id <span class="op">=</span> <span class="st">'SQL'</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id, e.edition_id;</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- Match the participant list returned by IN. Deduplicate by identity, not name alone.</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> p.participant_id, p.name</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> prba7_demo.enrollments <span class="kw">AS</span> z <span class="kw">ON</span> z.participant_id <span class="op">=</span> p.participant_id</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> prba7_demo.editions <span class="kw">AS</span> e <span class="kw">ON</span> e.edition_id <span class="op">=</span> z.edition_id</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span> <span class="kw">AND</span> e.course_id <span class="op">=</span> <span class="st">'SQL'</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pierwszy wynik ma <strong>3 wiersze</strong>, a drugi <strong>2</strong>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>participant_id</th>
+<th>name</th>
+<th>edition_id w pierwszym wyniku</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>Anna</td>
+<td>E1</td>
+</tr>
+<tr class="even">
+<td>P1</td>
+<td>Anna</td>
+<td>E2</td>
+</tr>
+<tr class="odd">
+<td>P2</td>
+<td>Bartek</td>
+<td>E1</td>
+</tr>
+</tbody>
+</table>
+<p>Jeżeli pytamy o <strong>zapisy</strong>, trzy wiersze są prawidłowe. Jeżeli pytamy o <strong>uczestników</strong>, potrzebujemy <code>DISTINCT</code> na identyfikatorze i nazwie albo konstrukcji wyrażającej istnienie. Samo <code>DISTINCT name</code> połączyłoby także różne osoby o tym samym imieniu. Nie usuwaj duplikatów bez ustalenia, co reprezentuje jeden wiersz raportu.</p>
+<section id="inner-join-i-left-join" class="level3">
+<h3 class="anchored" data-anchor-id="inner-join-i-left-join">INNER JOIN i LEFT JOIN</h3>
+<p><code>INNER JOIN</code> zachowuje wyłącznie dopasowania. <code>LEFT JOIN</code> zachowuje także wiersze lewej tabeli bez dopasowania; w kolumnach prawej pojawia się <code>NULL</code>. Dlatego do zestawienia <strong>wszystkich edycji, także pustej E4</strong>, użyjemy <code>LEFT JOIN</code> w sekcji o agregacji. Warunek statusu umieścimy w <code>ON</code>.</p>
+</section>
+</section>
+<section id="exists-i-not-exists-czy-istnieje-dopasowanie" class="level2">
+<h2 class="anchored" data-anchor-id="exists-i-not-exists-czy-istnieje-dopasowanie">5. EXISTS i NOT EXISTS: czy istnieje dopasowanie?</h2>
+<p>Podzapytanie <strong>skorelowane</strong> odwołuje się do bieżącego wiersza zewnętrznego, tutaj przez <code>z.participant_id = p.participant_id</code>. <code>EXISTS</code> bada, czy istnieje co najmniej jeden pasujący wiersz; wartość <code>1</code> na liście <code>SELECT</code> nie jest liczbą zapisów. Nie potrzebujemy pobierać wszystkich danych znalezionych zapisów.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- EXISTS tests membership without multiplying outer rows.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id, p.name <span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="kw">EXISTS</span> (</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="dv">1</span> <span class="kw">FROM</span> prba7_demo.enrollments <span class="kw">AS</span> z</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">JOIN</span> prba7_demo.editions <span class="kw">AS</span> e <span class="kw">ON</span> e.edition_id <span class="op">=</span> z.edition_id</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> z.participant_id <span class="op">=</span> p.participant_id</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">AND</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span> <span class="kw">AND</span> e.course_id <span class="op">=</span> <span class="st">'SQL'</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id;</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- No confirmed enrollment -&gt; Dawid (P4).</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id, p.name <span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="kw">NOT</span> <span class="kw">EXISTS</span> (</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="dv">1</span> <span class="kw">FROM</span> prba7_demo.enrollments <span class="kw">AS</span> z</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> z.participant_id <span class="op">=</span> p.participant_id <span class="kw">AND</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pierwszy wynik: <strong>P1 Anna, P2 Bartek</strong>. Drugi: <strong>P4 Dawid</strong>. Celina nie pojawia się w drugim wyniku, ponieważ ma potwierdzony zapis Python. Gdybyśmy chcieli osoby bez potwierdzonego <strong>SQL</strong>, należałoby dołączyć edycje i dodać <code>course_id = 'SQL'</code> wewnątrz <code>NOT EXISTS</code>.</p>
+<p>Skorelowane podzapytanie opisujemy logicznie dla każdego wiersza zewnętrznego. Nie wynika z tego, że silnik zawsze uruchamia je od początku dla każdego wiersza. Sposób wykonania zależy od planu, indeksów, statystyk i rozmiaru danych.</p>
+</section>
+<section id="podzapytanie-skalarne-jedna-wartość" class="level2">
+<h2 class="anchored" data-anchor-id="podzapytanie-skalarne-jedna-wartość">6. Podzapytanie skalarne: jedna wartość</h2>
+<p><strong>Pytanie:</strong> które edycje mają limit większy od średniego limitu wszystkich edycji? Średnia <code>(2 + 3 + 5 + 2) / 4 = 3</code>. Odpowiedź: <strong>E3, limit 5</strong>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- The aggregate returns one row: average limit = 3. E3 is above average.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> edition_id, seat_limit <span class="kw">FROM</span> prba7_demo.editions</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> seat_limit <span class="op">&gt;</span> (<span class="kw">SELECT</span> <span class="fu">AVG</span>(seat_limit) <span class="kw">FROM</span> prba7_demo.editions)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> edition_id;</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- A nonaggregate scalar subquery returning zero rows has the value NULL.</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> (<span class="kw">SELECT</span> edition_id <span class="kw">FROM</span> prba7_demo.editions <span class="kw">WHERE</span> course_id <span class="op">=</span> <span class="st">'MISSING'</span>) <span class="kw">AS</span> no_match;</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- Correlated aggregate: P1=2, P2=1, P3=1, P4=0.</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id, p.name, (</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> prba7_demo.enrollments <span class="kw">AS</span> z</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> z.participant_id <span class="op">=</span> p.participant_id <span class="kw">AND</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>) <span class="kw">AS</span> confirmed_count</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p <span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Podzapytanie skalarne musi zwrócić <strong>jedną kolumnę i najwyżej jeden wiersz</strong>. Zero wierszy daje <code>NULL</code>; więcej niż jeden wiersz powoduje błąd PostgreSQL. Agregacja <code>AVG</code> bez <code>GROUP BY</code> zwraca jeden wiersz, także dla pustego wejścia (wtedy <code>AVG</code> jest <code>NULL</code>). Analogiczny <code>COUNT(*)</code> zwraca wtedy <strong>0</strong>.</p>
+<p>W pliku <code>09_expected_errors.sql</code> pierwsze polecenie próbuje potraktować <strong>dwie edycje SQL</strong> jako jedną wartość — to celowy błąd kardynalności. Nie naprawiamy go przypadkowym <code>LIMIT 1</code>: najpierw ustalamy, czy pytanie dotyczy jednej edycji, czy całego zbioru edycji.</p>
+</section>
+<section id="podzapytanie-w-from-wynik-jako-relacja" class="level2">
+<h2 class="anchored" data-anchor-id="podzapytanie-w-from-wynik-jako-relacja">7. Podzapytanie w FROM: wynik jako relacja</h2>
+<p><strong>Pytanie:</strong> które edycje mają co najmniej dwóch potwierdzonych uczestników? Najpierw grupujemy zapisy, a potem filtrujemy wynik agregacji.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Aggregate first, filter the resulting relation: E1=2, E2=1, E3=1; result E1.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> q.edition_id, q.confirmed_count <span class="kw">FROM</span> (</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> edition_id, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> confirmed_count</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> prba7_demo.enrollments <span class="kw">WHERE</span> status <span class="op">=</span> <span class="st">'confirmed'</span> <span class="kw">GROUP</span> <span class="kw">BY</span> edition_id</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>) <span class="kw">AS</span> q</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> q.confirmed_count <span class="op">&gt;=</span> <span class="dv">2</span> <span class="kw">ORDER</span> <span class="kw">BY</span> q.edition_id;</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- The same logical operation using HAVING.</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> edition_id, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> confirmed_count</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba7_demo.enrollments <span class="kw">WHERE</span> status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> edition_id <span class="kw">HAVING</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;=</span> <span class="dv">2</span> <span class="kw">ORDER</span> <span class="kw">BY</span> edition_id;</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">-- LEFT JOIN preserves E4. COUNT(z.participant_id) ignores the null-extended row.</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> e.edition_id, <span class="fu">COUNT</span>(z.participant_id) <span class="kw">AS</span> confirmed_count</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba7_demo.editions <span class="kw">AS</span> e</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> prba7_demo.enrollments <span class="kw">AS</span> z</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ON</span> z.edition_id <span class="op">=</span> e.edition_id <span class="kw">AND</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> e.edition_id <span class="kw">ORDER</span> <span class="kw">BY</span> e.edition_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pierwsze dwa zapytania zwracają <strong>E1, 2</strong>. Alias <code>q</code> pozwala odwołać się do kolumn tabeli pochodnej. Nie jest to trwała tabela utworzona w bazie.</p>
+<p>Trzecie zapytanie zwraca <strong>E1: 2, E2: 1, E3: 1, E4: 0</strong>. <code>COUNT(z.participant_id)</code> nie liczy <code>NULL</code> z niedopasowanego wiersza. <code>COUNT(*)</code> policzyłby go i błędnie dał E4 wartość 1. Przeniesienie <code>z.status = 'confirmed'</code> do <code>WHERE</code> usunęłoby E4: porównanie <code>NULL = 'confirmed'</code> nie jest prawdziwe.</p>
+<section id="where-group-by-having" class="level3">
+<h3 class="anchored" data-anchor-id="where-group-by-having">WHERE, GROUP BY, HAVING</h3>
+<p>Logicznie <code>WHERE</code> filtruje wiersze wejściowe, <code>GROUP BY</code> tworzy grupy, a <code>HAVING</code> filtruje grupy. Podzapytanie w <code>FROM</code> pomaga rozdzielić te etapy, gdy wynik agregacji ma być wejściem do kolejnej operacji. Dla prostego warunku na <code>COUNT</code> zapis z <code>HAVING</code> jest krótszy.</p>
+</section>
+</section>
+<section id="pułapka-not-in-i-null" class="level2">
+<h2 class="anchored" data-anchor-id="pułapka-not-in-i-null">8. Pułapka NOT IN i NULL</h2>
+<p>W SQL warunek może mieć wartość <code>TRUE</code>, <code>FALSE</code> lub nieznaną (<code>NULL</code>). <code>WHERE</code> zachowuje tylko wiersze, dla których warunek jest <code>TRUE</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- UNKNOWN, not TRUE: WHERE would discard this result.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="st">'P4'</span> <span class="kw">NOT</span> <span class="kw">IN</span> (<span class="st">'P1'</span>, <span class="kw">NULL</span>) <span class="kw">AS</span> not_in_with_null;</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- A nullable imported list is deliberately separate from the constrained course tables.</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> imported_ids(participant_id) <span class="kw">AS</span> (<span class="kw">VALUES</span> (<span class="st">'P1'</span>:<span class="ch">:text</span>), (<span class="kw">NULL</span>:<span class="ch">:text</span>))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id <span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> p.participant_id <span class="kw">NOT</span> <span class="kw">IN</span> (<span class="kw">SELECT</span> participant_id <span class="kw">FROM</span> imported_ids)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id;</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- NOT EXISTS ignores the unmatched NULL: P2, P3, P4.</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> imported_ids(participant_id) <span class="kw">AS</span> (<span class="kw">VALUES</span> (<span class="st">'P1'</span>:<span class="ch">:text</span>), (<span class="kw">NULL</span>:<span class="ch">:text</span>))</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.participant_id <span class="kw">FROM</span> prba7_demo.participants <span class="kw">AS</span> p</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="kw">NOT</span> <span class="kw">EXISTS</span> (</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> <span class="dv">1</span> <span class="kw">FROM</span> imported_ids <span class="kw">AS</span> i <span class="kw">WHERE</span> i.participant_id <span class="op">=</span> p.participant_id</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> p.participant_id;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Lista <code>('P1', NULL)</code> nie pozwala stwierdzić, że P4 na pewno do niej nie należy: nie wiemy, czym jest brakująca wartość. Dlatego <code>NOT IN</code> daje tu <code>NULL</code>, a drugi przykład nie zwraca żadnego wiersza. <code>NOT EXISTS</code> z jawnym warunkiem równości zwraca <strong>P2, P3, P4</strong>. W naszych tabelach klucze obce są <code>NOT NULL</code>, ale importy i inne źródła danych nie muszą mieć tej gwarancji.</p>
+<section id="any-i-all-rozszerzenie" class="level3">
+<h3 class="anchored" data-anchor-id="any-i-all-rozszerzenie">ANY i ALL — rozszerzenie</h3>
+<p><code>x = ANY (podzapytanie)</code> odpowiada porównaniu z dowolną wartością (dla jednej kolumny jest odpowiednikiem <code>IN</code>). <code>x &gt; ALL (podzapytanie)</code> wymaga, by <code>x</code> było większe od każdej zwróconej wartości. Dla pustego podzapytania <code>ANY</code> daje <code>FALSE</code>, a <code>ALL</code> daje <code>TRUE</code>. Obecność <code>NULL</code> może prowadzić do wyniku nieznanego, jeżeli pozostałe porównania nie rozstrzygają całości. Nie traktuj <code>ALL</code> jako zamiennika porównania z <code>MAX</code> bez sprawdzenia pustego zbioru i brakujących wartości.</p>
+</section>
+</section>
+<section id="widok-nazwany-raport" class="level2">
+<h2 class="anchored" data-anchor-id="widok-nazwany-raport">9. Widok: nazwany raport</h2>
+<p>Zamiast wklejać agregację do każdego raportu, zapiszmy ją jako <code>VIEW</code>. Zwykły widok przechowuje <strong>definicję zapytania</strong>, a nie osobną kopię wyników. W pliku <code>07_views.sql</code> wykonaj tworzenie widoków jeden raz.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">VIEW</span> prba7_demo.edition_summary <span class="kw">AS</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> e.edition_id, e.course_id, e.seat_limit,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">COUNT</span>(z.participant_id) <span class="kw">AS</span> confirmed_count,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>       e.seat_limit <span class="op">-</span> <span class="fu">COUNT</span>(z.participant_id) <span class="kw">AS</span> free_places</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> prba7_demo.editions <span class="kw">AS</span> e</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> prba7_demo.enrollments <span class="kw">AS</span> z</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ON</span> z.edition_id <span class="op">=</span> e.edition_id <span class="kw">AND</span> z.status <span class="op">=</span> <span class="st">'confirmed'</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> e.edition_id, e.course_id, e.seat_limit;</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> prba7_demo.edition_summary <span class="kw">ORDER</span> <span class="kw">BY</span> edition_id;</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> edition_id, free_places <span class="kw">FROM</span> prba7_demo.edition_summary</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> free_places <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">ORDER</span> <span class="kw">BY</span> edition_id;</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">-- A regular view reflects source changes. ROLLBACK restores the dataset.</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span>;</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> prba7_demo.enrollments <span class="kw">SET</span> status <span class="op">=</span> <span class="st">'cancelled'</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> participant_id <span class="op">=</span> <span class="st">'P2'</span> <span class="kw">AND</span> edition_id <span class="op">=</span> <span class="st">'E1'</span>;</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> prba7_demo.edition_summary <span class="kw">WHERE</span> edition_id <span class="op">=</span> <span class="st">'E1'</span>;</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="kw">ROLLBACK</span>;</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> prba7_demo.edition_summary <span class="kw">WHERE</span> edition_id <span class="op">=</span> <span class="st">'E1'</span>;</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">VIEW</span> prba7_demo.small_editions <span class="kw">AS</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> edition_id, course_id, seat_limit <span class="kw">FROM</span> prba7_demo.editions</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> seat_limit <span class="op">&lt;=</span> <span class="dv">3</span> <span class="kw">WITH</span> <span class="kw">CHECK</span> <span class="kw">OPTION</span>;</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">-- Successful update through an automatically updatable view; then restore it.</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span>;</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> prba7_demo.small_editions <span class="kw">SET</span> seat_limit <span class="op">=</span> <span class="dv">3</span> <span class="kw">WHERE</span> edition_id <span class="op">=</span> <span class="st">'E1'</span>;</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> prba7_demo.small_editions <span class="kw">ORDER</span> <span class="kw">BY</span> edition_id;</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="kw">ROLLBACK</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Początkowo <code>edition_summary</code> daje:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>edition_id</th>
+<th>course_id</th>
+<th style="text-align: right;">seat_limit</th>
+<th style="text-align: right;">confirmed_count</th>
+<th style="text-align: right;">free_places</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>E1</td>
+<td>SQL</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td>E2</td>
+<td>SQL</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td>E3</td>
+<td>PY</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td>E4</td>
+<td>PY</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>Po anulowaniu zapisu Bartka E1 ma <strong>1 potwierdzony zapis i 1 wolne miejsce</strong>. Po <code>ROLLBACK</code> znowu ma <strong>2 zapisy i 0 wolnych miejsc</strong>. Widok nie wymaga odświeżania; odczyt podlega widoczności danych bieżącej transakcji. <strong>Widok zmaterializowany</strong> jest inną konstrukcją: przechowuje wynik i wymaga odświeżania, gdy chcemy uaktualnić ten wynik.</p>
+<section id="czy-można-zmieniać-dane-przez-widok" class="level3">
+<h3 class="anchored" data-anchor-id="czy-można-zmieniać-dane-przez-widok">Czy można zmieniać dane przez widok?</h3>
+<p>Prosty widok <code>small_editions</code> jest automatycznie aktualizowalny w PostgreSQL. Zmiana trafia do tabeli <code>editions</code>. <code>WITH CHECK OPTION</code> wymaga, aby nowy lub zmieniony wiersz nadal spełniał filtr widoku. Ustawienie E1 limitu 10 przez ten widok zostanie odrzucone — drugie polecenie pliku <code>09_expected_errors.sql</code>.</p>
+<p>Raport <code>edition_summary</code>, zawierający agregację i złączenie, nie jest <strong>automatycznie</strong> aktualizowalny. PostgreSQL pozwala programować obsługę zmian bardziej złożonych widoków, np. wyzwalaczem <code>INSTEAD OF</code>; to osobny temat.</p>
+</section>
+<section id="utrzymanie-definicji-i-uprawnienia" class="level3">
+<h3 class="anchored" data-anchor-id="utrzymanie-definicji-i-uprawnienia">Utrzymanie definicji i uprawnienia</h3>
+<p><code>CREATE OR REPLACE VIEW</code> pozwala zmienić zapytanie, ale istniejące kolumny muszą zachować nazwy, kolejność i typy; można dodać nowe kolumny na końcu. To ograniczenie chroni zapytania zależne od dotychczasowego interfejsu widoku.</p>
+<p>Widok może udostępniać wybrane kolumny użytkownikowi mającemu odpowiednie uprawnienia. Samo utworzenie widoku <strong>nie odbiera</strong> dostępu do tabel źródłowych. Bezpieczeństwo zależy także od <code>GRANT</code>/<code>REVOKE</code>, właściciela widoku i sposobu sprawdzania uprawnień. Widok raportowy nie jest automatycznie szybszy: optymalizator nadal planuje zapytanie do danych źródłowych.</p>
+</section>
+</section>
+<section id="in-exists-czy-join-jak-wybrać" class="level2">
+<h2 class="anchored" data-anchor-id="in-exists-czy-join-jak-wybrać">10. IN, EXISTS czy JOIN — jak wybrać?</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Potrzeba</th>
+<th>Konstrukcja</th>
+<th>Na co uważać</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Jedna obliczona wartość</td>
+<td>Podzapytanie skalarne</td>
+<td>Najwyżej jeden wiersz; zero daje <code>NULL</code></td>
+</tr>
+<tr class="even">
+<td>Przynależność do zbioru</td>
+<td><code>IN</code></td>
+<td>Liczba kolumn i logika <code>NULL</code></td>
+</tr>
+<tr class="odd">
+<td>Istnienie powiązania</td>
+<td><code>EXISTS</code></td>
+<td>Poprawna korelacja z wierszem zewnętrznym</td>
+</tr>
+<tr class="even">
+<td>Brak powiązania</td>
+<td><code>NOT EXISTS</code></td>
+<td>Jakie dokładnie powiązania wykluczamy?</td>
+</tr>
+<tr class="odd">
+<td>Kolumny z obu tabel</td>
+<td><code>JOIN</code></td>
+<td>Jeden wiersz na każdą pasującą kombinację</td>
+</tr>
+<tr class="even">
+<td>Wszystkie lewe wiersze</td>
+<td><code>LEFT JOIN</code></td>
+<td>Filtry prawej tabeli i liczenie <code>NULL</code></td>
+</tr>
+<tr class="odd">
+<td>Dalsza praca na agregacie</td>
+<td>Podzapytanie w <code>FROM</code></td>
+<td>Znaczenie jednego wiersza wyniku</td>
+</tr>
+<tr class="even">
+<td>Wielokrotnie używany raport</td>
+<td><code>VIEW</code></td>
+<td>Uprawnienia, stabilny interfejs, plan zapytania</td>
+</tr>
+</tbody>
+</table>
+<p>Wykonaj <code>08_plans.sql</code>. Sprawdź, czy plan zawiera złączenie, agregację lub semizłączenie. Nie zakładaj konkretnego węzła: plan może się zmienić. Na czterech uczestnikach różnica czasu nie jest wiarygodnym pomiarem wydajności. Najpierw dowodzimy równoważności <strong>wyników i krotności</strong>, dopiero potem porównujemy plany na reprezentatywnej ilości danych.</p>
+</section>
+<section id="zakończenie-kursu-zadania-do-wspólnego-omówienia" class="level2">
+<h2 class="anchored" data-anchor-id="zakończenie-kursu-zadania-do-wspólnego-omówienia">11. Zakończenie kursu — zadania do wspólnego omówienia</h2>
+<ol type="1">
+<li>Zmień warunek przykładu na Python. Kto zostanie wybrany przez <code>IN</code>?</li>
+<li>Znajdź uczestników bez potwierdzonego zapisu SQL. Czy Celina należy do wyniku?</li>
+<li>Dlaczego <code>DISTINCT participant_id, name, edition_id</code> nadal zwróci Annę dwa razy?</li>
+<li>Zwróć edycje bez potwierdzonych zapisów przez <code>NOT EXISTS</code>, a potem <code>LEFT JOIN</code>.</li>
+<li>Dlaczego filtr widoku nie zastępuje <code>CHECK (seat_limit &gt; 0)</code> w tabeli?</li>
+<li>Czy odczyt <code>free_places &gt; 0</code> i późniejszy <code>INSERT</code> gwarantują brak nadmiarowych zapisów przy dwóch użytkownikach? Nie: to wymaga kontroli transakcyjnej; sam widok raportowy nie rezerwuje miejsca.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Odpowiedzi do samodzielnej kontroli
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Celina (P3), mimo że Python ma dwie edycje — E4 jest pusta.</li>
+<li>Celina i Dawid (P3, P4); anulowany SQL Celiny nie jest potwierdzonym zapisem.</li>
+<li>E1 i E2 różnią się, więc całe wiersze są różne.</li>
+<li>E4. W wersji z <code>LEFT JOIN</code> status filtrujemy w <code>ON</code>, a w <code>WHERE</code> sprawdzamy <code>z.participant_id IS NULL</code>.</li>
+<li><code>CHECK OPTION</code> dotyczy zmian przez dany widok, a ograniczenie tabeli chroni także inne drogi zapisu.</li>
+</ol>
+</div>
+</div>
+</div>
+<p>Przeszliśmy od wymagań i modelu encji, przez klucze i normalizację, do SQL, indeksów, podzapytań i widoków. W projekcie każdą decyzję uzasadnij pytaniem: <strong>jaką regułę danych lub potrzebę użytkownika realizuje ten element?</strong></p>
+</section>
+<section id="dokumentacja-postgresql-16" class="level2">
+<h2 class="anchored" data-anchor-id="dokumentacja-postgresql-16">Dokumentacja PostgreSQL 16</h2>
+<ul>
+<li><a href="https://www.postgresql.org/docs/16/functions-subquery.html">Podzapytania: EXISTS, IN, NOT IN, ANY i ALL</a>.</li>
+<li><a href="https://www.postgresql.org/docs/16/sql-createview.html">CREATE VIEW: aktualizowalność, CHECK OPTION i uprawnienia</a>.</li>
+<li><a href="https://www.postgresql.org/docs/16/queries-table-expressions.html">Złączenia i wyrażenia tabelowe</a>.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/sebkaz-teaching\.github\.io\/prba2026");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright 2026, Sebastian Zając</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
