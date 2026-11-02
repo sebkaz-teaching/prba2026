@@ -226,8 +226,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#podzapytanie-w-from-wynik-jako-relacja" id="toc-podzapytanie-w-from-wynik-jako-relacja" class="nav-link" data-scroll-target="#podzapytanie-w-from-wynik-jako-relacja">7. Podzapytanie w FROM: wynik jako relacja</a></li>
   <li><a href="#pułapka-not-in-i-null" id="toc-pułapka-not-in-i-null" class="nav-link" data-scroll-target="#pułapka-not-in-i-null">8. Pułapka NOT IN i NULL</a></li>
   <li><a href="#widok-nazwany-raport" id="toc-widok-nazwany-raport" class="nav-link" data-scroll-target="#widok-nazwany-raport">9. Widok: nazwany raport</a></li>
-  <li><a href="#in-exists-czy-join-jak-wybrać" id="toc-in-exists-czy-join-jak-wybrać" class="nav-link" data-scroll-target="#in-exists-czy-join-jak-wybrać">10. IN, EXISTS czy JOIN — jak wybrać?</a></li>
-  <li><a href="#zakończenie-kursu-zadania-do-wspólnego-omówienia" id="toc-zakończenie-kursu-zadania-do-wspólnego-omówienia" class="nav-link" data-scroll-target="#zakończenie-kursu-zadania-do-wspólnego-omówienia">11. Zakończenie kursu — zadania do wspólnego omówienia</a></li>
+  <li><a href="#pierwszy-program-w-bazie-plpgsql" id="toc-pierwszy-program-w-bazie-plpgsql" class="nav-link" data-scroll-target="#pierwszy-program-w-bazie-plpgsql">10. Pierwszy program w bazie — PL/pgSQL</a></li>
+  <li><a href="#in-exists-czy-join-jak-wybrać" id="toc-in-exists-czy-join-jak-wybrać" class="nav-link" data-scroll-target="#in-exists-czy-join-jak-wybrać">11. IN, EXISTS czy JOIN — jak wybrać?</a></li>
+  <li><a href="#zakończenie-kursu-zadania-do-wspólnego-omówienia" id="toc-zakończenie-kursu-zadania-do-wspólnego-omówienia" class="nav-link" data-scroll-target="#zakończenie-kursu-zadania-do-wspólnego-omówienia">12. Zakończenie kursu — zadania do wspólnego omówienia</a></li>
   <li><a href="#dokumentacja-postgresql-16" id="toc-dokumentacja-postgresql-16" class="nav-link" data-scroll-target="#dokumentacja-postgresql-16">Dokumentacja PostgreSQL 16</a></li>
   </ul>
 </nav>
@@ -665,8 +666,40 @@ Twoja przeglądarka nie odtwarza filmu. <a href="media/subqueries_joins.mp4">Pob
 <p>Widok może udostępniać wybrane kolumny użytkownikowi mającemu odpowiednie uprawnienia. Samo utworzenie widoku <strong>nie odbiera</strong> dostępu do tabel źródłowych. Bezpieczeństwo zależy także od <code>GRANT</code>/<code>REVOKE</code>, właściciela widoku i sposobu sprawdzania uprawnień. Widok raportowy nie jest automatycznie szybszy: optymalizator nadal planuje zapytanie do danych źródłowych.</p>
 </section>
 </section>
+<section id="pierwszy-program-w-bazie-plpgsql" class="level2">
+<h2 class="anchored" data-anchor-id="pierwszy-program-w-bazie-plpgsql">10. Pierwszy program w bazie — PL/pgSQL</h2>
+<p>Dotychczas polecenia SQL opisywały, <strong>jakie dane chcemy otrzymać</strong>. Język proceduralny pozwala zapisać także zmienne, obliczenia i wybór kolejnej instrukcji. W PostgreSQL używamy <strong>PL/pgSQL</strong>; podobny język Oracle nazywa się <strong>PL/SQL</strong>. Poniższy program wykonujemy w naszym dotychczasowym PostgreSQL.</p>
+<section id="uruchomienie-w-pgadmin" class="level3">
+<h3 class="anchored" data-anchor-id="uruchomienie-w-pgadmin">Uruchomienie w pgAdmin</h3>
+<p>Otwórz <code>10_program.sql</code> z paczki wykładu w <strong>Query Tool</strong> bazy <code>prba7_pokaz</code>. Najpierw musi być wykonany <code>07_views.sql</code>, który tworzy widok <code>prba7_demo.edition_summary</code>. Zaznacz <strong>cały blok od <code>DO</code> do końcowego <code>$$ LANGUAGE plpgsql;</code></strong> i kliknij <strong>Execute / F5</strong>. Wynik komunikatu zobaczysz w zakładce <strong>Messages</strong>, a nie w tabeli <strong>Data Output</strong>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Run after 07_views.sql. Execute the entire DO block in pgAdmin Query Tool.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- This program reads the report and prints a message; it does not reserve a place.</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>DO $$</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">DECLARE</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    selected_edition text <span class="op">:=</span> <span class="st">'E2'</span>;</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    available_places bigint;</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">SELECT</span> free_places <span class="kw">INTO</span> STRICT available_places</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FROM</span> prba7_demo.edition_summary</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">WHERE</span> edition_id <span class="op">=</span> selected_edition;</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">IF</span> available_places <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">THEN</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        RAISE NOTICE <span class="st">'Edycja %: wolne miejsca = %'</span>, selected_edition, available_places;</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">ELSE</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        RAISE NOTICE <span class="st">'Edycja %: brak wolnych miejsc'</span>, selected_edition;</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">END</span> <span class="cf">IF</span>;</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span>;</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>$$ LANGUAGE plpgsql;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Dla początkowych danych program wypisze:</p>
+<pre class="text"><code>NOTICE: Edycja E2: wolne miejsca = 2</code></pre>
+<p><code>DECLARE</code> deklaruje zmienne, a <code>:=</code> nadaje wartość początkową. <code>SELECT ... INTO STRICT</code> zapisuje wynik do zmiennej i wymaga dokładnie jednego wiersza. <code>IF ... THEN ... ELSE ... END IF</code> wybiera jedną z dwóch instrukcji, a <code>RAISE NOTICE</code> wypisuje komunikat. <code>BEGIN ... END</code> wyznacza tutaj blok programu — nie jest poleceniem rozpoczęcia osobnej transakcji.</p>
+<p>Zmień tylko <code>'E2'</code> na <code>'E1'</code> i uruchom <strong>cały blok ponownie</strong>. E1 nie ma wolnych miejsc, więc zobaczysz drugą gałąź:</p>
+<pre class="text"><code>NOTICE: Edycja E1: brak wolnych miejsc</code></pre>
+<p>Blok <code>DO</code> wykonuje program jednorazowo, bez zapisywania w bazie nazwanej funkcji. Nie zmienia danych ani nie rezerwuje miejsca. Jeśli podasz nieistniejący identyfikator edycji, <code>INTO STRICT</code> zgłosi błąd braku wiersza, zamiast po cichu przekazać <code>NULL</code> do warunku. Ten krótki przykład pokazuje przejście od wyniku SQL do prostej decyzji w programie.</p>
+</section>
+</section>
 <section id="in-exists-czy-join-jak-wybrać" class="level2">
-<h2 class="anchored" data-anchor-id="in-exists-czy-join-jak-wybrać">10. IN, EXISTS czy JOIN — jak wybrać?</h2>
+<h2 class="anchored" data-anchor-id="in-exists-czy-join-jak-wybrać">11. IN, EXISTS czy JOIN — jak wybrać?</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -726,7 +759,7 @@ Twoja przeglądarka nie odtwarza filmu. <a href="media/subqueries_joins.mp4">Pob
 <p>Wykonaj <code>08_plans.sql</code>. Sprawdź, czy plan zawiera złączenie, agregację lub semizłączenie. Nie zakładaj konkretnego węzła: plan może się zmienić. Na czterech uczestnikach różnica czasu nie jest wiarygodnym pomiarem wydajności. Najpierw dowodzimy równoważności <strong>wyników i krotności</strong>, dopiero potem porównujemy plany na reprezentatywnej ilości danych.</p>
 </section>
 <section id="zakończenie-kursu-zadania-do-wspólnego-omówienia" class="level2">
-<h2 class="anchored" data-anchor-id="zakończenie-kursu-zadania-do-wspólnego-omówienia">11. Zakończenie kursu — zadania do wspólnego omówienia</h2>
+<h2 class="anchored" data-anchor-id="zakończenie-kursu-zadania-do-wspólnego-omówienia">12. Zakończenie kursu — zadania do wspólnego omówienia</h2>
 <ol type="1">
 <li>Zmień warunek przykładu na Python. Kto zostanie wybrany przez <code>IN</code>?</li>
 <li>Znajdź uczestników bez potwierdzonego zapisu SQL. Czy Celina należy do wyniku?</li>

@@ -14,3 +14,9 @@ Widok: E1 (2/2, wolne 0), E2 (1/3, wolne 2), E3 (1/5, wolne 4), E4 (0/2, wolne 2
 Film przedstawia logiczny sposób czytania SQL, nie fizyczny plan silnika.
 Powtórny pokaz: pliki 01–06 i 08 są tylko do odczytu; plik 07 wymaga
 istniejących widoków usuniętych świadomie albo wykonania samych SELECT-ów.
+
+10_program.sql: pierwszy program w PL/pgSQL, uruchamiany po utworzeniu widoków
+przez 07_views.sql. Zaznacz cały blok DO i wykonaj go w Query Tool (F5).
+Komunikat odczytaj w Messages, nie w Data Output. E2 ma 2 wolne miejsca;
+po zmianie selected_edition na E1 program wypisze brak wolnych miejsc.
+Program tylko czyta dane; można uruchamiać go wielokrotnie.
